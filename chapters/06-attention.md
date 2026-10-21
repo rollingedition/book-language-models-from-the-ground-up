@@ -32,7 +32,7 @@ Each row of the printed weights is one position's average: which positions it dr
 
 Three properties of this arithmetic matter for everything that follows. The weights depend on content, through queries and keys, so the same token can attend to different places in different texts. The number of positions doesn't matter: the same three matrices work for a name of 4 tokens or a description of 150, so the model learns one way of looking back, not one per slot. And a weighted average ignores the order of what it averages. Without a mask, attention gives `bar` the same output in `bar stool` as in `stool bar`. The causal mask of the next section lets a little order back in, because each token then sees a different number of earlier tokens, and Haviv and colleagues found that language models can infer positions from that alone ([Haviv et al., 2022](https://arxiv.org/abs/2203.16634)). Models still add explicit position information, as [chapter 7](#the-transformer-block) does.
 
-**What to do:** write out attention's four lines once, as this example does, and print the weight matrix: its rows say exactly where each position looks. Keep queries, keys and values as separate matrices while you're learning. Libraries often keep them in one matrix, as PyTorch's `MultiheadAttention` does with its `in_proj_weight` ([source](https://github.com/pytorch/pytorch/blob/v2.14.1/torch/nn/modules/activation.py)), and split the result, which computes the same thing.
+**Working rule:** Write out attention's four lines once, as this example does, and print the weight matrix: its rows say exactly where each position looks. Keep queries, keys and values as separate matrices while you're learning. Libraries often keep them in one matrix, as PyTorch's `MultiheadAttention` does with its `in_proj_weight` ([source](https://github.com/pytorch/pytorch/blob/v2.14.1/torch/nn/modules/activation.py)), and split the result, which computes the same thing.
 
 ## Hide the future with a causal mask {#hide-the-future}
 
@@ -48,7 +48,7 @@ The weight matrix is now lower-triangular, with zeros above the diagonal, so the
 
 The last two lines show the leak the mask closes. Without the mask, changing the last token changes the output at `coffee`: {{out:causal-mask:output at coffee changes with the last token, without the mask}}. With it, `coffee`'s output can't depend on what comes later: {{out:causal-mask:output at coffee changes with the last token, with the mask}}. A model trained without the mask can learn to copy each answer from the next position, so its training loss can fall close to zero while it learns nothing it can use to generate text. Nothing crashes along the way, which is what makes a wrong mask hard to notice.
 
-**What to do:** apply the mask to scores before softmax, never to weights after it, so each row still sums to one. Test it the way this example does: check that the weight on later positions is exactly zero, and that changing a later token leaves earlier outputs unchanged. If a model's training loss falls far faster than expected, check the mask first.
+**Working rule:** Apply the mask to scores before softmax, never to weights after it, so each row still sums to one. Test it the way this example does: check that the weight on later positions is exactly zero, and that changing a later token leaves earlier outputs unchanged. If a model's training loss falls far faster than expected, check the mask first.
 
 ## Scale the scores {#scale-the-scores}
 
@@ -62,7 +62,7 @@ Without the division, the largest weight grows with the size: {{out:scaling-matt
 
 That's the state training should start from. Every position looks at several others, so the gradients reach all of them, and training sharpens the weights where sharp weights help. A trained head can still put most of its weight on one position, as some of the [store's model's heads](#read-trained-heads) do; the scaling only keeps heads from starting there.
 
-**What to do:** divide attention scores by the square root of the query's size, as the transformer paper does. A few models, such as T5, leave the division out and fold the factor into how the query weights start instead ([source](https://github.com/huggingface/transformers/blob/v4.46.0/src/transformers/models/t5/modeling_t5.py)), so check which a model does before you load its weights. If you change how queries and keys are computed or initialized, print the average largest weight of an untrained model, as here, and expect it to be well below 1.
+**Working rule:** Divide attention scores by the square root of the query's size, as the transformer paper does. A few models, such as T5, leave the division out and fold the factor into how the query weights start instead ([source](https://github.com/huggingface/transformers/blob/v4.46.0/src/transformers/models/t5/modeling_t5.py)), so check which a model does before you load its weights. If you change how queries and keys are computed or initialized, print the average largest weight of an untrained model, as here, and expect it to be well below 1.
 
 ## Several heads look for different things {#several-heads}
 
@@ -76,7 +76,7 @@ For the store, run two heads over four positions of random vectors, with the cau
 
 The weights now have one matrix per head, of shape {{out:attention-heads:weights shape (heads, positions, positions)}}. The last position's rows differ between the heads, though both read the same input: head 1 puts its largest weight on the first position, and head 2 on the last, its own. With random matrices the difference means nothing yet, but it's the room training uses: each head can learn a different way of looking back, and the output projection combines what they found. The output has the input's shape again, {{out:attention-heads:output shape}}, so attention layers can be stacked, as [chapter 7](#the-transformer-block) does.
 
-**What to do:** as a rule of thumb, keep each head at least 32 numbers wide. In the transformer paper's experiments, 16 heads of 32 did as well as 8 heads of 64, while 32 heads of 16 did worse, and reducing the size of keys hurt ([Vaswani et al., 2017](https://arxiv.org/abs/1706.03762), table 3). Check the weight tensor's shape, heads by positions by positions, whenever you change the model: a head axis in the wrong place mixes heads together without any error.
+**Working rule:** As a rule of thumb, keep each head at least 32 numbers wide. In the transformer paper's experiments, 16 heads of 32 did as well as 8 heads of 64, while 32 heads of 16 did worse, and reducing the size of keys hurt ([Vaswani et al., 2017](https://arxiv.org/abs/1706.03762), table 3). Check the weight tensor's shape, heads by positions by positions, whenever you change the model: a head axis in the wrong place mixes heads together without any error.
 
 ## Read what trained heads attend to {#read-trained-heads}
 
@@ -90,7 +90,7 @@ The model gives `cover` a probability of {{out:trained-attention:P(next token is
 
 That pattern has a name. Olsson and colleagues found pairs of heads that work this way in small models made only of attention layers, and heads with the same behaviour in large models. They call the later head of each pair an **induction head**: a head in an earlier layer copies each token's predecessor into its position, and the induction head uses that to find earlier positions that followed the current token, and attends to them ([Olsson et al., 2022](https://arxiv.org/abs/2209.11895)). The weights above are consistent with that behaviour, but weights show where a head drew its average from, not what the model used, so the [next section](#test-what-the-model-copies) tests it.
 
-**What to do:** when you inspect a trained model, start with specific tokens in texts you understand, where you know what the model should look at, as here. Treat what the weights suggest as a hypothesis, and test it by changing the input, as the next section does.
+**Working rule:** When you inspect a trained model, start with specific tokens in texts you understand, where you know what the model should look at, as here. Treat what the weights suggest as a hypothesis, and test it by changing the input, as the next section does.
 
 ## Test what the model copies {#test-what-the-model-copies}
 
@@ -104,7 +104,7 @@ With the name as sold, the model gives `cover` {{out:copy-from-the-name:name as 
 
 That's the behaviour the previous section's weights suggested, now shown by its effect: the model copies a word from the product's name, many tokens back, which a model limited to a window of four tokens can't do. One product isn't a measure of how often the model does it; the [next two sections](#attend-to-the-previous-token) measure its heads over many products.
 
-**What to do:** test a claim about what a model uses by changing that input and measuring the output, as here, and include a change that should leave the output alone. Read attention weights for hypotheses, and use tests like this one for conclusions.
+**Working rule:** Test a claim about what a model uses by changing that input and measuring the output, as here, and include a change that should leave the output alone. Read attention weights for hypotheses, and use tests like this one for conclusions.
 
 ## Some heads attend to the previous token {#attend-to-the-previous-token}
 
@@ -118,7 +118,7 @@ The head that puts the most weight on the previous token is {{out:previous-token
 
 No head is purely a previous-token head; each mixes it with other habits. A head's average says what it does most, not all it does, so describing a head as having one job oversimplifies.
 
-**What to do:** describe a trained head by measured averages, such as its weight on the previous token, the current token or the start marker, over a few hundred texts. Compare each with what an even spread would give, averaged the same way, so a number such as 0.3 can be read as large or small.
+**Working rule:** Describe a trained head by measured averages, such as its weight on the previous token, the current token or the start marker, over a few hundred texts. Compare each with what an even spread would give, averaged the same way, so a number such as 0.3 can be read as large or small.
 
 ## Reach past the window {#reach-past-the-window}
 
@@ -130,7 +130,7 @@ Across all layers, description tokens put {{out:attention-reaches-back:all layer
 
 The markers get {{out:attention-reaches-back:all layers, weight on <s> and <sep>}} of the attention, against {{out:attention-reaches-back:an even spread's weight on <s> and <sep>}} for an even spread: about twice as much as chance, though they predict no word themselves. One likely reason is a pattern found in larger models. Softmax makes every row of weights sum to one, so a head that finds nothing useful at a position still has to put its weight somewhere, and Xiao and colleagues found that language models put large weights on the first tokens of a text whatever they are, calling them **attention sinks** ([Xiao et al., 2024](https://arxiv.org/abs/2309.17453)). In the store's model, `<s>` always comes first and `<sep>` is in every text, so both could serve; `<sep>` also marks where the description starts, which is useful in itself. This example can't tell the two apart.
 
-**What to do:** measure how far back a trained model attends, as here, before deciding how long its context needs to be, and compare with an even spread so the number means something. Report the weight on markers separately, so marker weight doesn't look like long-range attention, and keep the first tokens when you cut a model's context to save space.
+**Working rule:** Measure how far back a trained model attends, as here, before deciding how long its context needs to be, and compare with an even spread so the number means something. Report the weight on markers separately, so marker weight doesn't look like long-range attention, and keep the first tokens when you cut a model's context to save space.
 
 ## What goes wrong in production {#attention-in-production}
 

@@ -22,7 +22,7 @@ The training names hold {{out:unseen-words:different words in training names}} d
 
 A larger training set would shrink the gap but never close it, because the catalog keeps adding product lines, and a word seen once gives a model almost nothing to learn from anyway.
 
-**What to do:** measure the out-of-vocabulary rate of your text on held-out data before choosing word tokens. As a rule of thumb, if more than a percent or two of held-out words are unseen, as in the store's names, don't use words as tokens. Word tokens remain reasonable for text with a closed vocabulary, such as a fixed set of commands.
+**Working rule:** Measure the out-of-vocabulary rate of your text on held-out data before choosing word tokens. As a rule of thumb, if more than a percent or two of held-out words are unseen, as in the store's names, don't use words as tokens. Word tokens remain reasonable for text with a closed vocabulary, such as a fixed set of commands.
 
 ## Characters cover everything {#characters-cover-everything}
 
@@ -38,7 +38,7 @@ Characters also leave a last, small gap. The {{out:character-tokens:validation c
 
 Longer sequences cost in two ways. Every step a model takes is computation, so {{out:character-tokens:characters per word}} times the steps is at least {{out:character-tokens:characters per word}} times the work, and more for the models of later chapters, whose cost grows faster than the length. And every model in this book looks back over a limited window of tokens; in characters, that window covers that many times fewer words.
 
-**What to do:** use characters as tokens only for small experiments, or as a fallback inside a larger scheme, as the next sections do. Check how many characters per word your text has, since that factor multiplies every sequence length and every training step.
+**Working rule:** Use characters as tokens only for small experiments, or as a fallback inside a larger scheme, as the next sections do. Check how many characters per word your text has, since that factor multiplies every sequence length and every training step.
 
 ## Merge the most frequent pair, again and again {#merge-frequent-pairs}
 
@@ -59,7 +59,7 @@ The first merges join common letters to the end marker, such as `e` with `</w>`,
 
 That's the idea that solves [chapter 1](#predicting-the-next-word)'s first problem. Frequent words get their own tokens, so sequences stay short. Rare and new words are spelled from pieces the model has seen, so any word spelled with characters the training text contains is in reach. BPE doesn't solve the second problem: as the [next section](#train-the-store-tokenizer) shows, a frequent word and its plural can each become a whole token with nothing in common.
 
-**What to do:** learn merges from the training split only, as you would any other model, and keep the order of the merges, since encoding depends on it. Break ties between equally frequent pairs by a fixed rule, as the example does, so the same text always gives the same tokenizer.
+**Working rule:** Learn merges from the training split only, as you would any other model, and keep the order of the merges, since encoding depends on it. Break ties between equally frequent pairs by a fixed rule, as the example does, so the same text always gives the same tokenizer.
 
 ## Train the store's tokenizer {#train-the-store-tokenizer}
 
@@ -73,7 +73,7 @@ The training text holds {{out:store-tokenizer:different words in training text}}
 
 A model reading these tokens can spell any word made of characters the training text contains. It still has to learn what a new product line is, but it can at least predict one, and give it a probability.
 
-**What to do:** train the tokenizer on the same text your model will learn from, here names and descriptions together, so frequent words in that text become single tokens. Build it once and use it for every model you compare; the book's models all read the store's text through `lib.bpe.store_tokenizer()`.
+**Working rule:** Train the tokenizer on the same text your model will learn from, here names and descriptions together, so frequent words in that text become single tokens. Build it once and use it for every model you compare; the book's models all read the store's text through `lib.bpe.store_tokenizer()`.
 
 ## Choose how many merges {#choose-how-many-merges}
 
@@ -89,7 +89,7 @@ The vocabulary size also sets part of the model's size. A neural language model,
 
 So the store's tokenizer uses 4,000 merges: past that, each merge buys little length and adds a token that the book's small models can't learn well. Large open models use vocabularies of tens of thousands of tokens or more, SmolLM2's has {{out:smollm2-tokens:SmolLM2 vocabulary}}, because they learn from far more text, so even their rarer tokens occur often enough.
 
-**What to do:** choose the number of merges by measuring, on your training text, the share of rare token types, and on held-out text, the tokens per word; stop where tokens per word stops falling much and rare types start climbing. Scale the vocabulary with the training text; as a rule of thumb, a small model on a few million words wants thousands of merges, not tens of thousands.
+**Working rule:** Choose the number of merges by measuring, on your training text, the share of rare token types, and on held-out text, the tokens per word; stop where tokens per word stops falling much and rare types start climbing. Scale the vocabulary with the training text; as a rule of thumb, a small model on a few million words wants thousands of merges, not tens of thousands.
 
 ## Read an open model's tokenizer {#read-an-open-tokenizer}
 
@@ -107,7 +107,7 @@ SmolLM2's vocabulary has {{out:smollm2-tokens:SmolLM2 vocabulary}} tokens, again
 
 On the store's validation names, SmolLM2 uses {{out:smollm2-tokens:tokens per validation name, SmolLM2}} tokens per name and the store's tokenizer {{out:smollm2-tokens:tokens per validation name, store}}, against {{out:smollm2-tokens:tokens per validation name, words}} words. A tokenizer trained on your own text is slightly more efficient on it, partly because it doesn't split numbers into digits, and partly because SmolLM2 spends a separate `Ġ` token before every number and splits each name's first word, which has no space before it.
 
-**What to do:** when you use an open model, use its tokenizer exactly as shipped; a model only understands the tokens it was trained on. Count tokens with that tokenizer, not words, whenever you budget for context length or cost. When you train your own model on narrow text, train your own tokenizer on that text.
+**Working rule:** When you use an open model, use its tokenizer exactly as shipped; a model only understands the tokens it was trained on. Count tokens with that tokenizer, not words, whenever you budget for context length or cost. When you train your own model on narrow text, train your own tokenizer on that text.
 
 ## Apply SmolLM2's merges by hand {#apply-merges-by-hand}
 
@@ -121,7 +121,7 @@ The tokens built by hand match the library's for every name: the line ends with 
 
 The match is worth checking because subtle differences in how text is split matter downstream. A model trained on one tokenizer and fed another's tokens reads nonsense without raising an error, since every token number is valid. The same thing happens, and is harder to spot, when one version of a tokenizer differs from another in how it handles spaces or digits.
 
-**What to do:** treat a tokenizer as part of a model: version it with the model, load it from the model's own files, and test it on your text, as this section does, whenever you upgrade either one. When two tokenizers disagree on even one token for the same text, find out why before you trust anything a model built on them says.
+**Working rule:** Treat a tokenizer as part of a model: version it with the model, load it from the model's own files, and test it on your text, as this section does, whenever you upgrade either one. When two tokenizers disagree on even one token for the same text, find out why before you trust anything a model built on them says.
 
 ## What goes wrong in production {#tokens-in-production}
 
