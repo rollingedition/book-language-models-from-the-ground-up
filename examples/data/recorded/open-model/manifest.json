@@ -1,0 +1,99 @@
+{
+  "script": "recordings/open_model.py",
+  "model": "HuggingFaceTB/SmolLM2-360M",
+  "model_version": "f8027fd0eaeea54caa13c31d31b9fdc459c38b49",
+  "licence": "Apache-2.0",
+  "tokenizer": {
+    "name": "HuggingFaceTB/SmolLM2-360M",
+    "revision": "f8027fd0eaeea54caa13c31d31b9fdc459c38b49"
+  },
+  "script_sha256": "547c4e96eb89576e2779cd3c18ad194326441b46903d6507c76300eb2a8c0816",
+  "prompt_sha256": "e6b0a62fe7cea570f30bc856f0d69012b43b2cd37840250dceed725d6c5e5869",
+  "settings": {
+    "products": 500,
+    "names": 500,
+    "name_label": "Product name: ",
+    "heads_texts": 50,
+    "dtype": "float32",
+    "top": 5,
+    "prefixes": [
+      "bar",
+      "patio bar",
+      "outdoor bar",
+      "kitchen bar",
+      "wine bar"
+    ],
+    "copying": {
+      "product": "double chaise patio furniture cover",
+      "up_to": "this outdoor patio furniture",
+      "names": {
+        "name as sold": "double chaise patio furniture cover",
+        "name without cover": "double chaise patio furniture",
+        "name ending in set": "double chaise patio furniture set"
+      },
+      "tokens": [
+        " cover",
+        " set"
+      ]
+    }
+  },
+  "config": {
+    "transformers_version": "5.20.2",
+    "architectures": [
+      "LlamaForCausalLM"
+    ],
+    "output_hidden_states": false,
+    "return_dict": true,
+    "dtype": "float32",
+    "chunk_size_feed_forward": 0,
+    "is_encoder_decoder": false,
+    "id2label": {
+      "0": "LABEL_0",
+      "1": "LABEL_1"
+    },
+    "label2id": {
+      "LABEL_0": 0,
+      "LABEL_1": 1
+    },
+    "problem_type": null,
+    "vocab_size": 49152,
+    "hidden_size": 960,
+    "intermediate_size": 2560,
+    "num_hidden_layers": 32,
+    "num_attention_heads": 15,
+    "num_key_value_heads": 5,
+    "hidden_act": "silu",
+    "max_position_embeddings": 8192,
+    "initializer_range": 0.02,
+    "rms_norm_eps": 1e-05,
+    "use_cache": true,
+    "pad_token_id": null,
+    "bos_token_id": 0,
+    "eos_token_id": 0,
+    "pretraining_tp": 1,
+    "tie_word_embeddings": true,
+    "rope_parameters": {
+      "rope_theta": 100000,
+      "rope_type": "default"
+    },
+    "attention_bias": false,
+    "attention_dropout": 0.0,
+    "mlp_bias": false,
+    "head_dim": 64,
+    "_name_or_path": "HuggingFaceTB/SmolLM2-360M",
+    "is_llama_config": true,
+    "model_type": "llama",
+    "rope_interleaved": false,
+    "output_attentions": false
+  },
+  "torch": "2.14.1+cpu",
+  "transformers": "5.20.2",
+  "created": "2026-10-21",
+  "outputs": [
+    "parameters.json",
+    "scores.json",
+    "heads.json",
+    "copying.json",
+    "prefixes.json"
+  ]
+}

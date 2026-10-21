@@ -1,0 +1,23 @@
+{
+  "script": "recordings/skipgram.py",
+  "model": "skip-gram with negative sampling, the book's own (examples/lib/skipgram.py)",
+  "model_version": "e8a73127c95dd5c2b33a7c3c485cb812b96f5e75de88a7c228b1ca218645aa6d",
+  "prompt_sha256": "1ea25a887debc7023ccd16b1a0732a510fbd3fbe72d6a3252fbedbf3dc189c42",
+  "settings": {
+    "window": 2,
+    "vocabulary": 2000,
+    "dimensions": 64,
+    "negatives": 5,
+    "epochs": 2,
+    "rate": 0.025,
+    "batch": 4096,
+    "seed": 2026
+  },
+  "created": "2026-10-19",
+  "outputs": [
+    "vectors.npy",
+    "vocabulary.json",
+    "losses.npy"
+  ],
+  "pairs": 8745382
+}

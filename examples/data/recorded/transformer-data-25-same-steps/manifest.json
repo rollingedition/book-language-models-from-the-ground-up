@@ -1,0 +1,31 @@
+{
+  "script": "recordings/transformer.py",
+  "model": "small transformer, the book's own (recordings/transformer.py)",
+  "model_version": "00874525f7d1254eef50d5be91e2fc610318e253f347e3d77244d84ff9ee3453",
+  "prompt_sha256": "91c7fb7c02881be54858c5f76d550036544444684293c600e7752525f874e24e",
+  "settings": {
+    "layers": 4,
+    "dimensions": 128,
+    "heads": 4,
+    "feed_forward": 352,
+    "longest": 160,
+    "epochs": 16,
+    "batch": 32,
+    "peak_rate": 0.003,
+    "warmup_steps": 200,
+    "weight_decay": 0.1,
+    "seed": 2026,
+    "optimizer": "AdamW",
+    "schedule": "linear warmup, then cosine decay to a tenth",
+    "share": 0.25
+  },
+  "torch": "2.14.1+cpu",
+  "created": "2026-10-21",
+  "outputs": [
+    "curves.json"
+  ],
+  "training_tokens": 703727,
+  "kept_epoch": 11,
+  "parameters": 1334144,
+  "steps": 4288
+}

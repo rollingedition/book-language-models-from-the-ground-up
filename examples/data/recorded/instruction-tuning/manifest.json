@@ -1,0 +1,50 @@
+{
+  "script": "recordings/instruction_tuning.py",
+  "model": {
+    "base": "HuggingFaceTB/SmolLM2-360M",
+    "tuned": "HuggingFaceTB/SmolLM2-360M-Instruct"
+  },
+  "model_version": {
+    "base": "f8027fd0eaeea54caa13c31d31b9fdc459c38b49",
+    "tuned": "a10cc1512eabd3dde888204e902eca88bddb4951"
+  },
+  "licence": "Apache-2.0",
+  "tokenizer": {
+    "base": {
+      "name": "HuggingFaceTB/SmolLM2-360M",
+      "revision": "f8027fd0eaeea54caa13c31d31b9fdc459c38b49"
+    },
+    "tuned": {
+      "name": "HuggingFaceTB/SmolLM2-360M-Instruct",
+      "revision": "a10cc1512eabd3dde888204e902eca88bddb4951"
+    }
+  },
+  "script_sha256": "e8ca2e4887b2552aa6a5d15216cff49465fa9e5feb3298ec13482aa1920ec3ad",
+  "prompt_sha256": "4c26e160c62501d2281fb5dc2a932615711448d4b30ba16f3a76732f9dc14278",
+  "settings": {
+    "seed": 2026,
+    "describe": 8,
+    "ask": 40,
+    "context_targets": 20,
+    "context_others": 9,
+    "describe_tokens": 60,
+    "answer_tokens": 48,
+    "describe_request": "Write a short product description for: {name}",
+    "describe_start": "Product: {name}\nDescription:",
+    "question": "What material is this product made of? Answer in a few words, using only the description.",
+    "ask_start": "Product: {name}\nDescription: {description}\nQuestion: {question}\nAnswer:",
+    "ask_chat": "Product: {name}\nDescription: {description}\n\n{question}",
+    "listing": "Product: {name}\nDescription: {description}",
+    "context_chat": "{listing}\n\nWhat material is the product named \"{name}\" made of? Answer in a few words, using only its description."
+  },
+  "decoding": "greedy",
+  "torch": "2.14.1+cpu",
+  "transformers": "5.20.2",
+  "created": "2026-10-21",
+  "outputs": [
+    "descriptions.json",
+    "template.json",
+    "answers.json",
+    "context.json"
+  ]
+}

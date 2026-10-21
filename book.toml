@@ -1,0 +1,11 @@
+# Book manifest: how this book is cataloged. Validated against the taxonomy on every pull request.
+slug = "language-models-from-the-ground-up"
+title = "Language Models from the Ground Up"
+summary = "How a language model works, built one part at a time: next-word prediction, tokens, embeddings, a neural model, attention and the transformer, training a small model on a CPU, choosing words, what an open model holds inside, and how instruction tuning changes it."
+status = "live"                       # draft | live | unmaintained | retired
+level = "foundations"                 # foundations | in-practice
+reader = "For readers comfortable with Python and NumPy who are new to how language models work: a developer who calls LLM APIs and wants to know what happens inside, or a data scientist moving into language work."
+skills = ["large-language-models", "deep-learning", "natural-language-processing"]   # 1 to 5; the first is primary
+line = "main"                         # edition line
+core_libraries = ["numpy", "pandas"]  # names only; versions are pinned in examples/requirements.txt
+sponsor = ""

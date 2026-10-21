@@ -1,0 +1,28 @@
+{
+  "script": "recordings/neural_lm.py",
+  "model": "fixed-window neural language model, the book's own (recordings/neural_lm.py)",
+  "model_version": "994b23d57f406d825ece61c7de7496f76adf00dba29fc0b6bac60f8fc877099b",
+  "prompt_sha256": "4d551dc205038497d6572964fac4098a8ddf72c29dd3595465e0436d6e25b74b",
+  "settings": {
+    "context": 4,
+    "dimensions": 64,
+    "hidden": 256,
+    "epochs": 12,
+    "batch": 512,
+    "rate": 0.002,
+    "seed": 2026,
+    "optimizer": "Adam",
+    "dropout": 0.0,
+    "text": "names"
+  },
+  "torch": "2.14.1+cpu",
+  "created": "2026-10-20",
+  "outputs": [
+    "weights.npz",
+    "vocabulary.json",
+    "curves.json",
+    "check.npz"
+  ],
+  "kept_epoch": 5,
+  "parameters": 1394732
+}

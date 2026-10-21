@@ -1,0 +1,18 @@
+{
+  "script": "recordings/open_model_family.py",
+  "model": "HuggingFaceTB/SmolLM2 base models (configurations only)",
+  "model_version": {
+    "SmolLM2-135M": "93efa2f097d58c2a74874c7e644dbc9b0cee75a2",
+    "SmolLM2-360M": "f8027fd0eaeea54caa13c31d31b9fdc459c38b49",
+    "SmolLM2-1.7B": "effd688a12921b4cc83e3312b6feb579f70f9c71"
+  },
+  "licence": "Apache-2.0",
+  "prompt_sha256": "cef4c1a149f1eb4eb6b99228084ce23dff75ec64944d9f3d51f39ad2aa5a48cf",
+  "script_sha256": "d92375f53657158e21d3b6ef2f502c68f5a886ba7c31f3db4a6fcf635cae99a7",
+  "created": "2026-10-21",
+  "outputs": [
+    "SmolLM2-135M.json",
+    "SmolLM2-360M.json",
+    "SmolLM2-1.7B.json"
+  ]
+}
