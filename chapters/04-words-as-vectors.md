@@ -22,7 +22,7 @@ Each vector has {{out:one-hot-vectors:numbers in each vector}} numbers. The cosi
 
 That's the same flaw as [chapter 3](#counting-further-back)'s counts, in another form. A model that reads one-hot vectors has to learn about every token separately, from the contexts that token itself appears in. Rare tokens get little, and unseen combinations get nothing.
 
-**What to do:** don't feed one-hot vectors to a model that needs to relate tokens to each other. Use them only as an index, as the next sections do, to look up a learned vector for each token.
+**Working rule:** Don't feed one-hot vectors to a model that needs to relate tokens to each other. Use them only as an index, as the next sections do, to look up a learned vector for each token.
 
 ## Describe a token by the tokens around it {#describe-by-neighbours}
 
@@ -36,7 +36,7 @@ Within two places of `patio`, the training text holds {{out:cooccurrence-counts:
 
 So raw counts make poor vectors. Two tokens that both appear often will look alike because they share the same frequent neighbours, commas and `with`, whatever they mean. What matters is which neighbours a token has more often than you'd expect from how common those neighbours are.
 
-**What to do:** count co-occurrence within a small window, two to five tokens, in text the model will learn from, and never across document boundaries. Don't use the raw counts as vectors: reweight them, as the next section does, so frequent neighbours stop dominating.
+**Working rule:** Count co-occurrence within a small window, two to five tokens, in text the model will learn from, and never across document boundaries. Don't use the raw counts as vectors: reweight them, as the next section does, so frequent neighbours stop dominating.
 
 ## Weigh co-occurrence by surprise {#weigh-by-surprise}
 
@@ -60,7 +60,7 @@ The commas are gone. `patio`'s strongest neighbours by PPMI are `porch`, `deck`,
 
 PPMI vectors are already useful: two tokens with similar PPMI rows have similar distinctive neighbours. But each vector is still 2,000 numbers long, mostly zeros, and two tokens with related but not identical neighbours, say `deck` and `porch`, can share few nonzero entries.
 
-**What to do:** reweight co-occurrence counts with positive PMI before using them as vectors. Expect PMI to overrate pairs of rare tokens, whose few co-occurrences look far above chance; that's one reason to keep only frequent tokens, as this chapter does, or to require a minimum count.
+**Working rule:** Reweight co-occurrence counts with positive PMI before using them as vectors. Expect PMI to overrate pairs of rare tokens, whose few co-occurrences look far above chance; that's one reason to keep only frequent tokens, as this chapter does, or to require a minimum count.
 
 ## Compress counts into dense vectors {#compress-into-dense-vectors}
 
@@ -74,7 +74,7 @@ Every token now has {{out:svd-neighbours:dimensions per token}} numbers, and the
 
 None of that was taught. The method never saw a definition of `sofa`, a list of colours or a hint that `48` is a number. It found that these tokens appear among the same kinds of neighbours in the store's text, and the SVD put them close together because of it. That's the property [chapter 3](#counting-further-back)'s counts lacked: whatever a model learns about `patio bar stool` can now carry over, through the embeddings, to `outdoor bar stool`.
 
-**What to do:** compress PPMI with SVD to between 50 and 300 dimensions, and check the result the way this section does: list a handful of tokens' nearest neighbours and read them. If the neighbours are mostly frequent function words, the reweighting went wrong; if they're unrelated, the window or the vocabulary is too small.
+**Working rule:** Compress PPMI with SVD to between 50 and 300 dimensions, and check the result the way this section does: list a handful of tokens' nearest neighbours and read them. If the neighbours are mostly frequent function words, the reweighting went wrong; if they're unrelated, the window or the vocabulary is too small.
 
 ## Learn vectors by predicting neighbours {#learn-by-predicting-neighbours}
 
@@ -98,7 +98,7 @@ For the store, take one real pair, `patio` and `umbrella`, and two noise tokens,
 
 Before training, the model gives every pair a probability of {{out:skipgram-step:P(umbrella is a real neighbour of patio), before}} of being real: the neighbour vectors are zero, so every score is zero, and σ(0) is one half. The model knows nothing. After three updates, `umbrella` scores {{out:skipgram-step:P(umbrella is a real neighbour of patio), after 3 steps}} as a neighbour of `patio`, and `sofa` and `48` have dropped to {{out:skipgram-step:P(sofa, 48 are real neighbours), after 3 steps}}. That's all training does, millions of times over: pull real neighbours together and push random tokens apart.
 
-**What to do:** when you train embeddings, start the second set of vectors at zero and the first at small random values, as `lib.skipgram.train` does, and draw noise tokens in proportion to their frequency raised to the power 0.75, which Mikolov et al. found works better than plain frequency. Check one update by hand, as here, before running millions: a probability moving the wrong way means the gradient's sign is wrong.
+**Working rule:** When you train embeddings, start the second set of vectors at zero and the first at small random values, as `lib.skipgram.train` does, and draw noise tokens in proportion to their frequency raised to the power 0.75, which Mikolov et al. found works better than plain frequency. Check one update by hand, as here, before running millions: a probability moving the wrong way means the gradient's sign is wrong.
 
 ## Compare learned vectors with counted ones {#compare-learned-and-counted}
 
@@ -112,7 +112,7 @@ The training loss fell from {{out:skipgram-neighbours:training loss, first batch
 
 That difference is worth noticing. Vectors built from neighbours put together words used in the same places, and opposites often are: `indoor` and `outdoor` here, and, in the [next section](#analogies-and-where-they-fail), `small`, whose nearest neighbours include `larger` as well as `smaller`. Similar vectors mean similar use, not similar meaning.
 
-**What to do:** treat counted embeddings (PPMI and SVD) and learned ones (skip-gram) as close alternatives: on a few million tokens they give similar neighbours, and counted ones are deterministic and fast. Prefer learned embeddings when they're part of a larger model you're training anyway, as in every later chapter of this book. Never read a high similarity as synonymy without checking for opposites.
+**Working rule:** Treat counted embeddings (PPMI and SVD) and learned ones (skip-gram) as close alternatives: on a few million tokens they give similar neighbours, and counted ones are deterministic and fast. Prefer learned embeddings when they're part of a larger model you're training anyway, as in every later chapter of this book. Never read a high similarity as synonymy without checking for opposites.
 
 ## Analogies, and where they fail {#analogies-and-where-they-fail}
 
@@ -126,7 +126,7 @@ The first works: `chair` is to `chairs` as `table` is to `tables`, the top answe
 
 Analogies are a demonstration, not a measure. They work for relationships the text expresses consistently and often, such as plurals of common words, and fail for rare words, for words with several senses, and for relationships the text rarely spells out. A model doesn't use analogies; it uses the vectors' positions, and those carry the same strengths and blind spots.
 
-**What to do:** don't judge embeddings by analogies; judge them by how much they help the task they're for, as the next section and every later chapter do. When an analogy fails, check whether the answer is in the vocabulary and whether the words mean what you assume in your text.
+**Working rule:** Don't judge embeddings by analogies; judge them by how much they help the task they're for, as the next section and every later chapter do. When an analogy fails, check whether the answer is in the vocabulary and whether the words mean what you assume in your text.
 
 ## Find similar names with vectors {#find-similar-names}
 
@@ -140,7 +140,7 @@ The example prints a rare word, most often a product line's name, as `[name]`, a
 
 Averaging is crude: it forgets word order, so `bar stool` and `stool bar` get the same vector, and it lets frequent tokens drown out the one that matters. But it shows the property every later model in this book is built on: a model that reads embeddings instead of one-hot tokens can carry what it learned about one phrase over to another.
 
-**What to do:** average token embeddings when you need a quick, order-free representation of short texts, and expect it to find related items but rank them loosely. For real semantic retrieval, use a model trained for it, as the Primer does. For language modeling, give the model the embeddings themselves and let it learn how to combine them, which [chapter 5](#a-neural-language-model) starts doing.
+**Working rule:** Average token embeddings when you need a quick, order-free representation of short texts, and expect it to find related items but rank them loosely. For real semantic retrieval, use a model trained for it, as the Primer does. For language modeling, give the model the embeddings themselves and let it learn how to combine them, which [chapter 5](#a-neural-language-model) starts doing.
 
 ## What goes wrong in production {#vectors-in-production}
 

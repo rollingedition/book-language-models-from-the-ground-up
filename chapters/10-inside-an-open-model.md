@@ -26,7 +26,7 @@ attention parameters = 2 × width² + 2 × width × key and value heads × head 
 
 for the query and output weights, then the key and value weights. During generation, a model keeps every layer's keys and values for every earlier token, so sharing them shrinks that store, as a [later section](#cost-to-run) measures; Ainslie and colleagues found it costs little in quality.
 
-**What to do:** count an open model's parameters by part from its weights before you use it, as here, and read the shapes for its design choices: tied embeddings, grouped keys and values, a gated feed-forward layer. Expect the blocks, not the embeddings, to hold most of a large model's parameters.
+**Working rule:** Count an open model's parameters by part from its weights before you use it, as here, and read the shapes for its design choices: tied embeddings, grouped keys and values, a gated feed-forward layer. Expect the blocks, not the embeddings, to hold most of a large model's parameters.
 
 ## Compare a family's sizes {#grow-the-same-design}
 
@@ -40,7 +40,7 @@ The counts from the configurations match the weights exactly: {{out:open-model-f
 
 The embedding table's share falls as the models grow, from {{out:open-model-family:SmolLM2-135M, embedding's share}} to {{out:open-model-family:SmolLM2-360M, embedding's share}} to {{out:open-model-family:SmolLM2-1.7B, embedding's share}}, because all three share one vocabulary while their blocks grow. And the largest differs in more than size. It doesn't group keys and values: it has {{out:open-model-family:SmolLM2-1.7B, query heads per key and value head}} query head per key and value head, where the two smaller ones share each among {{out:open-model-family:SmolLM2-360M, query heads per key and value head}}. Its feed-forward layer is {{out:open-model-family:SmolLM2-1.7B, feed-forward width}} wide, four times its width, where the 360M model's is {{out:open-model-family:SmolLM2-360M, feed-forward width}}, 8/3 of its width. And its rotary positions turn more slowly, with a base of {{out:open-model-family:SmolLM2-1.7B, RoPE base}} against {{out:open-model-family:SmolLM2-360M, RoPE base}}.
 
-**What to do:** count a model's parameters from its configuration, and check the count against its weights, as here; a mismatch means you've misread a detail. Compare a family's sizes to see how its makers scaled the design, and don't assume a larger model differs from a smaller one only in size.
+**Working rule:** Count a model's parameters from its configuration, and check the count against its weights, as here; a mismatch means you've misread a detail. Compare a family's sizes to see how its makers scaled the design, and don't assume a larger model differs from a smaller one only in size.
 
 ## Count what it costs to run {#cost-to-run}
 
@@ -56,7 +56,7 @@ For the store, compute both for the three sizes: the weights, the cache per toke
 
 The weights take {{out:open-model-memory:SmolLM2-135M, weights in 16-bit numbers, in GB}}, {{out:open-model-memory:SmolLM2-360M, weights in 16-bit numbers, in GB}} and {{out:open-model-memory:SmolLM2-1.7B, weights in 16-bit numbers, in GB}} gigabytes. The 360M model's cache takes {{out:open-model-memory:SmolLM2-360M, key and value cache per token, in KB}} kilobytes per token, so one text of the longest length needs {{out:open-model-memory:SmolLM2-360M, cache for the longest text, in GB}} gigabytes, and would need {{out:open-model-memory:SmolLM2-360M, cache for the longest text without grouping, in GB}} without grouping: grouping keys and values cut it to a third. The 1.7B model, which doesn't group them, needs {{out:open-model-memory:SmolLM2-1.7B, key and value cache per token, in KB}} kilobytes per token, and {{out:open-model-memory:SmolLM2-1.7B, cache for the longest text, in GB}} gigabytes for one long text, about half its weights' size. A service writing many descriptions at once keeps one cache per text, so with long texts, the caches can outgrow the weights.
 
-**What to do:** budget a model's memory as its weights plus one cache per text in progress, computed from its configuration, as here. Prefer models that group keys and values when you serve long texts or many at once, and cap the text length you allow to what you've budgeted for.
+**Working rule:** Budget a model's memory as its weights plus one cache per text in progress, computed from its configuration, as here. Prefer models that group keys and values when you serve long texts or many at once, and cap the text length you allow to what you've budgeted for.
 
 ## Score the store's text with a general model {#score-the-store-text}
 
@@ -78,7 +78,7 @@ Telling SmolLM2 it's reading a product name doesn't close the gap. After the lab
 
 The lesson isn't that small models are better. A model predicts best the kind of text it learned from: SmolLM2 knows far more English than the store's model, and little of the store's habits. Teaching it those habits takes further training on the store's text, which [chapter 11](#adapt-a-model) describes.
 
-**What to do:** compare models with different tokenizers per word, or per character, on exactly the same text and events, never per token. Before choosing a large general model over a small one trained on your own text, measure both on your text, as here; size doesn't make up for text unlike anything the model learned from.
+**Working rule:** Compare models with different tokenizers per word, or per character, on exactly the same text and events, never per token. Before choosing a large general model over a small one trained on your own text, measure both on your text, as here; size doesn't make up for text unlike anything the model learned from.
 
 ## Find the same heads at scale {#same-heads-at-scale}
 
@@ -92,7 +92,7 @@ A few heads specialize sharply. {{out:open-model-heads:heads with more than half
 
 The first token's weight is the larger surprise. In the first four layers, heads put {{out:open-model-heads:average weight on the first token, layers 1 to 4}} of their weight on it on average; from layer 5 on, {{out:open-model-heads:average weight on the first token, layers 5 to 32}}, against an even spread's {{out:open-model-heads:an even spread's weight on the previous token, and on the first}}, and {{out:open-model-heads:heads with more than half their weight on the first token}} heads put more than half there. That's the **attention sink** that Xiao and colleagues found in large models ([Xiao et al., 2024](https://arxiv.org/abs/2309.17453)). They explain it by softmax: a head with nothing useful to attend to still has to put its weight somewhere, and the first token is always there. [Chapter 6](#reach-past-the-window) found the pattern only weakly in the store's model, whose description tokens put {{out:attention-reaches-back:all layers, weight on <s> and <sep>}} of their attention on its two markers, against an even spread's {{out:attention-reaches-back:an even spread's weight on <s> and <sep>}}.
 
-**What to do:** describe a large model's heads by the same measured averages you'd use on a small one, compared with an even spread. Expect a few specialized heads and many that put their weight on the first token, and keep that token when you cut a model's context to save memory.
+**Working rule:** Describe a large model's heads by the same measured averages you'd use on a small one, compared with an even spread. Expect a few specialized heads and many that put their weight on the first token, and keep that token when you cut a model's context to save memory.
 
 ## Test copying at scale {#copying-at-scale}
 
@@ -106,7 +106,7 @@ With the name as sold, SmolLM2 gives `cover` {{out:open-model-copying:SmolLM2-36
 
 So copying isn't something scale adds; the store's {{out:transformer-parameters:layers}}-layer model learned it too. For a store, the habit is useful and risky at once: a model that copies words from the product's name stays on the product, and one that copies from the wrong product's text spreads its mistake.
 
-**What to do:** test a behaviour by changing the input and watching the output, as here, and run the same test on every model you compare. When two models of very different sizes share a behaviour, it's a basic one; look for what differs elsewhere.
+**Working rule:** Test a behaviour by changing the input and watching the output, as here, and run the same test on every model you compare. When two models of very different sizes share a behaviour, it's a basic one; look for what differs elsewhere.
 
 ## Suggest the next word at scale {#suggestions-at-scale}
 
@@ -118,7 +118,7 @@ For the store, read SmolLM2's three likeliest next tokens after the same five pr
 
 SmolLM2 gives `stool` after `outdoor bar` a probability of {{out:open-model-autocomplete:P(stool | outdoor bar), SmolLM2-360M}}. Its likeliest next token after `outdoor bar`, `patio bar`, `kitchen bar` and `wine bar` is a newline: it takes each prefix as a complete line, likely because short lines like these end in a newline in much of the text it learned from. After `bar` alone, it suggests pieces of longer words, such as `ry` and `ley`, as in `barry` or `barley`. None of that is wrong English; it's the wrong text. A search box needs the store's habits, and the store's own models have them. A search box also has to answer within a keystroke, and the store's model runs a small fraction of SmolLM2's arithmetic per token.
 
-**What to do:** don't put a general model in front of shoppers without measuring its suggestions on your own prefixes against what you have. Where a model trained on your text suggests better, keep it, and measure a general model on the jobs where its broader knowledge could matter.
+**Working rule:** Don't put a general model in front of shoppers without measuring its suggestions on your own prefixes against what you have. Where a model trained on your text suggests better, keep it, and measure a general model on the jobs where its broader knowledge could matter.
 
 ## Set the two models side by side {#side-by-side}
 
@@ -138,7 +138,7 @@ With every measure taken, the two models can be compared in one table. The store
 
 Read down the columns and the pattern of this chapter shows. SmolLM2 is far larger on every measure of size, and both models have learned the same basic behaviours, copying and attending to the previous token. Everything about the store's own text favours the small model, because that's all it learned. The store's choice isn't between a small model and a big one; it's which job each does.
 
-**What to do:** set every model you're choosing between side by side on the measures that matter for your jobs, as here, with the same text and the same tests in every column. Choose a model per job, not one model for everything.
+**Working rule:** Set every model you're choosing between side by side on the measures that matter for your jobs, as here, with the same text and the same tests in every column. Choose a model per job, not one model for everything.
 
 ## What goes wrong in production {#open-models-in-production}
 

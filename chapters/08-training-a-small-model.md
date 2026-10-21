@@ -24,7 +24,7 @@ The training split holds {{out:training-batches:training texts}} texts and {{out
 
 Padding on that scale is waste: nearly half of each forward pass computes predictions the loss then ignores. It doesn't change what the model learns, since padding never counts, but it nearly doubles the cost of each step. Krell and colleagues found padding up to half of all tokens in common datasets, and proposed **packing**, several texts end to end in each row, with the attention kept from crossing between them ([Krell et al., 2021](https://arxiv.org/abs/2107.02027)). Putting texts of similar length in the same batch reduces padding too.
 
-**What to do:** build batches as inputs and shifted targets, mask padding out of the loss, and shuffle the texts each epoch with a fixed seed, so the run can be repeated. Measure the share of padding in your batches, as here; if it's large, pack texts or group them by length before you buy a bigger machine.
+**Working rule:** Build batches as inputs and shifted targets, mask padding out of the loss, and shuffle the texts each epoch with a fixed seed, so the run can be repeated. Measure the share of padding in your batches, as here; if it's large, pack texts or group them by length before you buy a bigger machine.
 
 ## Update with AdamW and clipped gradients {#update-with-adamw}
 
@@ -47,7 +47,7 @@ The optimizer is **AdamW**, the [Adam](#train-with-pytorch) of [chapter 5](#a-ne
 
 The script also **clips** the gradients: when their combined length, measured as if every gradient were one long vector, exceeds 1.0, it scales them all down to that length ([PyTorch's clip_grad_norm_](https://docs.pytorch.org/docs/2.14/generated/torch.nn.utils.clip_grad_norm_.html)). One unusual batch then can't throw the weights far off. Pascanu and colleagues proposed clipping for exactly that: rare, very large gradients that would otherwise undo much of what training had learned ([Pascanu et al., 2013](https://arxiv.org/abs/1211.5063)).
 
-**What to do:** use AdamW with a modest weight decay, and clip gradients by their combined length. Keep the training step short enough to read whole, as here, so that every choice in it is visible: what the loss ignores, what the optimizer decays and what gets clipped.
+**Working rule:** Use AdamW with a modest weight decay, and clip gradients by their combined length. Keep the training step short enough to read whole, as here, so that every choice in it is visible: what the loss ignores, what the optimizer decays and what gets clipped.
 
 ## Warm up, then decay the step size {#warm-up-then-decay}
 
@@ -65,7 +65,7 @@ The step size starts at {{out:learning-rate-schedule:step size at step 0}}, reac
 
 The decay matters, and the recordings show how much. The comparison run trained for four epochs at the same width, with the same seed and the same batches, so its schedule finished its decay at step {{out:width-data-and-steps:width 128, 4 epochs, steps}}. It scored {{out:width-data-and-steps:width 128, 4 epochs, perplexity on names}} on the validation names at that step. The recorded run, at the same step, was still near its peak step size, and scored {{out:transformer-training-curve:validation perplexity on names, epoch 4}}. Same data, same steps: the difference is the decay.
 
-**What to do:** warm the step size up over the first few hundred steps, then decay it, and match the schedule's length to the run's. Save the step size as training runs, as the training script does, and check it against the schedule you meant: a schedule bug looks like a training problem, and is far easier to find this way.
+**Working rule:** Warm the step size up over the first few hundred steps, then decay it, and match the schedule's length to the run's. Save the step size as training runs, as the training script does, and check it against the schedule you meant: a schedule bug looks like a training problem, and is far easier to find this way.
 
 ## Read the training curve {#read-the-training-curve}
 
@@ -81,7 +81,7 @@ Validation perplexity falls until epoch {{out:transformer-training-curve:epoch k
 
 Descriptions score lower than names, but that doesn't mean the model is better at descriptions. Each kind of text has its own predictability: descriptions repeat phrases from their templates and their names, and names pack a new product into a few words. Perplexities compare models on the same text, never texts with each other.
 
-**What to do:** record validation loss per epoch on each kind of text you care about, and keep the best epoch's weights. Read the gap between training and validation as the warning, not the training loss alone. Never compare perplexities across different kinds of text.
+**Working rule:** Record validation loss per epoch on each kind of text you care about, and keep the best epoch's weights. Read the gap between training and validation as the warning, not the training loss alone. Never compare perplexities across different kinds of text.
 
 ## Compare with the baseline on names {#compare-on-names}
 
@@ -97,7 +97,7 @@ Both models score {{out:transformer-on-names:validation tokens scored, each name
 
 So on names, counting is still hard to beat alone, for the reason [chapter 5](#a-neural-language-model) gave: names are short and formulaic, and three tokens of context see most of what a name holds. But the transformer is wrong in different places from the counts, and the mix gains from both. The share was chosen on the validation names, so the gain is slightly optimistic; the test names stay untouched for the book's final comparison.
 
-**What to do:** compare a new model with the strongest baseline you can build on exactly the same predictions, including how each marks the end of a text. When a learned model and a counted one are close, mix them, and choose the share on held-out text.
+**Working rule:** Compare a new model with the strongest baseline you can build on exactly the same predictions, including how each marks the end of a text. When a learned model and a counted one are close, mix them, and choose the share on held-out text.
 
 ## Compare on descriptions {#compare-on-descriptions}
 
@@ -113,7 +113,7 @@ The split shows where. {{out:transformer-on-descriptions:description tokens whos
 
 That's also why the mix works so well. Half and half, the two score {{out:transformer-on-descriptions:half and half, validation perplexity on descriptions}}, far below either alone: on any one token, at least one of the two is often confident and right, and the even mix keeps half of that probability, enough to avoid the worst surprises of each.
 
-**What to do:** measure a model on the kind of text it will predict, against a baseline that sees the same text, and expect the ranking to change from one kind of text to another. Split the comparison by seen and unseen contexts to see where each model wins. Try a mix before concluding that either model is enough: here, the mix gained more than any change to either model that this chapter measured.
+**Working rule:** Measure a model on the kind of text it will predict, against a baseline that sees the same text, and expect the ranking to change from one kind of text to another. Split the comparison by seen and unseen contexts to see where each model wins. Try a mix before concluding that either model is enough: here, the mix gained more than any change to either model that this chapter measured.
 
 ## What width, data and steps buy {#what-width-data-and-steps-buy}
 
@@ -139,7 +139,7 @@ The numbers are the validation perplexities the script recorded, at each run's b
 
 These runs also show the limits of this book's scale. The store's training text is fixed at what its catalog holds, {{out:training-batches:tokens in them}} tokens. SmolLM2-360M, whose design [chapter 7](#the-transformer-block) compared with the store's model, was trained on 4 trillion tokens ([model card](https://huggingface.co/HuggingFaceTB/SmolLM2-360M/blob/f8027fd0eaeea54caa13c31d31b9fdc459c38b49/README.md)), more than a million times as much, which lets a model 960 numbers wide and 32 layers deep keep learning from new text instead of memorizing old.
 
-**What to do:** get more text of the kind you'll predict before repeating what you have more than a few times; it costs nothing per step. With computation to spare, try a wider model for fewer epochs before training a narrow one longer, and measure both. Change one thing per run and hold the number of steps fixed where it matters, or the comparison measures two things at once.
+**Working rule:** Get more text of the kind you'll predict before repeating what you have more than a few times; it costs nothing per step. With computation to spare, try a wider model for fewer epochs before training a narrow one longer, and measure both. Change one thing per run and hold the number of steps fixed where it matters, or the comparison measures two things at once.
 
 ## Suggest the next word in the search box {#autocomplete-in-the-search-box}
 
@@ -153,7 +153,7 @@ After `outdoor bar`, the transformer gives `stool` a probability of {{out:transf
 
 One prefix is an example, not a measure. The measure is the names comparison, and there the mix won. For the search box, that's the model to serve.
 
-**What to do:** serve the mix for autocomplete, and test it on rare prefixes as well as common ones, with control prefixes beside each, as here. Treat a single striking suggestion as an illustration of a measured gain, never as the evidence for it.
+**Working rule:** Serve the mix for autocomplete, and test it on rare prefixes as well as common ones, with control prefixes beside each, as here. Treat a single striking suggestion as an illustration of a measured gain, never as the evidence for it.
 
 ## What goes wrong in production {#training-in-production}
 

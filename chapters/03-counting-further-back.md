@@ -22,7 +22,7 @@ The perplexity falls fast as the context grows: {{out:ngram-memorizes:1-gram tra
 
 That's the trap. On the text it counted, a longer context always looks better, because with enough context every text is unique and the model can recite it. Scoring a model on its own training text measures memory, which is why [chapter 1](#predicting-the-next-word) set aside validation text in the first place.
 
-**What to do:** never judge an n-gram model, or any language model, by its perplexity on its own training text: it falls toward 1 as the model memorizes. Choose the order by perplexity on held-out text, as the rest of this chapter does.
+**Working rule:** Never judge an n-gram model, or any language model, by its perplexity on its own training text: it falls toward 1 as the model memorizes. Choose the order by perplexity on held-out text, as the rest of this chapter does.
 
 ## Longer contexts run out of evidence {#longer-contexts-run-out}
 
@@ -38,7 +38,7 @@ More training text helps less than you might hope. In language, a few n-grams oc
 
 The two examples together are the core problem of counting. Longer contexts predict better when they've been seen, and are seen less and less often. Every method in the rest of this chapter is a way to use long contexts when the counts support them, and fall back to shorter ones when they don't.
 
-**What to do:** before choosing an n-gram order, measure the share of held-out n-grams your training text never contains, as above. As a rule of thumb, where it nears a third, as it does here for trigrams, a model of that order depends mostly on how it handles the unseen, so its smoothing matters more than its order.
+**Working rule:** Before choosing an n-gram order, measure the share of held-out n-grams your training text never contains, as above. As a rule of thumb, where it nears a third, as it does here for trigrams, a model of that order depends mostly on how it handles the unseen, so its smoothing matters more than its order.
 
 ## Mix short and long contexts {#mix-short-and-long-contexts}
 
@@ -56,7 +56,7 @@ The interpolated trigram model's validation perplexity is {{out:interpolate-orde
 
 It has two weaknesses. The weights are fixed, and these were picked by hand, not tuned: the same 0.6 goes to the trigram whether its context was seen once or a thousand times, though a context seen a thousand times deserves more trust. And the unigram part gives each token probability in proportion to how often it occurs, which, as the next section shows, is the wrong question for a fallback.
 
-**What to do:** never use a single n-gram order alone; always combine it with lower orders, so every token keeps some probability. Prefer methods that set each context's weight from its counts, such as Kneser-Ney below, over fixed weights. If you do use fixed weights, choose them on held-out text, not the text you counted.
+**Working rule:** Never use a single n-gram order alone; always combine it with lower orders, so every token keeps some probability. Prefer methods that set each context's weight from its counts, such as Kneser-Ney below, over fixed weights. If you do use fixed weights, choose them on held-out text, not the text you counted.
 
 ## Count the contexts a token follows {#count-contexts-a-token-follows}
 
@@ -72,7 +72,7 @@ Continuation counts are cheap to compute: for each token, keep the set of tokens
 
 This is the insight behind Kneser-Ney smoothing ([Kneser and Ney, 1995](https://doi.org/10.1109/ICASSP.1995.479394)): when the model falls back to a shorter context, it uses continuation counts instead of raw counts, so tokens that appear in many contexts get the probability, and tokens that appear in one fixed phrase don't.
 
-**What to do:** when you back off from a long context to a short one, weight tokens by how many different contexts they follow, not by how often they occur. Use raw counts only at the highest order, where the context has actually been seen.
+**Working rule:** When you back off from a long context to a short one, weight tokens by how many different contexts they follow, not by how often they occur. Use raw counts only at the highest order, where the context has actually been seen.
 
 ## Smooth with Kneser-Ney {#smooth-with-kneser-ney}
 
@@ -94,7 +94,7 @@ For the store, build Kneser-Ney models of every order from 1 to 5 on the trainin
 
 The bigram model's validation perplexity is {{out:kneser-ney-by-order:2-gram validation perplexity}}, the trigram's {{out:kneser-ney-by-order:3-gram validation perplexity}}, the 4-gram's {{out:kneser-ney-by-order:4-gram validation perplexity}} and the 5-gram's {{out:kneser-ney-by-order:5-gram validation perplexity}}. Kneser-Ney beats the hand-weighted interpolated trigram from the [interpolation section](#mix-short-and-long-contexts) at the same order, with no weights to choose, and longer contexts now help on new text instead of only on the old, up to a point. The step from trigram to 4-gram is small, and the 5-gram is worse than the 4-gram, because by then most contexts are unseen and the extra order adds noise. The discount, too, can be estimated from the counts: Chen and Goodman give D = n₁ / (n₁ + 2 n₂), where n₁ and n₂ are the numbers of n-grams seen once and twice, and on the store's 4-grams it's {{out:kneser-ney-by-order:discount estimated from them}}, close to the default.
 
-**What to do:** smooth n-gram models with interpolated Kneser-Ney and a discount of 0.75 unless held-out text says otherwise. Raise the order only while validation perplexity keeps falling noticeably, and stop when a step barely helps or hurts, as from 4-gram to 5-gram here. A variant, modified Kneser-Ney, uses three discounts instead of one and is the one toolkits such as KenLM build; it would likely lower the baseline a little, and this book keeps the single discount because it's easier to follow by hand.
+**Working rule:** Smooth n-gram models with interpolated Kneser-Ney and a discount of 0.75 unless held-out text says otherwise. Raise the order only while validation perplexity keeps falling noticeably, and stop when a step barely helps or hurts, as from 4-gram to 5-gram here. A variant, modified Kneser-Ney, uses three discounts instead of one and is the one toolkits such as KenLM build; it would likely lower the baseline a little, and this book keeps the single discount because it's easier to follow by hand.
 
 ## Autocomplete with three tokens of context {#autocomplete-with-more-context}
 
@@ -110,7 +110,7 @@ Suggestions such as `&` and `with` are real continuations of the store's names, 
 
 The `outdoor bar` line is the limit of counting in miniature. The model has seen `patio bar stool` and `outdoor patio` and `bar stool` many times, so it has the pieces to guess that an outdoor bar probably comes with stools. But a count of `outdoor bar stool` is a separate entry in a table, and nothing connects it to `patio bar stool`. A model needs some notion that `outdoor` and `patio` are alike, which counting doesn't have. [Chapter 4](#words-as-vectors) gives the store's tokens that notion.
 
-**What to do:** use the longest context your model can support for suggestions, and check suggestions for contexts that are rare in training, such as `outdoor bar`, separately from common ones: that's where a counted model falls back to generic guesses.
+**Working rule:** Use the longest context your model can support for suggestions, and check suggestions for contexts that are rare in training, such as `outdoor bar`, separately from common ones: that's where a counted model falls back to generic guesses.
 
 ## The baseline every later model is measured against {#the-baseline}
 
@@ -122,7 +122,7 @@ The baseline also sets expectations. A perplexity near twenty means the model is
 
 Two things about the baseline will stay fixed for the rest of the book. Every perplexity is per token of the store's tokenizer, on the validation names, so the numbers in every chapter can be set side by side. And the test names stay untouched until the book's final comparison, so nothing in the book is tuned on them.
 
-**What to do:** before building a learned model, build the strongest counted model you can and record its held-out perplexity as the baseline. Report every later model against it, on the same text and with the same tokenizer, and treat a learned model that doesn't beat it as a result to explain, never as a success. Later chapters find exactly that, and earn the learned models their place another way.
+**Working rule:** Before building a learned model, build the strongest counted model you can and record its held-out perplexity as the baseline. Report every later model against it, on the same text and with the same tokenizer, and treat a learned model that doesn't beat it as a result to explain, never as a success. Later chapters find exactly that, and earn the learned models their place another way.
 
 ## What goes wrong in production {#ngrams-in-production}
 

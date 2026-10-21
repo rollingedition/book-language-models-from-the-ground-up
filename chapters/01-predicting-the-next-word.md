@@ -20,7 +20,7 @@ The store's text, which every example in this book learns from, is real. It come
 
 The store's text covers {{out:store-text:products}} products: {{out:store-text:train products}} in the training split, {{out:store-text:validation products}} in the validation split and {{out:store-text:test products}} in the test split. This chapter learns from product names only, which are short and repetitive enough for counting to work. The training names hold {{out:store-text:words in training names}} words, of {{out:store-text:different words in training names}} different kinds. That second number is large for a catalog of furniture: many names start with a product line's name, a word that appears in a handful of products and nowhere else. This book doesn't print those names: where an example's output would show one, it prints `[name]`, which marks any word used in fewer than 30 of the training descriptions, most often a product line's name. Those rare words will matter by the end of the chapter.
 
-**What to do:** split your text into training, validation and test parts before any model sees it, and split by document (here, by product), so near-duplicates of one item never straddle two parts. Compare models on validation text while you work, and touch the test text only for the final report. Learn from the shortest, most regular text you have first; this chapter starts with names, and descriptions come later in the book.
+**Working rule:** Split your text into training, validation and test parts before any model sees it, and split by document (here, by product), so near-duplicates of one item never straddle two parts. Compare models on validation text while you work, and touch the test text only for the final report. Learn from the shortest, most regular text you have first; this chapter starts with names, and descriptions come later in the book.
 
 ## Count which word follows which {#count-word-pairs}
 
@@ -36,7 +36,7 @@ The training names hold {{out:count-next-words:word pairs}} word pairs, of {{out
 
 The table of counts is the whole model. It has no rules about grammar and no knowledge of furniture; it has seen `coffee table` many times and `coffee lamp` never, and that is all it knows. The shared module `lib.bigrams` holds this same counting code, as the class `Bigrams`, so later examples can build the model in one line.
 
-**What to do:** count pairs in the training split only, and pad every text with start and end markers so the model learns how texts begin and end. Keep the raw counts, not only the probabilities you'll derive from them: the counts tell you how much evidence each probability rests on, and the next sections need them.
+**Working rule:** Count pairs in the training split only, and pad every text with start and end markers so the model learns how texts begin and end. Keep the raw counts, not only the probabilities you'll derive from them: the counts tell you how much evidence each probability rests on, and the next sections need them.
 
 ## Turn counts into probabilities {#counts-to-probabilities}
 
@@ -54,7 +54,7 @@ The probability of `table` after `coffee` is {{out:next-word-probabilities:P(tab
 
 The fourth line is the one to remember. `coffee lamp` never occurs in the training names, so its probability is {{out:next-word-probabilities:P(lamp | coffee)}}. The model doesn't say that a coffee lamp is unlikely; it says a coffee lamp is impossible. For a furniture store that's a reasonable bet, but the same zero applies to every pair the model hasn't seen, including perfectly ordinary ones. That's the flaw this chapter ends on.
 
-**What to do:** derive probabilities from counts by division, and check that each word's probabilities sum to one; a sum that doesn't is a bug in the counting. Treat a probability as only as good as the count under it: 0.9 from 1,000 pairs is evidence, while 1.0 from a single pair is an anecdote.
+**Working rule:** Derive probabilities from counts by division, and check that each word's probabilities sum to one; a sum that doesn't is a bug in the counting. Treat a probability as only as good as the count under it: 0.9 from 1,000 pairs is evidence, while 1.0 from a single pair is an anecdote.
 
 ## Suggest the next word as a shopper types {#suggest-next-words}
 
@@ -68,7 +68,7 @@ The suggestions after `coffee`, `bar` and `kitchen` are what a shopper would wan
 
 The last line shows the model's real limit. A shopper who types `patio bar` gets exactly the suggestions for `bar`, because a bigram model looks at one word of context and nothing before it. `patio` is lost, so the model offers `pull` and `&`, which belong to cabinet hardware and to names such as `bar & counter stools`. Using more context is the subject of [chapter 3](#counting-further-back), and a model that weighs every earlier word is where the book is heading.
 
-**What to do:** for autocomplete, offer the top few next words by probability, and drop tokens that aren't words, such as punctuation. Expect a bigram model's suggestions to be good after words that are almost always followed by the same thing, such as `coffee`, and poor after words with many possible continuations, such as `outdoor`. When the earlier words matter, as they do in `patio bar`, a bigram model can't help, however much text it learns from.
+**Working rule:** For autocomplete, offer the top few next words by probability, and drop tokens that aren't words, such as punctuation. Expect a bigram model's suggestions to be good after words that are almost always followed by the same thing, such as `coffee`, and poor after words with many possible continuations, such as `outdoor`. When the earlier words matter, as they do in `patio bar`, a bigram model can't help, however much text it learns from.
 
 ## Generate names one word at a time {#generate-one-word-at-a-time}
 
@@ -82,7 +82,7 @@ Read the names closely and two things stand out. Each adjacent pair of words is 
 
 Generated names make a model's limits visible in a way a number can't, which makes them worth reading. They don't measure anything, though: six names are too few to compare two models, and a reader's sense of "plausible" changes from day to day. The next section gives the number.
 
-**What to do:** generate samples whenever you change a model, and read them, because they show failures that a score hides, such as text drifting from one product to another. Use a fixed seed so the samples are reproducible. Never compare models by their samples; compare them by perplexity on validation text.
+**Working rule:** Generate samples whenever you change a model, and read them, because they show failures that a score hides, such as text drifting from one product to another. Use a fixed seed so the samples are reproducible. Never compare models by their samples; compare them by perplexity on validation text.
 
 ## Score a model with perplexity {#score-with-perplexity}
 
@@ -102,7 +102,7 @@ The surprise is almost all at the start. Few names begin with `sled`, so the mod
 
 That number flatters the model, because it's measured on the text the counts came from. Every pair in the training names has a count, so no pair surprises the model infinitely. The real test is text it hasn't seen.
 
-**What to do:** score every language model by its perplexity on validation text, computed exactly as above, with natural logarithms and every predicted word counted, the end marker included. Compare perplexities only between models that use the same tokens and the same validation text, since splitting text differently changes N and what counts as a word. Report training perplexity only beside validation perplexity, to show how much the model memorized.
+**Working rule:** Score every language model by its perplexity on validation text, computed exactly as above, with natural logarithms and every predicted word counted, the end marker included. Compare perplexities only between models that use the same tokens and the same validation text, since splitting text differently changes N and what counts as a word. Report training perplexity only beside validation perplexity, to show how much the model memorized.
 
 ## Unseen word pairs break the model {#unseen-pairs-break-the-model}
 
@@ -116,7 +116,7 @@ This is the flaw the [probabilities section](#counts-to-probabilities) warned ab
 
 The fix has to give unseen pairs some probability, which means taking a little away from the pairs the model has seen. That's called **smoothing**.
 
-**What to do:** never trust a language model that gives zero probability to anything; check for infinite or undefined perplexity on validation text before you compare models. When you see one, count the unseen pairs, as above, to know how much of the text the model can't handle.
+**Working rule:** Never trust a language model that gives zero probability to anything; check for infinite or undefined perplexity on validation text before you compare models. When you see one, count the unseen pairs, as above, to know how much of the text the model can't handle.
 
 ## Give unseen pairs a little probability {#smooth-unseen-pairs}
 
@@ -134,7 +134,7 @@ The vocabulary holds {{out:add-one-smoothing:vocabulary}} words, the end marker 
 
 Add-one smoothing fixes the infinity and breaks almost everything else, because it adds one imagined pair for every word in the vocabulary, however much evidence the real counts hold, and spreads them evenly. Better smoothing methods take far less probability away from seen pairs, and give it to unseen pairs in proportion to how often their words occur elsewhere. They are the subject of [chapter 3](#counting-further-back), and the counted model of this chapter, looking further back and with a better smoothing method, becomes the baseline that every later model in the book is measured against.
 
-**What to do:** never ship a counted model without smoothing, and never ship one with add-one smoothing: measure validation perplexity and expect add-one to lose to every method in [chapter 3](#counting-further-back), which compares them on the same tokens. Use add-one only as this chapter does, to show that zero probabilities are fixable and that the fix needs care.
+**Working rule:** Never ship a counted model without smoothing, and never ship one with add-one smoothing: measure validation perplexity and expect add-one to lose to every method in [chapter 3](#counting-further-back), which compares them on the same tokens. Use add-one only as this chapter does, to show that zero probabilities are fixable and that the fix needs care.
 
 ## What goes wrong in production {#next-word-in-production}
 

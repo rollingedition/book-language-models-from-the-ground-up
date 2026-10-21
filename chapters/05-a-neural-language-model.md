@@ -24,7 +24,7 @@ For the store, take the model the book trains in this chapter, load its weights,
 
 The window is padded with start markers, because the name has only two tokens so far. Each of the four tokens becomes a vector of 64 numbers; joined, they make one vector of 256; the hidden layer turns that into 256 more; and the output layer gives one score for each of the {{out:window-model-by-hand:vocabulary size}} tokens the model knows, the store tokenizer's vocabulary plus the start and end markers. The model has {{out:window-model-by-hand:parameters}} parameters, the numbers it learns. About three quarters of them are in the output layer's weights, {{out:window-model-by-hand:parameters in output_w}}, because it needs a column for every token, and most of the rest are in the embedding table. Its prediction is sensible: `stool` with probability {{out:window-model-by-hand:P(stool</w> | patio bar)}}, then `with` and `&`, which continue names such as `patio bar with stools`.
 
-**What to do:** build the forward pass of any model you train by hand at least once, and print the shape of every intermediate array, as this example does: a wrong shape is a common bug in neural code, and the shapes say exactly what the model computes. Expect the output layer to hold most of the parameters whenever the vocabulary is large.
+**Working rule:** Build the forward pass of any model you train by hand at least once, and print the shape of every intermediate array, as this example does: a wrong shape is a common bug in neural code, and the shapes say exactly what the model computes. Expect the output layer to hold most of the parameters whenever the vocabulary is large.
 
 ## Compute gradients by backpropagation {#compute-gradients}
 
@@ -38,7 +38,7 @@ Backpropagation code often goes subtly wrong, so check it against a slower metho
 
 All {{out:gradients-by-hand:parameters checked}} gradients from backpropagation agree with the nudged estimates to six decimal places: the last line reads {{out:gradients-by-hand:backprop agrees with nudging to 6 decimal places}}. The nudging method costs two forward passes per parameter, which is why no one trains with it, but on a tiny model it's the reference that tells you backpropagation is right.
 
-**What to do:** check hand-written gradients against nudged estimates on a tiny model before trusting them, as here. When you use a library that computes gradients for you, as the [PyTorch section](#train-with-pytorch) does, check the library's forward pass against your own instead.
+**Working rule:** Check hand-written gradients against nudged estimates on a tiny model before trusting them, as here. When you use a library that computes gradients for you, as the [PyTorch section](#train-with-pytorch) does, check the library's forward pass against your own instead.
 
 ## Take gradient descent steps {#take-gradient-descent-steps}
 
@@ -52,7 +52,7 @@ The average loss falls from {{out:gradient-descent-by-hand:average loss before}}
 
 Real training changes two things about this loop. It computes each step on a **batch** of examples, a few hundred at a time, instead of all of them, so each step is cheap and the steps vary a little. And it uses a refined update instead of a fixed step size, as the next section describes.
 
-**What to do:** start any new model by running a few steps on a handful of examples and checking that the loss falls, as here: a loss that won't fall on three examples means a bug, not a hard problem. Choose the step size by trying a few: too small and the loss crawls, too large and it jumps around or grows.
+**Working rule:** Start any new model by running a few steps on a handful of examples and checking that the loss falls, as here: a loss that won't fall on three examples means a bug, not a hard problem. Choose the step size by trying a few: too small and the loss crawls, too large and it jumps around or grows.
 
 ## Train with PyTorch {#train-with-pytorch}
 
@@ -73,7 +73,7 @@ Training depends on the machine's floating-point arithmetic, which varies slight
 
 The NumPy forward pass reproduces all {{out:same-as-pytorch:logits compared}} of PyTorch's logits to four decimal places, for the model trained with PyTorch {{out:same-as-pytorch:PyTorch version}}. Every number this chapter reports about the trained model comes from that NumPy code, except the training curve, which the script recorded as it trained.
 
-**What to do:** train with a library that computes gradients for you, and keep a short, independent forward pass of your own to check its outputs, as `lib.neural` does here. Record the library's outputs for a few inputs whenever you save weights, so the check can run anywhere, long after training.
+**Working rule:** Train with a library that computes gradients for you, and keep a short, independent forward pass of your own to check its outputs, as `lib.neural` does here. Record the library's outputs for a few inputs whenever you save weights, so the check can run anywhere, long after training.
 
 ## Stop when validation loss turns up {#stop-at-the-best-epoch}
 
@@ -87,7 +87,7 @@ In epoch 1, training perplexity is higher than validation, because the training 
 
 The gap between the two curves is the model memorizing. It grows every epoch, because the training names repeat their product lines and phrasing, and this model has no **regularization**, nothing in its training that discourages memorizing, so early stopping is its only defence.
 
-**What to do:** always record validation loss per epoch and keep the best epoch's weights, never the last. When the curves part early, as they do here after a few epochs, the model has more capacity than its training text supports: regularize it, use a smaller model, or get more text of the same kind.
+**Working rule:** Always record validation loss per epoch and keep the best epoch's weights, never the last. When the curves part early, as they do here after a few epochs, the model has more capacity than its training text supports: regularize it, use a smaller model, or get more text of the same kind.
 
 ## Compare with the baseline {#compare-with-the-baseline}
 
@@ -105,7 +105,7 @@ To see where, split the validation tokens by whether their three-token context o
 
 So this network doesn't lose only where counts are exact; it hasn't learned to generalize well either. Two features of this model and this text are the likeliest reasons. The network has no regularization and overfits after a few epochs, as the [training curve](#stop-at-the-best-epoch) showed. And the store's names are short and formulaic: three tokens of context cover most of what a name holds, which is the setting where Kneser-Ney's counts are strongest. Bengio and colleagues found the opposite on larger, more varied text: on the Brown corpus, about 800,000 training words, their best network alone had a test perplexity of 268, and mixed with a trigram model 252, against the best n-gram model's 312 ([Bengio et al., 2003](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf), section 4.2 and table 1). A learned model isn't better because it's learned; it has to be measured.
 
-**What to do:** always compare a learned model with a strong counted baseline on the same text and tokens before claiming it helps, and split the comparison by seen and unseen contexts to see where each model wins. Don't conclude from one small dataset that neural models don't work, or that they always do.
+**Working rule:** Always compare a learned model with a strong counted baseline on the same text and tokens before claiming it helps, and split the comparison by seen and unseen contexts to see where each model wins. Don't conclude from one small dataset that neural models don't work, or that they always do.
 
 ## Mix the network with the counts {#mix-with-the-counts}
 
@@ -119,7 +119,7 @@ The mix beats both models. With a network share of 0.2, the validation perplexit
 
 The kept epoch and the share were both chosen by looking at the validation names, so the gain is slightly optimistic; the book's final comparison, on the test names, will check it. And the mix only helps because the two models' errors differ: if they made the same mistakes, averaging them would gain nothing.
 
-**What to do:** when a learned model and a counted one are close, try mixing their probabilities before choosing one, and choose the share on held-out text. Keep the share small when one model is much stronger, as here, and confirm the gain on a separate test set before relying on it.
+**Working rule:** When a learned model and a counted one are close, try mixing their probabilities before choosing one, and choose the share on held-out text. Keep the share small when one model is much stronger, as here, and confirm the gain on a separate test set before relying on it.
 
 ## More text helps only if it's the same kind {#same-kind-of-text}
 
@@ -133,7 +133,7 @@ The training names hold {{out:more-text-of-another-kind:training tokens, names}}
 
 Descriptions are a different kind of text. They're written in full sentences, with words such as `your`, `this` and `perfect` that names rarely contain, and a model that learns mostly from them predicts names as if they were descriptions. The added text taught the model the wrong distribution for the task. A model learns the text it's given, and its perplexity measures how well it predicts text like that: data of another kind can make it worse, and needs to be weighted or kept apart.
 
-**What to do:** before adding training text, check that it resembles the text you'll predict; train on both and measure on the target text, as here, rather than assuming more is better. When the extra text differs a lot, train on the target text alone, or lay out each text so the model can tell its kinds apart, as [chapter 8](#turn-products-into-batches) does with a separator between a product's name and its description.
+**Working rule:** Before adding training text, check that it resembles the text you'll predict; train on both and measure on the target text, as here, rather than assuming more is better. When the extra text differs a lot, train on the target text alone, or lay out each text so the model can tell its kinds apart, as [chapter 8](#turn-products-into-batches) does with a separator between a product's name and its description.
 
 ## Suggest from similar contexts {#suggest-from-similar-contexts}
 
@@ -147,7 +147,7 @@ After `outdoor bar`, the network suggests `stool` first, with probability {{out:
 
 This is one case, not an average: the [seen and unseen split](#compare-with-the-baseline) showed the network worse on unseen contexts overall. It shows what a learned model can do that counting can't, and that this one does it only sometimes.
 
-**What to do:** look at a learned model's predictions on contexts the training text lacks, with control prefixes beside them, but judge it by measurements over many contexts, not by examples. For autocomplete in production, use the mix, and test it on rare prefixes as well as common ones.
+**Working rule:** Look at a learned model's predictions on contexts the training text lacks, with control prefixes beside them, but judge it by measurements over many contexts, not by examples. For autocomplete in production, use the mix, and test it on rare prefixes as well as common ones.
 
 ## What goes wrong in production {#neural-in-production}
 

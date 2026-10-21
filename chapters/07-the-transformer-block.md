@@ -29,7 +29,7 @@ For the store, run its trained model on one validation product. At every layer, 
 
 The vectors enter the first layer with an average length of {{out:residual-stream:length of the vectors entering layer 1}}, and leave the last with {{out:residual-stream:length of the vectors leaving the last layer}}. Every layer adds to them, and what attention adds is comparable in size to what the feed-forward layer adds, though the feed-forward layer adds more at every layer, and by more in the later ones: both parts do real work at every layer. The vectors grow as they go, because each addition piles onto the last. A layer reading the long vectors near the top and one reading the short ones at the bottom would need very differently scaled weights, unless something rescales what each layer reads; the [next section](#normalize-before-each-part) does.
 
-**What to do:** write every block as additions to the residual stream, never as replacements, and keep the stream's width the same through the whole model so the additions line up. When you debug a deep model, measure what each part adds, as here: a part that adds almost nothing is doing almost nothing.
+**Working rule:** Write every block as additions to the residual stream, never as replacements, and keep the stream's width the same through the whole model so the additions line up. When you debug a deep model, measure what each part adds, as here: a part that adds almost nothing is doing almost nothing.
 
 ## Normalize before each part {#normalize-before-each-part}
 
@@ -47,7 +47,7 @@ Entering the first block, the vectors' root mean square is {{out:rms-norm-by-han
 
 So though the stream grew many times longer across the layers, every attention and feed-forward layer read vectors of the same scale, times its learned gains.
 
-**What to do:** normalize before each part of the block, not after, and normalize the stream once more before the output layer. Use RMSNorm unless you're matching a model that uses layer normalization. When you load another model's weights, check which normalization it uses, where, and with what ε, before anything else: the [mismatched-details example](#measure-mismatched-details) shows what a small mismatch costs.
+**Working rule:** Normalize before each part of the block, not after, and normalize the stream once more before the output layer. Use RMSNorm unless you're matching a model that uses layer normalization. When you load another model's weights, check which normalization it uses, where, and with what ε, before anything else: the [mismatched-details example](#measure-mismatched-details) shows what a small mismatch costs.
 
 ## Transform each position with a gated feed-forward layer {#transform-each-position}
 
@@ -67,7 +67,7 @@ SiLU of −3, 0 and 3 gives {{out:gated-feed-forward:silu(-3), silu(0), silu(3)}
 
 The feed-forward layers hold most of a block's parameters: in the store's model, three matrices of {{out:transformer-parameters:width}} by {{out:transformer-parameters:feed-forward width}}, against attention's four of {{out:transformer-parameters:width}} by {{out:transformer-parameters:width}}. Geva and colleagues found that in trained models these layers work like stores of patterns: each hidden unit responds to particular patterns in the text, and pushes the prediction towards particular next tokens ([Geva et al., 2021](https://arxiv.org/abs/2012.14913)).
 
-**What to do:** use a gated feed-forward layer with SiLU. Set its width so its three matrices hold as many parameters as a plain layer four times the stream's width, the original transformer's ratio, 2,048 for 512 ([Vaswani et al., 2017](https://arxiv.org/abs/1706.03762), section 3.3): that's about 8/3 times the width. SmolLM2-360M uses exactly 8/3, 2,560 for 960. The store's model rounds 8/3 of its width up to a multiple of 32, a rule of thumb that keeps matrix sizes convenient for hardware. When you load another model, check whether its feed-forward layer is gated, since a gated layer has three matrices where a plain one has two.
+**Working rule:** Use a gated feed-forward layer with SiLU. Set its width so its three matrices hold as many parameters as a plain layer four times the stream's width, the original transformer's ratio, 2,048 for 512 ([Vaswani et al., 2017](https://arxiv.org/abs/1706.03762), section 3.3): that's about 8/3 times the width. SmolLM2-360M uses exactly 8/3, 2,560 for 960. The store's model rounds 8/3 of its width up to a multiple of 32, a rule of thumb that keeps matrix sizes convenient for hardware. When you load another model, check whether its feed-forward layer is gated, since a gated layer has three matrices where a plain one has two.
 
 ## Give attention positions with rotations {#rotary-positions}
 
@@ -87,7 +87,7 @@ The rotation keeps both vectors' lengths: {{out:rope-by-hand:length kept by the 
 
 RoPE has no learned parameters. The angles are fixed, and the model learns queries and keys that make use of them. The store's model applies it to the queries and keys of every head in every layer, which gives [chapter 6's](#attend-to-the-previous-token) previous-token heads a direct way to find the previous token, alongside the weak signal the mask provides.
 
-**What to do:** use rotary position embeddings, applied to queries and keys, never values. When you load another model's weights, check how its RoPE pairs the numbers and what base it uses. Some implementations pair neighbouring numbers; others pair the first half with the second, as `lib.transformer.rope` does and as SmolLM2's configuration states with `"rope_interleaved": false`. SmolLM2 uses a base of 100,000 where the store's model uses 10,000.
+**Working rule:** Use rotary position embeddings, applied to queries and keys, never values. When you load another model's weights, check how its RoPE pairs the numbers and what base it uses. Some implementations pair neighbouring numbers; others pair the first half with the second, as `lib.transformer.rope` does and as SmolLM2's configuration states with `"rope_interleaved": false`. SmolLM2 uses a base of 100,000 where the store's model uses 10,000.
 
 ## Tie the output layer to the embeddings {#tie-the-output}
 
@@ -113,7 +113,7 @@ def block(x: np.ndarray, layer_weights: dict[str, np.ndarray], heads: int, posit
 
 The last line holds one more idea: the output layer reuses the embedding table, turned on its side, instead of learning a matrix of its own. A token's logit is the dot product of the final vector with that token's embedding. Press and Wolf found that this **weight tying** lowers perplexity as well as saving the output layer's parameters ([Press and Wolf, 2017](https://arxiv.org/abs/1608.05859)). SmolLM2 ties them too (`"tie_word_embeddings": true` in its configuration), since for a model of its size a separate output layer would be a large share of the whole. The [parameter count](#count-the-parameters) shows what tying saves in the store's model.
 
-**What to do:** tie the output layer to the embeddings in a small model, and check whether a model you load ties them before you look for a separate output matrix. Keep your own forward pass short enough to read whole, as `lib.transformer` is, so that every detail the next sections test is visible.
+**Working rule:** Tie the output layer to the embeddings in a small model, and check whether a model you load ties them before you look for a separate output matrix. Keep your own forward pass short enough to read whole, as `lib.transformer` is, so that every detail the next sections test is visible.
 
 ## Check the model against PyTorch {#check-against-pytorch}
 
@@ -125,7 +125,7 @@ For the store, recompute PyTorch's logits with the NumPy model, and compare:
 
 The NumPy model reproduces all {{out:transformer-same-as-pytorch:logits compared}} of PyTorch's logits, for {{out:transformer-same-as-pytorch:positions compared}} positions, to four decimal places: {{out:transformer-same-as-pytorch:same as PyTorch to 4 decimal places}}, for PyTorch {{out:transformer-same-as-pytorch:PyTorch version}}. Because the check covers a whole text, it covers the parts that depend on position, the mask and the rotations, as well as the norms, the gates and the tied output.
 
-**What to do:** check your own forward pass against the training library's outputs on a full text, not a single position. Where the library has its own implementation of a part, train with it, so the check compares two independent implementations; where it doesn't, as with RoPE here, test the part's properties by hand.
+**Working rule:** Check your own forward pass against the training library's outputs on a full text, not a single position. Where the library has its own implementation of a part, train with it, so the check compares two independent implementations; where it doesn't, as with RoPE here, test the part's properties by hand.
 
 ## Leave out a block to see what it does {#leave-out-a-block}
 
@@ -139,7 +139,7 @@ With all four blocks, the [perplexity](#score-with-perplexity) per token is {{ou
 
 The difference is in what the later blocks expect. They were trained on a stream that block 1 had already written to, and without it they read vectors unlike any they saw in training. Their predictions become less confident, with the top token's average probability falling from {{out:skip-a-block:all blocks, average probability of the top token}} to {{out:skip-a-block:without block 1, average probability of the top token}}, and they put that probability on the wrong tokens. Block 1 turns raw embeddings into the form everything after it is built on, partly by gathering context from the text so far, as three of [chapter 6's](#read-trained-heads) first-layer heads did. Blocks in a trained model aren't independent modules: each depends on what the earlier ones write.
 
-**What to do:** to learn what a part of a model does, remove it and measure, as here, rather than inferring from its weights. Expect the first block to matter most, since everything later is built on it; beyond that, measure, because here the second and last blocks mattered about equally, and more than the third. Read a small loss from removing a part with care: the remaining parts were trained alongside it, so the measurement says what the trained model relies on, not what the part could do alone.
+**Working rule:** To learn what a part of a model does, remove it and measure, as here, rather than inferring from its weights. Expect the first block to matter most, since everything later is built on it; beyond that, measure, because here the second and last blocks mattered about equally, and more than the third. Read a small loss from removing a part with care: the remaining parts were trained alongside it, so the measurement says what the trained model relies on, not what the part could do alone.
 
 ## Measure what a mismatched detail costs {#measure-mismatched-details}
 
@@ -153,7 +153,7 @@ As trained, the perplexity is {{out:mismatched-details:perplexity, as trained}}.
 
 The other difference from SmolLM2 is **grouped-query attention**: its 15 query heads share 5 sets of keys and values, so its key and value matrices are a third of the size of its query matrix ([Ainslie et al., 2023](https://arxiv.org/abs/2305.13245)). Loading such weights into a model that expects a key and value for every head fails with a shape error, which is the kind of mismatch you want.
 
-**What to do:** when you load another model's weights, compare its configuration with your code line by line: normalization and its ε, RoPE's pairing and base, the feed-forward layer's gating, tied outputs, and how many heads share keys and values. Then score text you know, as here, against the original implementation's outputs; a small loss with no error is the case to fear.
+**Working rule:** When you load another model's weights, compare its configuration with your code line by line: normalization and its ε, RoPE's pairing and base, the feed-forward layer's gating, tied outputs, and how many heads share keys and values. Then score text you know, as here, against the original implementation's outputs; a small loss with no error is the case to fear.
 
 ## Count where the parameters go {#count-the-parameters}
 
@@ -165,7 +165,7 @@ The model has {{out:transformer-parameters:total}} parameters, slightly fewer th
 
 The two models are about the same size and spend it differently. The window model put about three quarters of its parameters in its output layer, and could see four tokens back. The transformer puts most of its parameters in its blocks, shares its embeddings with its output, and can see every earlier token in a text of up to {{out:transformer-parameters:longest text, in tokens}} tokens. [Chapter 8](#training-a-small-model) explains how the model was trained, and measures it against the baseline.
 
-**What to do:** count parameters by part whenever you design or load a model, as here. At small sizes, the embedding table is a large share of the total, so tie it to the output layer, and choose the vocabulary size with that cost in mind, as [chapter 2's](#choose-how-many-merges) choice of merges did.
+**Working rule:** Count parameters by part whenever you design or load a model, as here. At small sizes, the embedding table is a large share of the total, so tie it to the output layer, and choose the vocabulary size with that cost in mind, as [chapter 2's](#choose-how-many-merges) choice of merges did.
 
 ## What goes wrong in production {#transformer-in-production}
 

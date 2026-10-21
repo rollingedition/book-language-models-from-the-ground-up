@@ -34,7 +34,7 @@ with σ the logistic function from [chapter 4](#learn-by-predicting-neighbours) 
 
 When the tuned model favours the preferred response more than the reference does, the margin is {{out:dpo-loss-by-hand:tuned model favours the preferred answer more than the reference does, margin}} and the loss {{out:dpo-loss-by-hand:tuned model favours the preferred answer more than the reference does, loss}}; when it favours it less, the margin is {{out:dpo-loss-by-hand:tuned model favours it less, margin}} and the loss rises to {{out:dpo-loss-by-hand:tuned model favours it less, loss}}. Lowering the loss pushes the preferred response's probability up and the rejected one's down, measured against where the model started.
 
-**What to do:** mask the request out of the loss when you tune a model on requests and responses, and keep the reference model's log-probabilities beside the tuned model's when you train on preferences. Both are small changes to a loop you already have.
+**Working rule:** Mask the request out of the loss when you tune a model on requests and responses, and keep the reference model's log-probabilities beside the tuned model's when you train on preferences. Both are small changes to a loop you already have.
 
 ## Ask the base model and the tuned model {#ask-base-and-tuned}
 
@@ -48,7 +48,7 @@ For the welcome sign, the base model writes about front porches: `The front porc
 
 Neither model knows anything about the products beyond their names. The base model named a material the name doesn't give in {{out:base-and-tuned:base model, descriptions that name a material the name doesn't}} descriptions, and the tuned model in {{out:base-and-tuned:tuned model, descriptions that name a material the name doesn't}}, and each of those came from the model, not from the store's data, as [chapter 9](#choosing-the-next-token)'s did.
 
-**What to do:** use a tuned model when you need a request followed, and a base model when you need text continued in the style of what came before. Don't read fluency as knowledge: a tuned model writes a better-shaped description from the same lack of facts.
+**Working rule:** Use a tuned model when you need a request followed, and a base model when you need text continued in the style of what came before. Don't read fluency as knowledge: a tuned model writes a better-shaped description from the same lack of facts.
 
 ## Format the request as the model was tuned {#format-the-request}
 
@@ -62,7 +62,7 @@ With the template, the request sits between `<|im_start|>user` and `<|im_end|>`,
 
 The system message matters too: it's part of every request the model reads, so a different one, such as a description of the store and its tone, can change any reply. That makes it a setting to choose and record, like a decoding setting in [chapter 9](#choosing-the-next-token).
 
-**What to do:** always format requests to a tuned model with its own chat template, applied by the library from the model's tokenizer files, never assembled by hand. Check the template's default system message, since the model reads it on every request, and record the full formatted prompt with every answer you keep.
+**Working rule:** Always format requests to a tuned model with its own chat template, applied by the library from the model's tokenizer files, never assembled by hand. Check the template's default system message, since the model reads it on every request, and record the full formatted prompt with every answer you keep.
 
 ## Measure made-up product details {#measure-made-up-details}
 
@@ -85,7 +85,7 @@ Of the products, {{out:made-up-materials:products whose name or description name
 
 Instruction tuning didn't fix this, and on these products the base model, given a listing to continue, did no worse. The request said to use only the description; when the description had no answer, the models answered anyway, with a material that products like this one often have. Following the form of an instruction isn't the same as knowing when you don't know.
 
-**What to do:** test a model on questions its input can't answer, not only on ones it can, and count made-up answers separately. Check every factual claim a model makes about a product against the product's data, automatically where you can, as `lib.claims` does for materials.
+**Working rule:** Test a model on questions its input can't answer, not only on ones it can, and count made-up answers separately. Check every factual claim a model makes about a product against the product's data, automatically where you can, as `lib.claims` does for materials.
 
 ## Check whether confidence warns you {#check-confidence}
 
@@ -101,7 +101,7 @@ For the store, compare the tuned model's confidence in its supported and made-up
 
 The made-up answers are less confident on average, {{out:answer-confidence:tuned model, made up answers, average probability per token}} per token against {{out:answer-confidence:tuned model, supported answers, average probability per token}} for supported ones. But a threshold of 0.5 per token would keep {{out:answer-confidence:tuned model, supported answers above 0.5 per token}} supported answers and still let through {{out:answer-confidence:tuned model, made up answers above 0.5 per token}} made-up ones. Confidence is a signal, not a filter: it shifts the odds, and it lets confident errors through. With so few answers, these are directions, not rates to rely on.
 
-**What to do:** don't use a model's confidence alone to decide whether to trust an answer. Measure how its confidence relates to being right on your own questions, as here, and if you use a threshold, choose it from those measurements and count what it lets through.
+**Working rule:** Don't use a model's confidence alone to decide whether to trust an answer. Measure how its confidence relates to being right on your own questions, as here, and if you use a threshold, choose it from those measurements and count what it lets through.
 
 ## Find what a longer context loses {#find-what-context-loses}
 
@@ -113,7 +113,7 @@ For the store, give the tuned model, SmolLM2-360M-Instruct, {{out:answer-positio
 
 With the product first, {{out:answer-position:product placed first, answers that name only its own materials}} answers name only its materials; last, {{out:answer-position:product placed last, answers that name only its own materials}}; in the middle, {{out:answer-position:product placed middle, answers that name only its own materials}}. A product in the middle is found least often, the pattern Liu and colleagues found in much larger models. The counts are small, but the gap is wide. The context here is short, a few thousand characters, well within the model's limit: the middle loses details long before a context is full.
 
-**What to do:** put the details a model most needs at the start or the end of its context, not in the middle, and give it as little unrelated text as the task allows. Test retrieval from a longer context at each position, as here, before trusting a model to find details among many.
+**Working rule:** Put the details a model most needs at the start or the end of its context, not in the middle, and give it as little unrelated text as the task allows. Test retrieval from a longer context at each position, as here, before trusting a model to find details among many.
 
 ## Adapt a model to your text {#adapt-a-model}
 
@@ -129,7 +129,7 @@ At rank 8, LoRA trains {{out:lora-parameters:rank 8, parameters trained}} parame
 
 This book doesn't run the fine-tuning: our judgement is that even LoRA, over the store's text, would take far longer on a laptop's processor than any recording here. It's the next step for a store that wants a general model to write in its own voice: fine-tune on the catalog, then measure the result against the store's own model, per word, as [chapter 10](#inside-an-open-model) did. Fine-tuning has risks of its own. A model trained on the catalog learns its gaps along with its text, as the store's small model learned to leave a bulb's description empty in [chapter 9](#forbid-an-empty-description). And training on one narrow text can weaken what the model knew before; Biderman and colleagues found LoRA forgets less of it than full fine-tuning ([Biderman et al., 2024](https://arxiv.org/abs/2405.09673)). Both are measured the same way as everything else in this book: on held-out text, before and after.
 
-**What to do:** to teach a general model your text, fine-tune it on that text, with LoRA when memory or storage is tight, and measure the result on held-out text of the same kind. Don't expect instruction tuning or a cleverer prompt to supply knowledge the model never learned.
+**Working rule:** To teach a general model your text, fine-tune it on that text, with LoRA when memory or storage is tight, and measure the result on held-out text of the same kind. Don't expect instruction tuning or a cleverer prompt to supply knowledge the model never learned.
 
 ## Look back at the yardstick {#look-back-at-the-yardstick}
 
@@ -153,7 +153,7 @@ Three lessons run through it. Counting goes a long way on short, formulaic text:
 
 None of these numbers says whether a model is useful. Perplexity measures how well a model predicts text like its training text, which is what autocomplete needs. It doesn't measure whether a description is true, whether an answer follows a request, or whether a shopper finds what they came for. This chapter's tests, made-up materials, confidence and the place of a fact in a context, are a first step past perplexity, toward measuring the job itself.
 
-**What to do:** keep one fixed yardstick for comparing models, the same text, tokenizer and measure every time, as this book did. Then measure the job itself, with tests built for it, before choosing a model to serve it: a lower perplexity is a reason to test a model, not a reason to ship it.
+**Working rule:** Keep one fixed yardstick for comparing models, the same text, tokenizer and measure every time, as this book did. Then measure the job itself, with tests built for it, before choosing a model to serve it: a lower perplexity is a reason to test a model, not a reason to ship it.
 
 ## What goes wrong in production {#instruction-models-in-production}
 

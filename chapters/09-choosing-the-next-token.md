@@ -22,7 +22,7 @@ The greedy description reads like the store's text, because it is the store's te
 
 The description also says the sign is `made of natural wood`, which nothing in the product's name says, and the bulb shows a different failure. The model gives an immediate end, an empty description, a probability of {{out:greedy-description:P(the description is empty), 5 light light bulb}}. In the training text, {{out:greedy-description:training products named as bulbs with no description}} of the products named as bulbs have no description, against {{out:greedy-description:training products with no description}} of all products: the model learned the catalog as it is, gaps included, and a [later section](#forbid-an-empty-description) deals with it.
 
-**What to do:** use greedy decoding when you want the same output every time and short text, such as a search-box suggestion, where the likeliest next word is the point. For anything longer than a phrase, expect it to repeat itself, and choose one of the methods in the [sections that follow](#search-for-the-likeliest-text).
+**Working rule:** Use greedy decoding when you want the same output every time and short text, such as a search-box suggestion, where the likeliest next word is the point. For anything longer than a phrase, expect it to repeat itself, and choose one of the methods in the [sections that follow](#search-for-the-likeliest-text).
 
 ## Search for the likeliest text {#search-for-the-likeliest-text}
 
@@ -40,7 +40,7 @@ For the query, beam search works as intended. Its top completions of `outdoor ba
 
 For the description, the likeliest text overall is empty. Ending at once has a probability of {{out:beam-search:its probability}}, and every longer text multiplies many probabilities below one, so none comes close. Stahlberg and Byrne found the same in translation models: for most sentences the most probable translation was empty, and beam search worked only because it searched badly ([Stahlberg and Byrne, 2019](https://arxiv.org/abs/1908.10090)). Ranking by probability per token removes that bias, and gives a sensible description. It still invents a material, though: this time the sign is `crafted of iron`.
 
-**What to do:** use beam search for short completions where the likeliest phrase is the goal, such as search queries, ranked by total probability. For longer text, rank finished texts per token, since total probability favours the shortest, and even then prefer the sampling methods of the [next sections](#sample-with-a-temperature), which write text closer to what people write.
+**Working rule:** Use beam search for short completions where the likeliest phrase is the goal, such as search queries, ranked by total probability. For longer text, rank finished texts per token, since total probability favours the shortest, and even then prefer the sampling methods of the [next sections](#sample-with-a-temperature), which write text closer to what people write.
 
 ## Sample, with a temperature {#sample-with-a-temperature}
 
@@ -58,7 +58,7 @@ After `{{out:temperature-by-hand:text so far}}`, the model's own distribution, a
 
 That tail is the risk in sampling. Most tokens in it are wrong here, and at temperature 1 a sampler draws from it about once in every ten tokens, more often as the temperature rises.
 
-**What to do:** treat temperature as the dial between predictable and varied text. Keep it at or a little below 1 for text that should stay close to what the training text usually says, such as product descriptions. A lower temperature makes text more predictable, not more accurate.
+**Working rule:** Treat temperature as the dial between predictable and varied text. Keep it at or a little below 1 for text that should stay close to what the training text usually says, such as product descriptions. A lower temperature makes text more predictable, not more accurate.
 
 ## Sample, and cut the tail {#sample-and-cut-the-tail}
 
@@ -80,7 +80,7 @@ Sampling at temperature 1 wanders: it writes `welcome welcome sign sign`, invent
 
 Across this chapter, the welcome sign has been given a material six times, by greedy decoding, beam search, three of these samples and the [penalized greedy text](#penalize-repetition) below, and nothing in its name says what it's made of. The model writes what descriptions of welcome signs usually say, and they usually state a material. A decoding method changes which plausible material the model picks; none of them can make it pick the true one.
 
-**What to do:** for varied text, cut the tail with top-p around 0.9 or top-k around 20, with a temperature at or a little below 1, and fix the random seed when you need to reproduce a result. Don't expect any setting to make the text true: decoding chooses among what the model finds plausible, and checking facts is a separate job.
+**Working rule:** For varied text, cut the tail with top-p around 0.9 or top-k around 20, with a temperature at or a little below 1, and fix the random seed when you need to reproduce a result. Don't expect any setting to make the text true: decoding chooses among what the model finds plausible, and checking facts is a separate job.
 
 ## Measure what each setting writes {#measure-each-setting}
 
@@ -102,7 +102,7 @@ No setting matches the real descriptions on every measure. Sampling at temperatu
 
 What the measures can't say is whether a description is true. A description can be fluent, varied, on topic and wrong, and [the previous section's](#sample-and-cut-the-tail) were, about the sign's material.
 
-**What to do:** compare decoding settings on measures like these, against real text of the same kind, before reading samples. Decide which measure matters most for the job: for product descriptions, staying on the product and not repeating come first. Then read a sample of the outputs anyway, for what no measure catches, and check every factual claim against the product's data.
+**Working rule:** Compare decoding settings on measures like these, against real text of the same kind, before reading samples. Decide which measure matters most for the job: for product descriptions, staying on the product and not repeating come first. Then read a sample of the outputs anyway, for what no measure catches, and check every factual claim against the product's data.
 
 ## Penalize repetition {#penalize-repetition}
 
@@ -116,7 +116,7 @@ With a factor of {{out:repetition-penalty-by-hand:penalty factor}}, the hand cal
 
 The penalty has a side effect the [measurements](#measure-each-setting) show. It penalizes every token already used, including common words such as `the` and `and` that a description needs many times, but never the end marker, which hasn't been used yet. So the end becomes relatively likelier, and descriptions end sooner: {{out:measure-decoding:greedy, repetition penalty 1.3, ended within 60 tokens}} of the penalized greedy descriptions ended within the limit, against {{out:measure-decoding:greedy, ended within 60 tokens}} without the penalty, with an average length of {{out:measure-decoding:greedy, repetition penalty 1.3, average length in tokens}} tokens against {{out:measure-decoding:greedy, average length in tokens}}. Its repetition fell to {{out:measure-decoding:greedy, repetition penalty 1.3, repeated 4-token phrases}}.
 
-**What to do:** add a repetition penalty around 1.2 to 1.3 when you decode greedily or at a low temperature, and check what it does to length, since it shortens text. As a rule of thumb, if descriptions come out clipped, leave common function words and punctuation out of the penalty.
+**Working rule:** Add a repetition penalty around 1.2 to 1.3 when you decode greedily or at a low temperature, and check what it does to length, since it shortens text. As a rule of thumb, if descriptions come out clipped, leave common function words and punctuation out of the penalty.
 
 ## Forbid an empty description {#forbid-an-empty-description}
 
@@ -128,7 +128,7 @@ For the store, take the bulb, `5 light light bulb`, and decode greedily without 
 
 The model gives the empty description a probability of {{out:minimum-length:P(the description is empty)}}, and greedy decoding takes it: the description comes out empty. With the minimum, it writes one, and two failures from earlier in this chapter appear in it. It repeats itself, `a light , a light , and more light`, and it states things the name doesn't: that the bulb is `made of metal`, `dimmable`, and `compatible with most standard bulbs`. The minimum stopped the gap; it can't supply the facts.
 
-**What to do:** set a minimum length whenever the training text includes empty or very short examples of what you're generating. Combine it with the other settings in this chapter, not instead of them, and expect the text it forces out to need the same checking as any other.
+**Working rule:** Set a minimum length whenever the training text includes empty or very short examples of what you're generating. Combine it with the other settings in this chapter, not instead of them, and expect the text it forces out to need the same checking as any other.
 
 ## What goes wrong in production {#decoding-in-production}
 
