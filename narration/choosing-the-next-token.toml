@@ -4,13 +4,13 @@
 say = "The code counts the validation and training products with no description, and the training products named as bulbs with none. Then it decodes a description of front porch welcome sign wall décor greedily, up to {{out:greedy-description:longest description, in tokens}} tokens, lists the four-token phrases it uses twice or more, and prints the probability that the description of 5 light light bulb is empty: {{out:greedy-description:P(the description is empty), 5 light light bulb}}."
 
 [examples.beam-search]
-say = "The code runs beam search with a beam of {{out:beam-search:beam width}} twice: first to complete the query outdoor bar by a few tokens, printing the two likeliest completions with their probabilities, then to write the welcome sign's description, printing the likeliest text overall, its probability, and the likeliest text per token. The likeliest text overall is the empty one."
+say = "The code runs beam search twice, with a beam of {{out:beam-search:beam width}}: first to complete the query outdoor bar by a few tokens, printing the two likeliest completions with their probabilities, then to write the welcome sign's description, printing the likeliest text overall, its probability, and the likeliest text per token."
 
 [examples.temperature-by-hand]
 say = "The code stops the greedy description after its first nine tokens, and divides the next token's logits by three temperatures, 0.5, 1 and 1.5, before softmax. For each it prints the three likeliest tokens with their probabilities, how many tokens it takes to cover 90% of the probability, and how much probability falls outside the tokens that cover 90% at temperature 1. The higher the temperature, the more tokens it takes."
 
 [examples.sample-descriptions]
-say = "The code writes {{out:sample-descriptions:longest description, in tokens}} tokens of the welcome sign's description four ways, with the same seed: sampling at temperature 1, sampling at 0.7, top-k 20 and top-p 0.9, and prints each. Then it replays the temperature 1 sample step by step, and lists the tokens it drew from outside each step's 90% nucleus: {{out:sample-descriptions:temperature 1.0, tokens drawn from outside the 90% nucleus}}."
+say = "The code writes up to {{out:sample-descriptions:longest description, in tokens}} tokens of the welcome sign's description four ways, with the same seed: sampling at temperature 1, sampling at 0.7, top-k 20 and top-p 0.9, and prints each. Then it replays the temperature 1 sample step by step, and lists the tokens it drew from outside each step's 90% nucleus: {{out:sample-descriptions:temperature 1.0, tokens drawn from outside the 90% nucleus}}."
 
 [examples.measure-decoding]
 say = "The code draws {{out:measure-decoding:products, drawn at random from the validation products with a description}} validation products with a description at random, writes a description of each with six settings, from greedy decoding to top-p, and measures every set, the real descriptions included: the share of repeated four-token phrases, the model's perplexity of the text, the share that end within the limit, the share that use a whole word of the name, and the average length."
@@ -29,4 +29,4 @@ say = "One line: for every text in the beam, it adds one candidate for each of i
 [[blocks]]
 section = "sample-and-cut-the-tail"
 starts = "order = np.argsort(-probabilities,"
-say = "Two of its lines: sort the tokens from likeliest to least likely, then add up their probabilities in that order, and keep the tokens up to the first point where the running sum reaches p."
+say = "The first line sorts the tokens from likeliest to least likely; the last adds up their probabilities in that order and keeps the tokens up to the first point where the running sum reaches p."
