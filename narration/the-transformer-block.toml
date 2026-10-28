@@ -16,7 +16,7 @@ say = "The code rotates one random 32-number query and key for every position fr
 say = "The code recomputes the store's model's logits in NumPy for every position of the validation product the training script saved, compares them with PyTorch's own, and prints the PyTorch version, how many positions and logits it compared, and whether all of them match to four decimal places: {{out:transformer-same-as-pytorch:same as PyTorch to 4 decimal places}}."
 
 [examples.skip-a-block]
-say = "The code scores the names and descriptions of the first 100 validation products with the full model, then with each block left out in turn, and prints the perplexity per token and the top token's average probability each time. Leaving out block 1 does by far the most harm."
+say = "The code scores the names and descriptions of the first 100 validation products with the full model, then with each block left out in turn, and prints the perplexity per token and the top token's average probability each time."
 
 [examples.mismatched-details]
 say = "The code scores the same 100 validation products four ways, with the trained weights each time: as trained, with RoPE pairing neighbouring numbers instead of halves, with RoPE's base at 100,000 instead of 10,000, and with no RoPE at all, and prints the perplexity of each. The wrong base costs the least: {{out:mismatched-details:perplexity, RoPE with base 100,000}}, against {{out:mismatched-details:perplexity, as trained}} as trained."
