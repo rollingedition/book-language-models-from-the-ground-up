@@ -1,0 +1,22 @@
+# Spoken descriptions for chapter 2, Tokens.
+
+[examples.unseen-words]
+say = "The code counts the different words in the training names and those seen only once, then counts the words in the validation names that the training names never contain: {{out:unseen-words:share never seen in training}} of all validation words. It also finds what share of those unseen words are rare words, and prints the most frequent of the ordinary ones, starting with neutral and noise-free."
+
+[examples.character-tokens]
+say = "The code collects every character the training names use, finds the characters in the validation names that never appear there, and prints their Unicode names. Then it counts the validation names' tokens as words and as characters, which come to {{out:character-tokens:characters per word}} characters for each word."
+
+[examples.merge-pairs-by-hand]
+say = "The code spells every word in the training names as characters plus an end-of-word marker. Eight times over, it counts every adjacent pair of symbols, weighting each word by how often it occurs, and merges the most frequent pair everywhere. It prints each merge with how often the pair occurred, starting with e and the end-of-word marker, then how table is spelled after eight merges, and whether the book's shared module learns the same eight: {{out:merge-pairs-by-hand:same merges as lib.bpe.train}}."
+
+[examples.store-tokenizer]
+say = "The code counts every word in the training split's names and descriptions, learns 4,000 merges from them, and prints the size of the resulting vocabulary: {{out:store-tokenizer:tokens in the vocabulary}} tokens. Then it encodes five short texts, from set of 2 barstools to noise noise-free, and prints each one's tokens."
+
+[examples.vocabulary-size]
+say = "The code learns 16,000 merges once, then uses none of them, and the first 1,000, 2,000, 4,000, 8,000 and 16,000, as six tokenizers. For each it prints a row: how many different tokens the training text uses, how many tokens a validation word takes on average, and the share of token types seen fewer than 20 times. At 4,000 merges, a validation word takes {{out:vocabulary-size:tokens per word at 4,000 merges}} tokens."
+
+[examples.smollm2-tokens]
+say = "The code loads SmolLM2's tokenizer from the book's copy of its file and prints its vocabulary's size. It encodes three product names with it and with the store's tokenizer, printing both sets of tokens, and in SmolLM2's every digit comes out as a token of its own. Then it averages the tokens per validation name each way, and the words per name, and encodes sled coffee table with and without a space before it."
+
+[examples.merges-by-hand]
+say = "The code reads SmolLM2's merges from its tokenizer file, ranked by when they were learned, takes the pre-tokenizer's pieces of three product names from the library, and merges each piece by hand, always joining the pair learned earliest, until no learned pair is left. It prints each name's tokens and whether they match the library's, then the pre-tokenizer's steps. The tokens made by hand match for all three names."

@@ -5,18 +5,34 @@
 # names and abbreviations
 "WANDS" = "Wands"
 "ECIR" = "E C I R"
+"BPE" = "B P E"
+
+# SmolLM2's tokenizer writes a space before a word as a G with a dot above
+"Ġ" = "G-dot"
+"Ġtable" = "G-dot table"
+"Ġsled" = "G-dot sled"
 
 # the markers a model's text is padded with
 "<s>" = "start marker"
 "</s>" = "end marker"
 "<unk>" = "unk"
+"</w>" = " end-of-word"
+"<|endoftext|>" = "end of text"
 "<s> coffee" = "start marker, coffee"
 "table </s>" = "table, end marker"
 
 # code read as a listener needs it
 "&" = "ampersand"
 "bar & counter stools" = "bar and counter stools"
+"6, . and 5" = "six, a dot, and five"
+
+# paths and modules: a reading inside a path is given for the whole path, so its dots and slashes are read too
 "examples/data/wands-text/README.md" = "examples slash data slash wands text slash read me dot M D"
+"examples/data/smollm2-tokenizer/" = "examples slash data slash smol L M two tokenizer"
+"prep/smollm2_tokenizer.py" = "prep slash smol L M two tokenizer dot py"
+"lib.bpe" = "lib dot B P E"
+"lib.bpe.train" = "lib dot B P E dot train"
+"lib.bpe.store_tokenizer()" = "lib dot B P E dot store tokenizer"
 
 # formulas written in the prose, chapter 1
 "P(v | w) = count(w v) / count(w)" = "P of v given w equals the count of w v, divided by the count of w"
@@ -25,4 +41,5 @@
 "P(v | w) = (count(w v) + 1) / (count(w) + V)" = "P of v given w equals the count of w v plus one, divided by the count of w plus V"
 
 [words]
+"smollm2" = "smol L M two"
 "inf" = "infinity"
