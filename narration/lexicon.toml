@@ -17,6 +17,8 @@
 "FFN" = "F F N"
 "RoPE" = "rope"
 "float16" = "float sixteen"
+"AdamW" = "Adam W"
+"clip_grad_norm_" = "clip grad norm"
 "⊙" = "the circled dot"
 
 # model names
@@ -107,6 +109,9 @@
 "SiLU(z) = z · σ(z)" = "sigh loo of z equals z times sigma of z"
 "θᵢ = 10000^(−i/(d/2))" = "theta i equals ten thousand to the power of minus i over half of d"
 "(a, b) → (a cos pθᵢ − b sin pθᵢ, a sin pθᵢ + b cos pθᵢ)" = "the pair a, b turns into a times the cosine of p theta i, minus b times the sine of p theta i, and a times the sine of p theta i, plus b times the cosine of p theta i"
+
+# formulas written in the prose, chapter 8
+"rate = peak × (0.1 + 0.9 × ½ (1 + cos(π × progress)))" = "rate equals peak times, zero point one plus zero point nine times one half of, one plus the cosine of pi times progress"
 
 [words]
 "tanh" = "tan h"
