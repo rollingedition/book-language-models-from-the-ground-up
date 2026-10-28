@@ -79,7 +79,7 @@ A model reading these tokens can spell any word made of characters the training 
 
 The number of merges sets the vocabulary size, and it's the one real choice in a BPE tokenizer. More merges make sequences shorter, which saves computation. But each new token covers rarer text, and a token the training text shows only a few times gives a model too little to learn from: the same problem as rare words, in a new place.
 
-For the store, learn 16,000 merges once, and use the first 0, 1,000, 4,000 and 16,000 of them as four tokenizers; the first k merges of a longer run are exactly the merges a k-merge run would learn. For each, count how many different tokens the training text uses, how many tokens each validation word becomes, and what share of the tokens appear fewer than 20 times in the training text:
+For the store, learn 16,000 merges once, and use the first 0, 1,000, 2,000, 4,000, 8,000 and 16,000 of them as six tokenizers; the first k merges of a longer run are exactly the merges a k-merge run would learn. For each, count how many different tokens the training text uses, how many tokens each validation word becomes, and what share of the tokens appear fewer than 20 times in the training text:
 
 [Example: vocabulary-size](../examples/vocabulary-size.py)
 
