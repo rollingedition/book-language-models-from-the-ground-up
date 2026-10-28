@@ -1,0 +1,25 @@
+# Spoken descriptions for chapter 1, Predicting the next word.
+
+[examples.store-text]
+say = "The code loads the store's product text, counts the products in each split and the words in the training names, and prints one ordinary training name each for a coffee table, a bar stool, an area rug and a bathroom vanity. The store has {{out:store-text:products}} products in all."
+
+[examples.count-next-words]
+say = "The code pads every training name with a start marker and an end marker, counts each word with the word that follows it, and prints the four words that most often came after coffee, with their counts. Table comes first by far, then mug, a comma and jar."
+
+[examples.next-word-probabilities]
+say = "The code builds the bigram model from the training names, and divides how often table, mug, jar and lamp followed coffee by how often coffee was followed by anything, printing each probability with the counts behind it. Then it adds up the probabilities of every word that followed coffee: {{out:next-word-probabilities:sum over every word after coffee}}."
+
+[examples.autocomplete]
+say = "The code asks the bigram model for its three likeliest next words, with their probabilities, after five things a shopper might type, from coffee to patio bar, looking only at the last word of each. Patio bar gets the same three suggestions as bar. Then it counts the training names that contain outdoor door, and how many of them go on to mat."
+
+[examples.generate-names]
+say = "The code writes six names, each starting at the start marker and drawing every next word at random in proportion to its probability, with a fixed seed, until it draws the end marker or reaches twelve words. It prints the names, with rare words such as product lines' names hidden, and counts the generated words that the training names don't contain: {{out:generate-names:generated words never seen in training}}."
+
+[examples.perplexity-by-hand]
+say = "The code scores the training name sled coffee table one pair at a time, from the start marker to the end marker, printing each pair's probability and its surprise, the minus log of that probability. The first pair, sled after the start marker, carries most of the surprise. Then it averages the surprise, turns the average into the name's perplexity, and computes the perplexity of every training name: {{out:perplexity-by-hand:perplexity of every training name}}."
+
+[examples.perplexity-on-new-names]
+say = "The code scores the bigram model on the validation names and prints their perplexity. Then it counts the validation word pairs that never occur in the training names, {{out:perplexity-on-new-names:share never seen in training}} of all of them, counts the validation names that hold at least one, and prints the first three unseen pairs."
+
+[examples.add-one-smoothing]
+say = "The code compares the bigram model's counted probabilities with add-one probabilities, where every count goes up by one and every total by the vocabulary's size. It prints the vocabulary's size, the probability of table after coffee both ways, the training perplexity both ways, and the add-one model's validation perplexity, which is finite: {{out:add-one-smoothing:validation perplexity, add-one}}."

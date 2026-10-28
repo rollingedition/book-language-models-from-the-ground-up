@@ -1,0 +1,28 @@
+# How narration says this book's terms. [terms] are exact and case-sensitive, and win over the shared rules;
+# [words] are whole words in any case, such as the words of an example's ID.
+
+[terms]
+# names and abbreviations
+"WANDS" = "Wands"
+"ECIR" = "E C I R"
+
+# the markers a model's text is padded with
+"<s>" = "start marker"
+"</s>" = "end marker"
+"<unk>" = "unk"
+"<s> coffee" = "start marker, coffee"
+"table </s>" = "table, end marker"
+
+# code read as a listener needs it
+"&" = "ampersand"
+"bar & counter stools" = "bar and counter stools"
+"examples/data/wands-text/README.md" = "examples slash data slash wands text slash read me dot M D"
+
+# formulas written in the prose, chapter 1
+"P(v | w) = count(w v) / count(w)" = "P of v given w equals the count of w v, divided by the count of w"
+"cross-entropy = −(1/N) Σ log P(next word | previous word)" = "cross-entropy equals minus one over N, times the sum of log P of the next word given the previous word"
+"perplexity = exp(cross-entropy)" = "perplexity equals e to the power of the cross-entropy"
+"P(v | w) = (count(w v) + 1) / (count(w) + V)" = "P of v given w equals the count of w v plus one, divided by the count of w plus V"
+
+[words]
+"inf" = "infinity"
