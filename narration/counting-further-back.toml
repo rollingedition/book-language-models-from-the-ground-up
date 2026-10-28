@@ -4,7 +4,7 @@
 say = "The code counts the n-grams of every order from one to five in the training names, and scores each order, with no smoothing, on the same names it counted, printing its training perplexity and the share of its n-grams seen only once. The longer the context, the lower the perplexity, and the larger the share of n-grams seen once."
 
 [examples.unseen-ngrams]
-say = "The code counts the tokens in the training and validation names, then, for each order from one to five, finds the share of the validation names' n-grams that never occur in the training names. The share grows with the order, up to {{out:unseen-ngrams:5-grams in validation never seen in training}} for 5-grams."
+say = "The code counts the tokens in the training and validation names, then, for each order from one to five, prints the share of the validation names' n-grams that never occur in the training names."
 
 [examples.interpolate-orders]
 say = "The code counts trigrams, bigrams and unigrams in the training names, and mixes their probabilities with fixed weights, passing an unseen context's weight to the orders below and spreading the last hundredth evenly over every token. It prints the mixed model's validation perplexity, {{out:interpolate-orders:interpolated 3-gram validation perplexity}}, and, for comparison, the validation perplexity of an add-one bigram model on the same tokens."
