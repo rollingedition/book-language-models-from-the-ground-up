@@ -65,7 +65,7 @@ That's the idea that solves [chapter 1](#predicting-the-next-word)'s first probl
 
 The algorithm in the [previous section](#merge-frequent-pairs) recounts every pair after every merge, which is fine for eight merges and too slow for thousands. The book's shared module `lib.bpe` runs the same algorithm, but counts pairs once and, after each merge, updates only the words the merge changed, keeping the counts in a heap so the most frequent pair is always on top. It learns thousands of merges in seconds, and gives the same merges the plain version does: the hand-written example's last line checks its eight merges against `lib.bpe.train`.
 
-For the store, learn 4,000 merges from the training split's names and descriptions together, since the book's models will learn from both, and encode three names:
+For the store, learn 4,000 merges from the training split's names and descriptions together, since the book's models will learn from both, and encode two names and three pairs of words:
 
 [Example: store-tokenizer](../examples/store-tokenizer.py)
 

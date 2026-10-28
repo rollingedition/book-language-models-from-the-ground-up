@@ -62,7 +62,7 @@ That tail is the risk in sampling. Most tokens in it are wrong here, and at temp
 
 ## Sample, and cut the tail {#sample-and-cut-the-tail}
 
-Lowering the temperature shrinks the tail but never removes it. Two methods remove it directly, before sampling. **Top-k** keeps only the k likeliest tokens and renormalizes their probabilities to sum to one ([Fan et al., 2018](https://arxiv.org/abs/1805.04833)). **Top-p**, also called nucleus sampling, keeps the smallest set of likeliest tokens whose probabilities reach at least p ([Holtzman et al., 2020](https://arxiv.org/abs/1904.09751), equation 2). Both are options of `lib.decoding.truncate`, whose core is three lines: sort the tokens, add up their probabilities in that order, and find where the sum reaches p:
+Lowering the temperature shrinks the tail but never removes it. Two methods remove it directly, before sampling. **Top-k** keeps only the k likeliest tokens and renormalizes their probabilities to sum to one ([Fan et al., 2018](https://arxiv.org/abs/1805.04833)). **Top-p**, also called nucleus sampling, keeps the smallest set of likeliest tokens whose probabilities reach at least p ([Holtzman et al., 2020](https://arxiv.org/abs/1904.09751), equation 2). Both are options of `lib.decoding.truncate`, whose core is three steps: sort the tokens, add up their probabilities in that order, and find where the sum reaches p:
 
 ```python
     order = np.argsort(-probabilities, kind="stable")
