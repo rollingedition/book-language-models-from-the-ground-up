@@ -8,6 +8,8 @@
 "BPE" = "B P E"
 "KenLM" = "Ken L M"
 "word2vec" = "word to vec"
+"T5" = "T five"
+"MultiheadAttention" = "Multihead Attention"
 
 # SmolLM2's tokenizer writes a space before a word as a G with a dot above
 "Ġ" = "G-dot"
@@ -20,6 +22,7 @@
 "<unk>" = "unk"
 "</w>" = " end-of-word"
 "<|endoftext|>" = "end of text"
+"<sep>" = "sep"
 "<s> coffee" = "start marker, coffee"
 "table </s>" = "table, end marker"
 
@@ -76,6 +79,10 @@
 "P(token i) = exp(zᵢ) / Σⱼ exp(zⱼ)" = "P of token i equals e to the z i, divided by the sum over j of e to the z j"
 "L = −log P(next token)" = "L equals minus log P of the next token"
 "∂L/∂w" = "d L by d w"
+
+# formulas written in the prose, chapter 6
+"Attention(Q, K, V) = softmax(QKᵀ / √d) V" = "Attention of Q, K and V equals softmax of Q times K transposed, over the square root of d, times V"
+"1 / (i + 1)" = "one over i plus one"
 
 [words]
 "tanh" = "tan h"
