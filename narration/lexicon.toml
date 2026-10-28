@@ -116,6 +116,9 @@
 # formulas written in the prose, chapter 9
 "P(token i) = exp(zᵢ / T) / Σⱼ exp(zⱼ / T)" = "P of token i equals e to the z i over T, divided by the sum over j of e to the z j over T"
 
+# formulas written in the prose, chapter 10
+"perplexity per word = exp(−(log p₁ + … + log pₙ) / W)" = "perplexity per word equals e to the minus, log p one plus and so on up to log p n, all over W"
+
 [words]
 "tanh" = "tan h"
 "cpu" = "C P U"

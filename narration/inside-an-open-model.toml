@@ -1,0 +1,27 @@
+# Spoken descriptions for chapter 10, Inside an open model.
+
+[examples.open-model-parameters]
+say = "The code reads the shapes of SmolLM2's recorded weights, counts the embedding table it shares with its output once, and totals the parameters by part, the embedding table, attention, the feed-forward layers and normalization, each with its share. The feed-forward layers hold the largest share. Then it prints the model's configuration, and the shapes of one layer's query and key weights."
+
+[examples.open-model-family]
+say = "The code counts every parameter of SmolLM2's three sizes, part by part, from their recorded configuration files. It prints each size's layers, width, heads, feed-forward width, RoPE base, total and embedding share, and checks the middle size's count against its recorded weights, which hold {{out:open-model-family:SmolLM2-360M, parameters in the recorded weights}} parameters."
+
+[examples.open-model-memory]
+say = "The code works out, for each of SmolLM2's three sizes, the memory its weights take as 16-bit numbers, its key and value cache per token, and the cache for one text of the longest length the models are set up for, {{out:open-model-memory:longest text, in tokens}} tokens, with grouped keys and values and without."
+
+[examples.open-model-on-the-store]
+say = "The code scores the first {{out:open-model-on-the-store:validation names scored}} validation names with the store's model and reads SmolLM2's recorded scores for the same names, then does the same for the descriptions, given each name. It prints each model's perplexity per token and per word, and SmolLM2's per word on the names after a label. The store's model has the lower perplexity on names and on descriptions."
+
+[examples.open-model-heads]
+say = "The code reads SmolLM2's recorded averages over {{out:open-model-heads:texts averaged}} product texts, each head's weight on the previous token and on the first token, counts the heads with more than half their weight on each, and works out what an even spread would give, averaged the same way."
+
+[examples.open-model-copying]
+say = "The code reads SmolLM2's recorded probabilities of cover and of set at the same point in the description, after the name as sold, the name without cover and the name ending in set, and prints all six. Cover is likely only after the name that ends in cover, and set only after the one that ends in set."
+
+[examples.open-model-autocomplete]
+say = "The code reads SmolLM2's recorded three likeliest next tokens after the same five prefixes, from bar to wine bar, and its probability of stool after outdoor bar: {{out:open-model-autocomplete:P(stool | outdoor bar), SmolLM2-360M}}."
+
+[[tables]]
+section = "side-by-side"
+starts = "| | The store's model | SmolLM2-360M |"
+say = "A table sets the store's model beside SmolLM2-360M: their parameters, layers and width, heads, vocabulary and training text, their per-word perplexity on the store's names and descriptions, the probability each gives cover when the description repeats the name, and the most weight one head puts on the previous token. SmolLM2 has the larger number on every measure of size, and the store's model the lower perplexity on both kinds of the store's text."
