@@ -6,6 +6,7 @@
 "WANDS" = "Wands"
 "ECIR" = "E C I R"
 "BPE" = "B P E"
+"KenLM" = "Ken L M"
 
 # SmolLM2's tokenizer writes a space before a word as a G with a dot above
 "Ġ" = "G-dot"
@@ -25,12 +26,14 @@
 "&" = "ampersand"
 "bar & counter stools" = "bar and counter stools"
 "6, . and 5" = "six, a dot, and five"
+"''" = "two apostrophes"
 
 # paths and modules: a reading inside a path is given for the whole path, so its dots and slashes are read too
 "examples/data/wands-text/README.md" = "examples slash data slash wands text slash read me dot M D"
 "examples/data/smollm2-tokenizer/" = "examples slash data slash smol L M two tokenizer"
 "prep/smollm2_tokenizer.py" = "prep slash smol L M two tokenizer dot py"
 "lib.bpe" = "lib dot B P E"
+"lib.ngrams" = "lib dot N-grams"
 "lib.bpe.train" = "lib dot B P E dot train"
 "lib.bpe.store_tokenizer()" = "lib dot B P E dot store tokenizer"
 
@@ -40,6 +43,17 @@
 "perplexity = exp(cross-entropy)" = "perplexity equals e to the power of the cross-entropy"
 "P(v | w) = (count(w v) + 1) / (count(w) + V)" = "P of v given w equals the count of w v plus one, divided by the count of w plus V"
 
+# formulas written in the prose, chapter 3
+"P(token | a b) = λ₃ · P₃(token | a b) + λ₂ · P₂(token | b) + λ₁ · P₁(token)" = "P of token given a b equals lambda three times P three of token given a b, plus lambda two times P two of token given b, plus lambda one times P one of token"
+"P(w | h) = max(c(h w) − d, 0) / c(h) + d · N(h) / c(h) · P(w | shorter h)" = "P of w given h equals the larger of zero and c of h w minus d, divided by c of h, plus d times N of h over c of h, times P of w given the shorter h"
+"D = n₁ / (n₁ + 2 n₂)" = "D equals n one, divided by n one plus two times n two"
+"c(h w)" = "c of h w"
+"c(h)" = "c of h"
+"N(h)" = "N of h"
+
 [words]
+"ngram" = "N-gram"
+"ngrams" = "N-grams"
+"tvs" = "T Vs"
 "smollm2" = "smol L M two"
 "inf" = "infinity"

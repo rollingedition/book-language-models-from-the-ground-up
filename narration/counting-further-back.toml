@@ -1,0 +1,22 @@
+# Spoken descriptions for chapter 3, Counting further back.
+
+[examples.ngram-memorizes]
+say = "The code counts the n-grams of every order from one to five in the training names, and scores each order, with no smoothing, on the same names it counted, printing its training perplexity and the share of its n-grams seen only once. The longer the context, the lower the perplexity, and the larger the share of n-grams seen once."
+
+[examples.unseen-ngrams]
+say = "The code counts the tokens in the training and validation names, then, for each order from one to five, finds the share of the validation names' n-grams that never occur in the training names. The share grows with the order, up to {{out:unseen-ngrams:5-grams in validation never seen in training}} for 5-grams."
+
+[examples.interpolate-orders]
+say = "The code counts trigrams, bigrams and unigrams in the training names, and mixes their probabilities with fixed weights, passing an unseen context's weight to the orders below and spreading the last hundredth evenly over every token. It prints the mixed model's validation perplexity, {{out:interpolate-orders:interpolated 3-gram validation perplexity}}, and, for comparison, the validation perplexity of an add-one bigram model on the same tokens."
+
+[examples.continuation-counts]
+say = "The code counts, for every token in the training names, how often it occurs and how many different tokens come right before it. Among the 300 most frequent tokens, it prints the three that follow the fewest different tokens for how often they occur, tvs, wide and the inch mark, and then table and chair for comparison."
+
+[examples.kneser-ney-by-hand]
+say = "The code builds the 4-gram Kneser-Ney model of the training names, then works out by hand the probability of stool after a name that starts patio bar, order by order, printing at each order the share kept for stool and the share passed down. It prints the result beside the shared module's, {{out:kneser-ney-by-hand:lib.ngrams}}, and the sum of the module's probabilities over every token."
+
+[examples.kneser-ney-by-order]
+say = "The code builds Kneser-Ney models of every order from one to five on the training names and prints each one's validation perplexity; the 4-gram scores best, at {{out:kneser-ney-by-order:4-gram validation perplexity}}. Then it counts the 4-grams seen once and twice, and estimates a discount from those two counts."
+
+[examples.ngram-autocomplete]
+say = "The code asks the 4-gram Kneser-Ney model for its three likeliest next tokens, with their probabilities, after bar, patio bar and outdoor bar, each typed as the start of a name. Only patio bar gets stool first. Then it counts the training names that contain outdoor bar: {{out:ngram-autocomplete:training names containing 'outdoor bar'}}."
