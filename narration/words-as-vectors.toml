@@ -1,0 +1,35 @@
+# Spoken descriptions for chapter 4, Words as vectors.
+
+[examples.one-hot-vectors]
+say = "The code gives each of the 2,000 most frequent training tokens a one-hot vector, and prints the cosine similarity of patio with outdoor, with sofa and with itself. Patio and outdoor score {{out:one-hot-vectors:cosine(patio, outdoor)}}, the same as patio and sofa. It also prints the share of the training text's tokens that have a vector."
+
+[examples.cooccurrence-counts]
+say = "The code counts, over the training split's names and descriptions, how often each of the 2,000 kept tokens appears within two tokens of each other, and prints the six tokens seen most often near patio, with their counts. Punctuation and common words come first."
+
+[examples.ppmi-neighbours]
+say = "The code reweights the co-occurrence counts with PPMI, prints the share of the matrix's entries that come out zero, and lists the six tokens with the strongest PPMI weight beside patio, led by porch and deck."
+
+[examples.svd-neighbours]
+say = "The code compresses the PPMI matrix with SVD into {{out:svd-neighbours:dimensions per token}} numbers per token, and lists the four nearest neighbours, by cosine similarity, of patio, outdoor, sofa, oak, blue and 48. Patio and outdoor come out as each other's nearest neighbours."
+
+[examples.skipgram-step]
+say = "The code gives every token two small vectors, a random one as a centre and a zero one as a neighbour, and applies three updates for the real pair patio and umbrella, with sofa and 48 as noise tokens. It prints the probability of each pair being real, before and after: umbrella's rises to {{out:skipgram-step:P(umbrella is a real neighbour of patio), after 3 steps}}, and the noise tokens' falls."
+
+[examples.skipgram-neighbours]
+say = "The code reads the recorded skip-gram vectors and their training losses, prints the loss on the first batch and the average over the last hundred, and lists the same six tokens' four nearest neighbours as the SVD example did. Outdoor's nearest neighbour is now indoor."
+
+[examples.analogies]
+say = "The code tries three analogies with the skip-gram vectors, each by taking b minus a plus c and finding the three nearest tokens: chair is to chairs as table is to what, the same for lamp, and black is to white as dark is to what. Only the first gets the answer you'd expect, tables. Then it checks whether lamps and light have vectors, and lists the nearest neighbours of light, dark and small."
+
+[examples.name-vectors]
+say = "The code averages the skip-gram vectors of each training name's tokens, scales each average to unit length, and prints the four training names closest to each of two queries, outdoor bar and patio umbrella, with rare words hidden."
+
+[[blocks]]
+section = "weigh-by-surprise"
+starts = "expected = counts.sum(1, keepdims=True)"
+say = "Three lines of NumPy: the expected count for each pair, from its row's and its column's totals; the log of each real count over its expected count; and that log wherever it's positive and the pair occurs, with zero everywhere else."
+
+[[blocks]]
+section = "learn-by-predicting-neighbours"
+starts = "np.add.at(inputs, centre, -rate *"
+say = "Three updates, one line each, all scaled by the step size: the centre vector v moves against its gradient, towards u and away from each noise vector; the real neighbour's vector u moves towards v, more the lower its probability was; and each noise vector moves away from v, more the higher its probability was."

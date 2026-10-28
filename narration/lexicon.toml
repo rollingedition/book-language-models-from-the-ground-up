@@ -7,6 +7,7 @@
 "ECIR" = "E C I R"
 "BPE" = "B P E"
 "KenLM" = "Ken L M"
+"word2vec" = "word to vec"
 
 # SmolLM2's tokenizer writes a space before a word as a G with a dot above
 "Ġ" = "G-dot"
@@ -34,6 +35,11 @@
 "prep/smollm2_tokenizer.py" = "prep slash smol L M two tokenizer dot py"
 "lib.bpe" = "lib dot B P E"
 "lib.ngrams" = "lib dot N-grams"
+"lib.vectors.svd_vectors" = "lib dot vectors dot S V D vectors"
+"lib.skipgram" = "lib dot skip-gram"
+"lib.skipgram.step" = "lib dot skip-gram dot step"
+"lib.skipgram.train" = "lib dot skip-gram dot train"
+"recordings/skipgram.py" = "recordings slash skip-gram dot py"
 "lib.bpe.train" = "lib dot B P E dot train"
 "lib.bpe.store_tokenizer()" = "lib dot B P E dot store tokenizer"
 
@@ -51,7 +57,23 @@
 "c(h)" = "c of h"
 "N(h)" = "N of h"
 
+# formulas written in the prose, chapter 4
+"PMI(a, b) = log [ P(a, b) / (P(a) · P(b)) ]" = "P M I of a and b equals the log of P of a and b, divided by P of a times P of b"
+"P(a, b)" = "P of a and b"
+"P(a)" = "P of a"
+"P(b)" = "P of b"
+"σ(s) = 1 / (1 + e⁻ˢ)" = "sigma of s equals one over one plus e to the minus s"
+"L = −log σ(v·u) − Σₙ log σ(−v·uₙ)" = "L equals minus log sigma of v dot u, minus the sum over the noise tokens of log sigma of minus v dot u n"
+"σ(v·u)" = "sigma of v dot u"
+"σ(v·uₙ)" = "sigma of v dot u n"
+"σ(0)" = "sigma of zero"
+
 [words]
+"pmi" = "P M I"
+"ppmi" = "P P M I"
+"svd" = "S V D"
+"skipgram" = "skip-gram"
+"cooccurrence" = "co-occurrence"
 "ngram" = "N-gram"
 "ngrams" = "N-grams"
 "tvs" = "T Vs"
