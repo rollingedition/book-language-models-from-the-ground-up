@@ -16,7 +16,7 @@ say = "The code reads the recording of the tuned model's request, prints exactly
 say = "The code reads both models' recorded answers to the material question for {{out:made-up-materials:products asked, each with its description given}} products, splits the products by whether their name or description names a material, and classes each answer as supported, made up, none or declined."
 
 [examples.answer-confidence]
-say = "The code classes the tuned model's answers to the material question, and for the supported and the made-up ones computes the average probability per token. It prints how many answers of each kind there are, their average confidence, and how many of each a threshold of 0.5 per token would keep: {{out:answer-confidence:tuned model, made up answers above 0.5 per token}} of the made-up ones."
+say = "The code classes the tuned model's answers to the material question, and for the supported and the made-up ones computes the average probability per token. It prints how many answers of each kind there are, their average confidence, and how many of each a threshold of 0.5 per token would keep. It would still keep {{out:answer-confidence:tuned model, made up answers above 0.5 per token}} made-up answers."
 
 [examples.answer-position]
 say = "The code reads the tuned model's recorded answers when the asked product sat first, in the middle or last among {{out:answer-position:product listings in each context}} listings, and counts, for the products whose data names a material, the answers that name only that product's own materials. The middle does worst."
