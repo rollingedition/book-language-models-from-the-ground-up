@@ -13,7 +13,7 @@ say = "The code reweights the co-occurrence counts with PPMI, prints the share o
 say = "The code compresses the PPMI matrix with SVD into {{out:svd-neighbours:dimensions per token}} numbers per token, and lists the four nearest neighbours, by cosine similarity, of patio, outdoor, sofa, oak, blue and 48. Patio and outdoor come out as each other's nearest neighbours."
 
 [examples.skipgram-step]
-say = "The code gives every token two small vectors, a random one as a centre and a zero one as a neighbour, and applies three updates for the real pair patio and umbrella, with sofa and 48 as noise tokens. It prints the probability of each pair being real, before and after: umbrella's rises to {{out:skipgram-step:P(umbrella is a real neighbour of patio), after 3 steps}}, and the noise tokens' falls."
+say = "The code gives every token two small vectors, a random one as a centre and a zero one as a neighbour, and applies three updates for the real pair patio and umbrella, with sofa and 48 as noise tokens. It prints the probability of each pair being real, before and after: umbrella's rises to {{out:skipgram-step:P(umbrella is a real neighbour of patio), after 3 steps}}, and those of sofa and 48 fall."
 
 [examples.skipgram-neighbours]
 say = "The code reads the recorded skip-gram vectors and their training losses, prints the loss on the first batch and the average over the last hundred, and lists the same six tokens' four nearest neighbours as the SVD example did. Outdoor's nearest neighbour is now indoor."
