@@ -7,7 +7,7 @@ say = "The code gives the start marker and sled coffee table random eight-number
 say = "The code repeats the same attention with the causal mask, which sets every score for a later position to minus infinity before softmax, and prints the weights and their total on later tokens. Then it swaps the last token's vector for a new one and checks whether the output at coffee changes, without the mask and with it. It changes only without the mask."
 
 [examples.scaling-matters]
-say = "The code draws 1,000 random queries and 16 random keys at each of three sizes, 4, 32 and 256 numbers, scores every query against every key with and without dividing by the square root of the size, and prints the largest softmax weight in each row, averaged over the queries. Without the division it grows with the size; with it, it stays about the same at every size."
+say = "The code draws 1,000 random queries and 16 random keys at each of three sizes, 4, 32 and 256 numbers, scores every query against every key with and without dividing by the square root of the size, and prints the largest softmax weight in each row, averaged over the queries."
 
 [examples.attention-heads]
 say = "The code runs two heads of masked attention over four positions of random eight-number vectors, each head working in four of the numbers, then joins the heads' outputs and mixes them with an output projection. It prints the weights' shape, what the last position attends to in each head, and the output's shape, which is the input's again."
@@ -22,4 +22,4 @@ say = "The code runs the store's model on the same description three times, afte
 say = "The code averages each head's weight on the previous token over the first 300 validation products, prints the averages as a grid of layers by heads, and names the head with the most, beside what an even spread over the visible tokens would give."
 
 [examples.attention-reaches-back]
-say = "The code takes every description token in the first 300 validation products and adds up the weight each head puts on tokens four or more positions back, leaving out the two markers, and separately the weight on the markers. It prints both by layer and over all layers, each beside an even spread's, then counts the products whose description repeats a token of the name."
+say = "The code takes every description token in the first 300 validation products and measures how much of its attention, averaged over the heads, falls on tokens four or more positions back, leaving out the two markers, and how much falls on the markers. It prints both for each layer, then over all layers beside an even spread's, and counts the products whose description repeats a token of the name."
