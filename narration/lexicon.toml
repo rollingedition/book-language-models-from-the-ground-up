@@ -99,7 +99,7 @@
 "σ(0)" = "sigma of zero"
 
 # formulas written in the prose, chapter 5
-"h = tanh(xW + b)" = "h equals tan h of x W, plus b"
+"h = tanh(xW + b)" = "h equals tan h of, x W plus b"
 "z = hU + c" = "z equals h U, plus c"
 "P(token i) = exp(zᵢ) / Σⱼ exp(zⱼ)" = "P of token i equals e to the z i, divided by the sum over j of e to the z j"
 "L = −log P(next token)" = "L equals minus log P of the next token"

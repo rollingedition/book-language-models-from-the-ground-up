@@ -22,7 +22,7 @@ say = "The code scores the window model and the 4-gram Kneser-Ney baseline on th
 say = "The code splits the validation tokens by whether their three-token context occurs in the training names, and prints the perplexity of the 4-gram baseline and of the network on each part. The baseline has the lower perplexity on both."
 
 [examples.mix-neural-and-counts]
-say = "The code mixes the network's and the 4-gram's probabilities for every validation token, with the network's share of the mix at 0, 0.2, 0.3, 0.5 and 1, and prints the validation perplexity of each mix. The lowest comes at a share of 0.2."
+say = "The code mixes the network's and the 4-gram's probabilities for every validation token, at five shares for the network, from none to all of the mix, and prints the validation perplexity of each mix. The lowest comes at a share of 0.2."
 
 [examples.more-text-of-another-kind]
 say = "The code scores two recorded window models on the validation names, one trained on names alone and one on names and descriptions together, counts the training tokens in each kind of text, and prints the second model's validation perplexity after each of its epochs. The model that learned from names alone scores better."
