@@ -1,0 +1,35 @@
+# Spoken descriptions for chapter 7, The transformer block.
+
+[examples.residual-stream]
+say = "The code runs the store's model on one validation product, block by block, and at every layer prints the average length of what attention adds, of what the feed-forward layer adds, and of the vectors after both additions. The vectors grow longer at every layer. Last, it prints the largest number in the stream."
+
+[examples.rms-norm-by-hand]
+say = "The code takes the same product's residual stream entering the first block and leaving the last, divides every position's vector by its root mean square, with the gain left at one, and prints the average root mean square before and after, whether the result matches the shared module's RMSNorm, and the largest mean of a position's numbers afterwards. After normalizing, the root mean square is {{out:rms-norm-by-hand:root mean square leaving the last block, after}} at both ends."
+
+[examples.gated-feed-forward]
+say = "The code computes SiLU at −3, 0 and 3. Then it runs the first block's feed-forward layer on the same validation product and counts, at each position, the hidden units whose gate is under 0.05 in size, and prints the number of hidden units, the average count nearly shut, the fewest and the most, and the output's shape."
+
+[examples.rope-by-hand]
+say = "The code rotates one random 32-number query and key for every position from 0 to 19, checks that the rotation keeps both lengths, and prints the scaled score for the key at 2 and the query at 5, at 12 and 15, and at 2 and 8. The first two pairs, both 3 apart, get the same score."
+
+[examples.transformer-same-as-pytorch]
+say = "The code recomputes the store's model's logits in NumPy for every position of the validation product the training script saved, compares them with PyTorch's own, and prints the PyTorch version, how many positions and logits it compared, and whether all of them match to four decimal places: {{out:transformer-same-as-pytorch:same as PyTorch to 4 decimal places}}."
+
+[examples.skip-a-block]
+say = "The code scores the names and descriptions of the first 100 validation products with the full model, then with each block left out in turn, and prints the perplexity per token and the top token's average probability each time. Leaving out block 1 does by far the most harm."
+
+[examples.mismatched-details]
+say = "The code scores the same 100 validation products four ways, with the trained weights each time: as trained, with RoPE pairing neighbouring numbers instead of halves, with RoPE's base at 100,000 instead of 10,000, and with no RoPE at all, and prints the perplexity of each. The wrong base costs the least: {{out:mismatched-details:perplexity, RoPE with base 100,000}}, against {{out:mismatched-details:perplexity, as trained}} as trained."
+
+[examples.transformer-parameters]
+say = "The code counts the store's model's parameters by part, the embedding table it shares with the output, attention, the feed-forward layers and the normalization gains, and prints the total, the embedding's share of it, {{out:transformer-parameters:embedding's share of the total}}, and the model's settings, from its number of layers to its longest text."
+
+[[blocks]]
+section = "tie-the-output"
+starts = "def block(x: np.ndarray, layer_weights:"
+say = "The function block takes the residual stream and one layer's weights. It normalizes the stream and runs attention on it, adds the result to the stream, normalizes again, runs the gated feed-forward layer, SiLU of the gate projection times the up projection, then the down projection, adds that too, and returns the stream with the attention weights."
+
+[[blocks]]
+section = "tie-the-output"
+starts = "streams, kept = run(ids, name,"
+say = "Three lines: run the tokens through every block, load the weights, and multiply the final stream, normalized once more, by the embedding table turned on its side, which gives one logit per token in the vocabulary."

@@ -10,6 +10,20 @@
 "word2vec" = "word to vec"
 "T5" = "T five"
 "MultiheadAttention" = "Multihead Attention"
+"LLaMA" = "Llama"
+"RMSNorm" = "R M S norm"
+"SiLU" = "sigh loo"
+"SwiGLU" = "swish G L U"
+"FFN" = "F F N"
+"RoPE" = "rope"
+"float16" = "float sixteen"
+"⊙" = "the circled dot"
+
+# model names
+"SmolLM2-135M" = "smol L M two one-thirty-five M"
+"SmolLM2-360M" = "smol L M two three-sixty M"
+"SmolLM2-360M-Instruct" = "smol L M two three-sixty M instruct"
+"SmolLM2-1.7B" = "smol L M two one point seven B"
 
 # SmolLM2's tokenizer writes a space before a word as a G with a dot above
 "Ġ" = "G-dot"
@@ -45,6 +59,7 @@
 "recordings/skipgram.py" = "recordings slash skip-gram dot py"
 "recordings/neural_lm.py" = "recordings slash neural L M dot py"
 "lib.tinynet" = "lib dot tiny net"
+"lib.transformer.rms_norm" = "lib dot transformer dot R M S norm"
 "lib.bpe.train" = "lib dot B P E dot train"
 "lib.bpe.store_tokenizer()" = "lib dot B P E dot store tokenizer"
 
@@ -84,11 +99,21 @@
 "Attention(Q, K, V) = softmax(QKᵀ / √d) V" = "Attention of Q, K and V equals softmax of Q times K transposed, over the square root of d, times V"
 "1 / (i + 1)" = "one over i plus one"
 
+# formulas written in the prose, chapter 7
+"x ← x + attention(x)" = "x becomes x plus the attention of x"
+"x ← x + feed-forward(x)" = "x becomes x plus the feed-forward of x"
+"RMSNorm(x) = x / √(mean(x²) + ε) · g" = "R M S norm of x equals x divided by the square root of the mean of x squared plus epsilon, times g"
+"FFN(x) = (SiLU(x W_gate) ⊙ (x W_up)) W_down" = "F F N of x equals sigh loo of x times W gate, multiplied number by number by x times W up, all times W down"
+"SiLU(z) = z · σ(z)" = "sigh loo of z equals z times sigma of z"
+"θᵢ = 10000^(−i/(d/2))" = "theta i equals ten thousand to the power of minus i over half of d"
+"(a, b) → (a cos pθᵢ − b sin pθᵢ, a sin pθᵢ + b cos pθᵢ)" = "the pair a, b turns into a times the cosine of p theta i, minus b times the sine of p theta i, and a times the sine of p theta i, plus b times the cosine of p theta i"
+
 [words]
 "tanh" = "tan h"
 "cpu" = "C P U"
 "pytorch" = "pie torch"
 "vs" = "versus"
+"rms" = "R M S"
 "pmi" = "P M I"
 "ppmi" = "P P M I"
 "svd" = "S V D"
