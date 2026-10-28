@@ -20,6 +20,10 @@
 "AdamW" = "Adam W"
 "clip_grad_norm_" = "clip grad norm"
 "⊙" = "the circled dot"
+"DPO" = "D P O"
+"UltraFeedback" = "Ultra Feedback"
+"SmolLM" = "smol L M"
+"π_ref" = "pi ref"
 
 # model names
 "SmolLM2-135M" = "smol L M two one-thirty-five M"
@@ -39,6 +43,10 @@
 "</w>" = " end-of-word"
 "<|endoftext|>" = "end of text"
 "<sep>" = "sep"
+"<|im_start|>" = "im start"
+"<|im_end|>" = "im end"
+"<|im_start|>user" = "im start, user"
+"<|im_start|>assistant" = "im start, assistant"
 "<s> coffee" = "start marker, coffee"
 "table </s>" = "table, end marker"
 
@@ -119,6 +127,12 @@
 # formulas written in the prose, chapter 10
 "perplexity per word = exp(−(log p₁ + … + log pₙ) / W)" = "perplexity per word equals e to the minus, log p one plus and so on up to log p n, all over W"
 
+# formulas written in the prose, chapter 11
+"margin = β × [(log π(preferred) − log π_ref(preferred)) − (log π(rejected) − log π_ref(rejected))]" = "margin equals beta times, the log of pi of the preferred response minus the log of pi ref of it, minus, the log of pi of the rejected response minus the log of pi ref of it"
+"loss = −log σ(margin)" = "loss equals minus log sigma of the margin"
+"confidence per token = exp((log p₁ + … + log pₙ) / n)" = "confidence per token equals e to the power of, log p one plus and so on up to log p n, all over n"
+"W + BA" = "W plus B times A"
+
 [words]
 "tanh" = "tan h"
 "cpu" = "C P U"
@@ -126,6 +140,9 @@
 "vs" = "versus"
 "rms" = "R M S"
 "usa" = "U S A"
+"dpo" = "D P O"
+"lora" = "Lora"
+"mdf" = "M D F"
 "pmi" = "P M I"
 "ppmi" = "P P M I"
 "svd" = "S V D"
