@@ -10,7 +10,7 @@ say = "The code counts every parameter of SmolLM2's three sizes, part by part, f
 say = "The code works out, for each of SmolLM2's three sizes, the memory its weights take as 16-bit numbers, its key and value cache per token, and the cache for one text of the longest length the models are set up for, {{out:open-model-memory:longest text, in tokens}} tokens, with grouped keys and values and without."
 
 [examples.open-model-on-the-store]
-say = "The code scores the first {{out:open-model-on-the-store:validation names scored}} validation names with the store's model and reads SmolLM2's recorded scores for the same names, then does the same for the descriptions, given each name. It prints each model's perplexity per token and per word, and SmolLM2's per word on the names after a label. The store's model has the lower perplexity on names and on descriptions."
+say = "The code scores the first {{out:open-model-on-the-store:validation names scored}} validation names with the store's model and reads SmolLM2's recorded scores for the same names, then does the same for the descriptions, given each name. It prints both models' perplexity on the names, per token and per word, SmolLM2's per word on the names after a label, and both models' per word on the descriptions."
 
 [examples.open-model-heads]
 say = "The code reads SmolLM2's recorded averages over {{out:open-model-heads:texts averaged}} product texts, each head's weight on the previous token and on the first token, counts the heads with more than half their weight on each, and works out what an even spread would give, averaged the same way."
@@ -24,4 +24,4 @@ say = "The code reads SmolLM2's recorded three likeliest next tokens after the s
 [[tables]]
 section = "side-by-side"
 starts = "| | The store's model | SmolLM2-360M |"
-say = "A table sets the store's model beside SmolLM2-360M: their parameters, layers and width, heads, vocabulary and training text, their per-word perplexity on the store's names and descriptions, the probability each gives cover when the description repeats the name, and the most weight one head puts on the previous token. SmolLM2 has the larger number on every measure of size, and the store's model the lower perplexity on both kinds of the store's text."
+say = "A table sets the store's model beside SmolLM2-360M: their parameters, layers and width, heads, vocabulary and training text, their per-word perplexity on the store's names and descriptions, the probability each gives cover when the description repeats the name, and the most weight one head puts on the previous token. SmolLM2 has {{out:open-model-parameters:total}} parameters to the store's model's {{out:transformer-parameters:total}}, and the higher perplexity on both kinds of the store's text."
