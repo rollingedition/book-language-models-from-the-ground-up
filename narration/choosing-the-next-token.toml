@@ -1,0 +1,32 @@
+# Spoken descriptions for chapter 9, Choosing the next token.
+
+[examples.greedy-description]
+say = "The code counts the validation and training products with no description, and the training products named as bulbs with none. Then it decodes a description of front porch welcome sign wall décor greedily, up to {{out:greedy-description:longest description, in tokens}} tokens, lists the four-token phrases it uses twice or more, and prints the probability that the description of 5 light light bulb is empty: {{out:greedy-description:P(the description is empty), 5 light light bulb}}."
+
+[examples.beam-search]
+say = "The code runs beam search with a beam of {{out:beam-search:beam width}} twice: first to complete the query outdoor bar by a few tokens, printing the two likeliest completions with their probabilities, then to write the welcome sign's description, printing the likeliest text overall, its probability, and the likeliest text per token. The likeliest text overall is the empty one."
+
+[examples.temperature-by-hand]
+say = "The code stops the greedy description after its first nine tokens, and divides the next token's logits by three temperatures, 0.5, 1 and 1.5, before softmax. For each it prints the three likeliest tokens with their probabilities, how many tokens it takes to cover 90% of the probability, and how much probability falls outside the tokens that cover 90% at temperature 1. The higher the temperature, the more tokens it takes."
+
+[examples.sample-descriptions]
+say = "The code writes {{out:sample-descriptions:longest description, in tokens}} tokens of the welcome sign's description four ways, with the same seed: sampling at temperature 1, sampling at 0.7, top-k 20 and top-p 0.9, and prints each. Then it replays the temperature 1 sample step by step, and lists the tokens it drew from outside each step's 90% nucleus: {{out:sample-descriptions:temperature 1.0, tokens drawn from outside the 90% nucleus}}."
+
+[examples.measure-decoding]
+say = "The code draws {{out:measure-decoding:products, drawn at random from the validation products with a description}} validation products with a description at random, writes a description of each with six settings, from greedy decoding to top-p, and measures every set, the real descriptions included: the share of repeated four-token phrases, the model's perplexity of the text, the share that end within the limit, the share that use a whole word of the name, and the average length."
+
+[examples.repetition-penalty-by-hand]
+say = "The code stops the greedy description where it's about to write distressed a second time, applies a repetition penalty of {{out:repetition-penalty-by-hand:penalty factor}} by hand to the next token's logits, and checks the result against the shared module's. It prints the three likeliest next tokens and the probability of distressed, without the penalty and with it, then the whole greedy description with the penalty. With the penalty, distressed falls to {{out:repetition-penalty-by-hand:P(distressed), with the penalty}}."
+
+[examples.minimum-length]
+say = "The code prints the probability that the bulb's description is empty, and decodes it greedily, which gives an empty description. Then it decodes it again with a minimum length of {{out:minimum-length:minimum length, in tokens}} tokens, which forbids the end marker until then, and prints the description that comes out."
+
+[[blocks]]
+section = "search-for-the-likeliest-text"
+starts = "candidates += [(score + log_p[token],"
+say = "One line: for every text in the beam, it adds one candidate for each of its likeliest next tokens, as many as the beam is wide, scored by the text's total so far plus that token's log-probability, with the token appended to the text."
+
+[[blocks]]
+section = "sample-and-cut-the-tail"
+starts = "order = np.argsort(-probabilities,"
+say = "Two of its lines: sort the tokens from likeliest to least likely, then add up their probabilities in that order, and keep the tokens up to the first point where the running sum reaches p."

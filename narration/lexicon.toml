@@ -113,12 +113,16 @@
 # formulas written in the prose, chapter 8
 "rate = peak × (0.1 + 0.9 × ½ (1 + cos(π × progress)))" = "rate equals peak times, zero point one plus zero point nine times one half of, one plus the cosine of pi times progress"
 
+# formulas written in the prose, chapter 9
+"P(token i) = exp(zᵢ / T) / Σⱼ exp(zⱼ / T)" = "P of token i equals e to the z i over T, divided by the sum over j of e to the z j over T"
+
 [words]
 "tanh" = "tan h"
 "cpu" = "C P U"
 "pytorch" = "pie torch"
 "vs" = "versus"
 "rms" = "R M S"
+"usa" = "U S A"
 "pmi" = "P M I"
 "ppmi" = "P P M I"
 "svd" = "S V D"
