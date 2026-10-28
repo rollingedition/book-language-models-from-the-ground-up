@@ -65,7 +65,7 @@ That's the idea that solves [chapter 1](#predicting-the-next-word)'s first probl
 
 The algorithm in the [previous section](#merge-frequent-pairs) recounts every pair after every merge, which is fine for eight merges and too slow for thousands. The book's shared module `lib.bpe` runs the same algorithm, but counts pairs once and, after each merge, updates only the words the merge changed, keeping the counts in a heap so the most frequent pair is always on top. It learns thousands of merges in seconds, and gives the same merges the plain version does: the hand-written example's last line checks its eight merges against `lib.bpe.train`.
 
-For the store, learn 4,000 merges from the training split's names and descriptions together, since the book's models will learn from both, and encode three names:
+For the store, learn 4,000 merges from the training split's names and descriptions together, since the book's models will learn from both, and encode two names and three pairs of words:
 
 [Example: store-tokenizer](../examples/store-tokenizer.py)
 
@@ -79,7 +79,7 @@ A model reading these tokens can spell any word made of characters the training 
 
 The number of merges sets the vocabulary size, and it's the one real choice in a BPE tokenizer. More merges make sequences shorter, which saves computation. But each new token covers rarer text, and a token the training text shows only a few times gives a model too little to learn from: the same problem as rare words, in a new place.
 
-For the store, learn 16,000 merges once, and use the first 0, 1,000, 4,000 and 16,000 of them as four tokenizers; the first k merges of a longer run are exactly the merges a k-merge run would learn. For each, count how many different tokens the training text uses, how many tokens each validation word becomes, and what share of the tokens appear fewer than 20 times in the training text:
+For the store, learn 16,000 merges once, and use the first 0, 1,000, 2,000, 4,000, 8,000 and 16,000 of them as six tokenizers; the first k merges of a longer run are exactly the merges a k-merge run would learn. For each, count how many different tokens the training text uses, how many tokens each validation word becomes, and what share of the tokens appear fewer than 20 times in the training text:
 
 [Example: vocabulary-size](../examples/vocabulary-size.py)
 
