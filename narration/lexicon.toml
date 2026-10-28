@@ -40,6 +40,8 @@
 "lib.skipgram.step" = "lib dot skip-gram dot step"
 "lib.skipgram.train" = "lib dot skip-gram dot train"
 "recordings/skipgram.py" = "recordings slash skip-gram dot py"
+"recordings/neural_lm.py" = "recordings slash neural L M dot py"
+"lib.tinynet" = "lib dot tiny net"
 "lib.bpe.train" = "lib dot B P E dot train"
 "lib.bpe.store_tokenizer()" = "lib dot B P E dot store tokenizer"
 
@@ -68,7 +70,18 @@
 "σ(v·uₙ)" = "sigma of v dot u n"
 "σ(0)" = "sigma of zero"
 
+# formulas written in the prose, chapter 5
+"h = tanh(xW + b)" = "h equals tan h of x W, plus b"
+"z = hU + c" = "z equals h U, plus c"
+"P(token i) = exp(zᵢ) / Σⱼ exp(zⱼ)" = "P of token i equals e to the z i, divided by the sum over j of e to the z j"
+"L = −log P(next token)" = "L equals minus log P of the next token"
+"∂L/∂w" = "d L by d w"
+
 [words]
+"tanh" = "tan h"
+"cpu" = "C P U"
+"pytorch" = "pie torch"
+"vs" = "versus"
 "pmi" = "P M I"
 "ppmi" = "P P M I"
 "svd" = "S V D"
