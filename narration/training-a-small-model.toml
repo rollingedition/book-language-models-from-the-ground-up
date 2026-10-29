@@ -1,0 +1,27 @@
+# Spoken descriptions for chapter 8, Training a small model.
+
+[examples.training-batches]
+say = "The code turns every training product into one text, shuffles the texts with the run's seed, and builds one epoch's batches, filling short texts out with padding and shifting each text by one token for its targets. It prints the number of texts and tokens, the share cut at the length limit, one batch's shapes, the share of targets that are padding, {{out:training-batches:share of targets that are padding, over one shuffled epoch}}, and the steps per epoch and in the recorded run."
+
+[examples.learning-rate-schedule]
+say = "The code computes the step-size schedule by hand from the recorded settings, a straight-line warm-up to the peak, then half a cosine down to a tenth of it, and prints it at five steps from the first to the last. Then it checks the schedule against the step sizes the training script saved every tenth step: {{out:learning-rate-schedule:same as the recorded step sizes}}."
+
+[examples.transformer-training-curve]
+say = "The code reads the recorded run's curves and prints, for each epoch, the training perplexity and the validation perplexity on names and on descriptions. Then it prints the epoch kept, {{out:transformer-training-curve:epoch kept, the lowest name and description losses added together}}, its two validation perplexities, and the names' perplexity at epoch 4. Both validation columns fall until the last epochs, then level off."
+
+[examples.transformer-on-names]
+say = "The code scores every validation name, its end included, with the 4-gram baseline and with the transformer, then mixes the two models' probabilities with the transformer's share at 0, 0.3, 0.5, 0.7 and 1, and prints the validation perplexity of each. The even mix scores lowest."
+
+[examples.transformer-on-descriptions]
+say = "The code fits a 4-gram on whole training texts, name, separator and description, and scores it and the transformer, alone and mixed half and half, on the descriptions of the first 500 validation products, leaving out texts cut at the length limit and products with no description. The mix scores lowest of the three. Then it splits the tokens by whether their three-token context occurs in the training texts, scores both models on each part, and scores this 4-gram on the validation names."
+
+[examples.width-data-and-steps]
+say = "The code reads eight recorded runs: three widths trained for four epochs, the recorded model's sixteen epochs, a quarter and a half of the training products for four epochs, and the same quarter and half trained for as many steps as all the data's four epochs. For each it prints the parameters, the steps, the best epoch, and the validation perplexity on names and on descriptions, at the best epoch and the last. The widest run scores best on names, at {{out:width-data-and-steps:width 256, 4 epochs, perplexity on names}}."
+
+[examples.transformer-autocomplete]
+say = "The code asks the transformer, and its half-and-half mix with the 4-gram, for their three likeliest next tokens after bar, patio bar, outdoor bar, kitchen bar and wine bar, each typed as the start of a name, and prints the probability of stool after outdoor bar from the transformer, the 4-gram and the mix. Stool comes first in both lists after patio bar and after outdoor bar."
+
+[[blocks]]
+section = "update-with-adamw"
+starts = "ids = pad([train[i] for i in"
+say = "Eight lines, run once per batch: pad the next batch of training texts, run the model on every token but the last, take the cross-entropy loss against the tokens shifted by one, ignoring padding, clear the old gradients, backpropagate, clip the gradients to a combined length of one, let the optimizer take its step, and let the scheduler set the next step size."

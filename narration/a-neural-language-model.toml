@@ -1,0 +1,36 @@
+# Spoken descriptions for chapter 5, A neural language model.
+
+[examples.window-model-by-hand]
+say = "The code loads the trained window model's weights and runs one prediction by hand for a name that starts patio bar: it pads the context with start markers, looks up the four tokens' embeddings, joins them, passes them through the tanh layer and the output layer, and turns the scores into probabilities with softmax. It prints each array's shape, the parameter counts, and the three likeliest next tokens, led by stool."
+
+[examples.gradients-by-hand]
+say = "The code computes every gradient of the tiny model by backpropagation for one example. Then it nudges each of the {{out:gradients-by-hand:parameters checked}} parameters up and down by a millionth, measures how the loss moves, and checks that the two estimates agree to six decimal places."
+
+[examples.gradient-descent-by-hand]
+say = "The code takes twenty steps of gradient descent on the tiny model, each step moving every weight against its gradient on each of three examples in turn, with a step size of 0.5. It prints the average loss before training and after one, five and twenty steps, and the loss falls at each point, to {{out:gradient-descent-by-hand:average loss after 20 steps}} after twenty."
+
+[examples.same-as-pytorch]
+say = "The code recomputes the trained model's logits in NumPy, from its saved weights, for the {{out:same-as-pytorch:contexts compared}} validation contexts the training script saved, compares them with PyTorch's own logits for the same contexts, and prints the PyTorch version and whether they match to four decimal places: {{out:same-as-pytorch:same as PyTorch to 4 decimal places}}."
+
+[examples.training-curve]
+say = "The code reads the training script's record of the training and validation perplexity after each epoch, and prints them as a table, then the epoch whose weights were kept, {{out:training-curve:epoch kept}}, and the validation perplexity there and at the last epoch. Training perplexity falls at every epoch; validation perplexity falls, then rises."
+
+[examples.neural-vs-baseline]
+say = "The code scores the window model and the 4-gram Kneser-Ney baseline on the same validation names, and prints each one's perplexity per token."
+
+[examples.seen-and-unseen-contexts]
+say = "The code splits the validation tokens by whether their three-token context occurs in the training names, and prints the perplexity of the 4-gram baseline and of the network on each part. The baseline has the lower perplexity on both."
+
+[examples.mix-neural-and-counts]
+say = "The code mixes the network's and the 4-gram's probabilities for every validation token, at five shares for the network, from none to all of the mix, and prints the validation perplexity of each mix. The lowest comes at a share of 0.2."
+
+[examples.more-text-of-another-kind]
+say = "The code scores two recorded window models on the validation names, one trained on names alone and one on names and descriptions together, counts the training tokens in each kind of text, and prints the second model's validation perplexity after each of its epochs. The model that learned from names alone scores better."
+
+[examples.neural-autocomplete]
+say = "The code asks the network for its three likeliest next tokens, with their probabilities, after bar, patio bar, outdoor bar, kitchen bar and wine bar, each typed as the start of a name; stool comes first only after patio bar and outdoor bar. Then it prints the probability of stool after outdoor bar, and the cosine similarity of patio's embedding with outdoor's, kitchen's and wine's."
+
+[[blocks]]
+section = "train-with-pytorch"
+starts = "loss = loss_of(model(train_x[pick]),"
+say = "Four lines make one training step: the model's average loss on one batch, then clearing the previous batch's gradients, then backpropagation, which gives every weight a gradient, and last the optimizer's step, which moves every weight against its gradient."

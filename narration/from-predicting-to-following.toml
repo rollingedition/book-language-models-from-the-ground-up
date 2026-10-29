@@ -1,0 +1,38 @@
+# Spoken descriptions for chapter 11, From predicting to following instructions.
+
+[examples.instruction-loss-by-hand]
+say = "The code runs the store's model on one product laid out as a request and a response, the name as the request and the description as the response, and computes each token's loss. It prints how many tokens the model predicts, how many of them the instruction loss counts, and the average loss over every token and over the response only."
+
+[examples.dpo-loss-by-hand]
+say = "The code computes the DPO margin and loss by hand for two made-up cases, with beta at {{out:dpo-loss-by-hand:beta}}: one where the tuned model favours the preferred answer more than the reference model does, and one where it favours it less. The loss is lower in the first case."
+
+[examples.base-and-tuned]
+say = "The code reads the descriptions both models wrote in the recording, prints the base model's and the tuned model's text for the welcome sign, and, over all {{out:base-and-tuned:products described, none of which has a description to draw on}} products, counts the descriptions that name a material the name doesn't, and the share of repeated four-word phrases."
+
+[examples.chat-template]
+say = "The code reads the recording of the tuned model's request, prints exactly what the model read with its chat template, the system message and the markers included, then prints its reply with the template and without it."
+
+[examples.made-up-materials]
+say = "The code reads both models' recorded answers to the material question for {{out:made-up-materials:products asked, each with its description given}} products, splits the products by whether their name or description names a material, and classes each answer as supported, made up, none or declined."
+
+[examples.answer-confidence]
+say = "The code classes the tuned model's answers to the material question, and for the supported and the made-up ones computes the average probability per token. It prints how many answers of each kind there are, their average confidence, and how many of each a threshold of 0.5 per token would keep. It would still keep {{out:answer-confidence:tuned model, made up answers above 0.5 per token}} made-up answers."
+
+[examples.answer-position]
+say = "The code reads the tuned model's recorded answers when the asked product sat first, in the middle or last among {{out:answer-position:product listings in each context}} listings, and counts, for the products whose data names a material, the answers that name only that product's own materials. The middle does worst."
+
+[examples.lora-parameters]
+say = "The code counts what LoRA would train on SmolLM2-360M, adapting the query and value weights of every layer, at ranks 8 and 64, and compares each with full fine-tuning. Rank 8 trains {{out:lora-parameters:rank 8, share of the model's parameters}} of the model's parameters."
+
+[examples.test-names]
+say = "The code scores the {{out:test-names:test names}} test names, untouched until now, with the five models the book chose between, using the mixing shares chosen on the validation names, and prints each model's test perplexity. The transformer mixed half and half with the counts scores lowest."
+
+[[tables]]
+section = "measure-made-up-details"
+starts = "| Answer | Base, data names a material"
+say = "A table counts each model's answers as supported, made up, none or declined, for the products whose data names a material and for those whose data names none. Where the data names none, neither model declines once: the base model makes up a material {{out:made-up-materials:base model, data names none, made up}} times and the tuned model {{out:made-up-materials:tuned model, data names none, made up}}, of {{out:made-up-materials:products whose name and description name none}}."
+
+[[tables]]
+section = "look-back-at-the-yardstick"
+starts = "| Model | Chapter | Validation names |"
+say = "A table lists seven of the book's models, from counts of single tokens to the store's transformer mixed with the counts, with the chapter that built each, its perplexity on the validation names and, for the five chosen between, its perplexity on the test names. The transformer mixed with the counts scores lowest on both: {{out:test-names:test perplexity, the store's transformer mixed with the counts, share 0.5}} on the test names."

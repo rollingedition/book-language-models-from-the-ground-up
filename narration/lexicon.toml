@@ -1,0 +1,155 @@
+# How narration says this book's terms. [terms] are exact and case-sensitive, and win over the shared rules;
+# [words] are whole words in any case, such as the words of an example's ID.
+
+[terms]
+# names and abbreviations
+"WANDS" = "Wands"
+"ECIR" = "E C I R"
+"BPE" = "B P E"
+"KenLM" = "Ken L M"
+"word2vec" = "word to vec"
+"T5" = "T five"
+"MultiheadAttention" = "Multihead Attention"
+"LLaMA" = "Llama"
+"RMSNorm" = "R M S norm"
+"SiLU" = "sigh loo"
+"SwiGLU" = "swish G L U"
+"FFN" = "F F N"
+"RoPE" = "rope"
+"float16" = "float sixteen"
+"AdamW" = "Adam W"
+"clip_grad_norm_" = "clip grad norm"
+"⊙" = "the circled dot"
+"DPO" = "D P O"
+"UltraFeedback" = "Ultra Feedback"
+"SmolLM" = "smol L M"
+"π_ref" = "pi ref"
+
+# model names
+"SmolLM2-135M" = "smol L M two one-thirty-five M"
+"SmolLM2-360M" = "smol L M two three-sixty M"
+"SmolLM2-360M-Instruct" = "smol L M two three-sixty M instruct"
+"SmolLM2-1.7B" = "smol L M two one point seven B"
+
+# SmolLM2's tokenizer writes a space before a word as a G with a dot above
+"Ġ" = "G-dot"
+"Ġtable" = "G-dot table"
+"Ġsled" = "G-dot sled"
+
+# the markers a model's text is padded with
+"<s>" = "start marker"
+"</s>" = "end marker"
+"<unk>" = "unk"
+"</w>" = " end-of-word"
+"<|endoftext|>" = "end of text"
+"<sep>" = "sep"
+"<|im_start|>" = "im start"
+"<|im_end|>" = "im end"
+"<|im_start|>user" = "im start, user"
+"<|im_start|>assistant" = "im start, assistant"
+"<s> coffee" = "start marker, coffee"
+"table </s>" = "table, end marker"
+
+# code read as a listener needs it
+"&" = "ampersand"
+"bar & counter stools" = "bar and counter stools"
+"6, . and 5" = "six, a dot, and five"
+"''" = "two apostrophes"
+
+# paths and modules: a reading inside a path is given for the whole path, so its dots and slashes are read too
+"examples/data/wands-text/README.md" = "examples slash data slash wands text slash read me dot M D"
+"examples/data/smollm2-tokenizer/" = "examples slash data slash smol L M two tokenizer"
+"prep/smollm2_tokenizer.py" = "prep slash smol L M two tokenizer dot py"
+"lib.bpe" = "lib dot B P E"
+"lib.ngrams" = "lib dot N-grams"
+"lib.vectors.svd_vectors" = "lib dot vectors dot S V D vectors"
+"lib.skipgram" = "lib dot skip-gram"
+"lib.skipgram.step" = "lib dot skip-gram dot step"
+"lib.skipgram.train" = "lib dot skip-gram dot train"
+"recordings/skipgram.py" = "recordings slash skip-gram dot py"
+"recordings/neural_lm.py" = "recordings slash neural L M dot py"
+"lib.tinynet" = "lib dot tiny net"
+"lib.transformer.rms_norm" = "lib dot transformer dot R M S norm"
+"lib.bpe.train" = "lib dot B P E dot train"
+"lib.bpe.store_tokenizer()" = "lib dot B P E dot store tokenizer"
+
+# formulas written in the prose, chapter 1
+"P(v | w) = count(w v) / count(w)" = "P of v given w equals the count of w v, divided by the count of w"
+"cross-entropy = −(1/N) Σ log P(next word | previous word)" = "cross-entropy equals minus one over N, times the sum of log P of the next word given the previous word"
+"perplexity = exp(cross-entropy)" = "perplexity equals e to the power of the cross-entropy"
+"P(v | w) = (count(w v) + 1) / (count(w) + V)" = "P of v given w equals the count of w v plus one, divided by the count of w plus V"
+
+# formulas written in the prose, chapter 3
+"P(token | a b) = λ₃ · P₃(token | a b) + λ₂ · P₂(token | b) + λ₁ · P₁(token)" = "P of token given a b equals lambda three times P three of token given a b, plus lambda two times P two of token given b, plus lambda one times P one of token"
+"P(w | h) = max(c(h w) − d, 0) / c(h) + d · N(h) / c(h) · P(w | shorter h)" = "P of w given h equals the larger of zero and c of h w minus d, divided by c of h, plus d times N of h over c of h, times P of w given the shorter h"
+"D = n₁ / (n₁ + 2 n₂)" = "D equals n one, divided by n one plus two times n two"
+"c(h w)" = "c of h w"
+"c(h)" = "c of h"
+"N(h)" = "N of h"
+
+# formulas written in the prose, chapter 4
+"PMI(a, b) = log [ P(a, b) / (P(a) · P(b)) ]" = "P M I of a and b equals the log of P of a and b, divided by P of a times P of b"
+"P(a, b)" = "P of a and b"
+"P(a)" = "P of a"
+"P(b)" = "P of b"
+"σ(s) = 1 / (1 + e⁻ˢ)" = "sigma of s equals one over one plus e to the minus s"
+"L = −log σ(v·u) − Σₙ log σ(−v·uₙ)" = "L equals minus log sigma of v dot u, minus the sum over the noise tokens of log sigma of minus v dot u n"
+"σ(v·u)" = "sigma of v dot u"
+"σ(v·uₙ)" = "sigma of v dot u n"
+"σ(0)" = "sigma of zero"
+
+# formulas written in the prose, chapter 5
+"h = tanh(xW + b)" = "h equals tan h of, x W plus b"
+"z = hU + c" = "z equals h U, plus c"
+"P(token i) = exp(zᵢ) / Σⱼ exp(zⱼ)" = "P of token i equals e to the z i, divided by the sum over j of e to the z j"
+"L = −log P(next token)" = "L equals minus log P of the next token"
+"∂L/∂w" = "d L by d w"
+
+# formulas written in the prose, chapter 6
+"Attention(Q, K, V) = softmax(QKᵀ / √d) V" = "Attention of Q, K and V equals softmax of Q times K transposed, over the square root of d, times V"
+"1 / (i + 1)" = "one over i plus one"
+
+# formulas written in the prose, chapter 7
+"x ← x + attention(x)" = "x becomes x plus the attention of x"
+"x ← x + feed-forward(x)" = "x becomes x plus the feed-forward of x"
+"RMSNorm(x) = x / √(mean(x²) + ε) · g" = "R M S norm of x equals x divided by the square root of the mean of x squared plus epsilon, times g"
+"FFN(x) = (SiLU(x W_gate) ⊙ (x W_up)) W_down" = "F F N of x equals sigh loo of x times W gate, multiplied number by number by x times W up, all times W down"
+"SiLU(z) = z · σ(z)" = "sigh loo of z equals z times sigma of z"
+"θᵢ = 10000^(−i/(d/2))" = "theta i equals ten thousand to the power of minus i over half of d"
+"(a, b) → (a cos pθᵢ − b sin pθᵢ, a sin pθᵢ + b cos pθᵢ)" = "the pair a, b turns into a times the cosine of p theta i, minus b times the sine of p theta i, and a times the sine of p theta i, plus b times the cosine of p theta i"
+
+# formulas written in the prose, chapter 8
+"rate = peak × (0.1 + 0.9 × ½ (1 + cos(π × progress)))" = "rate equals peak times, zero point one plus zero point nine times one half of, one plus the cosine of pi times progress"
+
+# formulas written in the prose, chapter 9
+"P(token i) = exp(zᵢ / T) / Σⱼ exp(zⱼ / T)" = "P of token i equals e to the z i over T, divided by the sum over j of e to the z j over T"
+
+# formulas written in the prose, chapter 10
+"perplexity per word = exp(−(log p₁ + … + log pₙ) / W)" = "perplexity per word equals e to the minus, log p one plus and so on up to log p n, all over W"
+
+# formulas written in the prose, chapter 11
+"margin = β × [(log π(preferred) − log π_ref(preferred)) − (log π(rejected) − log π_ref(rejected))]" = "margin equals beta times, the log of pi of the preferred response minus the log of pi ref of it, minus, the log of pi of the rejected response minus the log of pi ref of it"
+"loss = −log σ(margin)" = "loss equals minus log sigma of the margin"
+"confidence per token = exp((log p₁ + … + log pₙ) / n)" = "confidence per token equals e to the power of, log p one plus and so on up to log p n, all over n"
+"W + BA" = "W plus B times A"
+
+[words]
+"tanh" = "tan h"
+"cpu" = "C P U"
+"pytorch" = "pie torch"
+"vs" = "versus"
+"rms" = "R M S"
+"usa" = "U S A"
+"dpo" = "D P O"
+"lora" = "Lora"
+"mdf" = "M D F"
+"pmi" = "P M I"
+"ppmi" = "P P M I"
+"svd" = "S V D"
+"skipgram" = "skip-gram"
+"cooccurrence" = "co-occurrence"
+"ngram" = "N-gram"
+"ngrams" = "N-grams"
+"tvs" = "T Vs"
+"smollm2" = "smol L M two"
+"inf" = "infinity"
