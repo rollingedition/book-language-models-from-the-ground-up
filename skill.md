@@ -1,5 +1,5 @@
 ---
-description: "Use when building, training, evaluating or choosing a language model, or debugging one: next-word prediction and autocomplete, perplexity on held-out text, BPE tokenizers, n-gram baselines with Kneser-Ney smoothing, word embeddings (PPMI, SVD, skip-gram), a small neural model, attention and causal masks, transformer blocks (RMSNorm, RoPE, gated feed-forward), training with AdamW and a learning-rate schedule, decoding (greedy, beam search, temperature, top-k, top-p, repetition penalty), reading an open model's parameters, memory and attention heads, and checking an instruction-tuned model for made-up answers, chat templates, long contexts and LoRA. Small models in NumPy and PyTorch that run on a CPU."
+description: "Use when building, training, evaluating or choosing a language model, or debugging one: next-word prediction and autocomplete, perplexity on held-out text, BPE tokenizers, n-gram baselines with Kneser-Ney smoothing, word embeddings (PPMI, SVD, skip-gram), a small neural model, attention and causal masks, transformer blocks (RMSNorm, RoPE, gated feed-forward), training with AdamW and a learning-rate schedule, decoding (greedy, beam search, temperature, top-k, top-p, repetition penalty), reading an open model's parameters, memory and attention heads, tuning a model (masked instruction loss, preference loss, LoRA) and checking its answers for made-up details, chat templates and long contexts. Small models in NumPy and PyTorch that run on a CPU."
 ---
 
 ## Build and score a counted next-word model
@@ -41,7 +41,7 @@ description: "Use when building, training, evaluating or choosing a language mod
 
 1. Never judge an order by perplexity on its own training text. [Longer contexts fit the training text better](#longer-contexts-fit-training)
 2. Measure the share of held-out n-grams unseen in training at each order. [Longer contexts run out of evidence](#longer-contexts-run-out)
-3. Combine each order with lower ones; choose any fixed weights on held-out text. [Mix short and long contexts](#mix-short-and-long-contexts)
+3. Combine each order with lower ones; prefer weights set from counts, such as Kneser-Ney; choose any fixed weights on held-out text. [Mix short and long contexts](#mix-short-and-long-contexts)
 4. When backing off, weight tokens by how many contexts they follow, not how often they occur. [Count the contexts a token follows](#count-contexts-a-token-follows)
 5. Use interpolated Kneser-Ney with a discount of 0.75, check one probability by hand, and raise the order only while validation perplexity falls noticeably. [Smooth with Kneser-Ney](#smooth-with-kneser-ney)
 6. Test suggestions for rare prefixes apart from common ones. [Autocomplete with three tokens of context](#autocomplete-with-more-context)
@@ -57,7 +57,7 @@ description: "Use when building, training, evaluating or choosing a language mod
 
 1. Use one-hot vectors only as an index for learned ones. [One-hot vectors know nothing](#one-hot-vectors-know-nothing)
 2. Count co-occurrence within two to five tokens, never across documents. [Describe a token by the tokens around it](#describe-by-neighbours)
-3. Reweight with positive PMI, keeping frequent tokens only. [Weigh co-occurrence by surprise](#weigh-by-surprise)
+3. Reweight with positive PMI, keeping only frequent tokens or requiring a minimum count. [Weigh co-occurrence by surprise](#weigh-by-surprise)
 4. Compress with SVD to 50 to 300 dimensions, then read some nearest neighbours. [Compress counts into dense vectors](#compress-into-dense-vectors)
 5. For skip-gram, draw noise tokens by frequency to the power 0.75, and check one update by hand. [Learn vectors by predicting neighbours](#learn-by-predicting-neighbours)
 6. Never read high similarity as synonymy without checking for opposites. [Compare learned vectors with counted ones](#compare-learned-and-counted)
@@ -84,7 +84,7 @@ description: "Use when building, training, evaluating or choosing a language mod
 
 **Check:** run [the example](examples/gradients-by-hand.py) ({{out:gradients-by-hand:backprop agrees with nudging to 6 decimal places}}), then [the comparison](examples/neural-vs-baseline.py): {{out:neural-vs-baseline:window model validation perplexity}} against the baseline's {{out:neural-vs-baseline:4-gram baseline validation perplexity}}.
 
-**Pitfalls:** [What goes wrong in production](#neural-in-production): overfitting is silent; mismatched training text hurts; averages hide rare contexts.
+**Pitfalls:** [What goes wrong in production](#neural-in-production): overfitting is silent; mismatched training text hurts; averages hide rare contexts; a mix needs both models at serving time, so rebuild the counts whenever you retrain.
 
 ## Implement and inspect attention
 
@@ -136,7 +136,7 @@ description: "Use when building, training, evaluating or choosing a language mod
 
 **Check:** run [the example](examples/learning-rate-schedule.py) ({{out:learning-rate-schedule:same as the recorded step sizes}}), then [the comparison](examples/transformer-on-descriptions.py): {{out:transformer-on-descriptions:transformer, validation perplexity on descriptions}} against the 4-gram's {{out:transformer-on-descriptions:4-gram baseline, validation perplexity on descriptions}}.
 
-**Pitfalls:** [What goes wrong in production](#training-in-production): a schedule bug looks like a model problem; choices made on validation data flatter the result; repeated text gets memorized.
+**Pitfalls:** [What goes wrong in production](#training-in-production): a schedule bug looks like a model problem; choices made on validation data flatter the result; repeated text gets memorized; padding wastes computation, so pack texts or group them by length.
 
 ## Choose decoding settings
 
@@ -161,7 +161,7 @@ description: "Use when building, training, evaluating or choosing a language mod
 1. Count parameters by part from the weights, reading shapes for tying, grouped keys and values, and gating. [Count the parameters at scale](#parameters-at-scale)
 2. Count from the configuration too; a mismatch means a misread detail. [Compare a family's sizes](#grow-the-same-design)
 3. Budget memory as weights plus a key and value cache per text, and cap text length. [Count what it costs to run](#cost-to-run)
-4. Score your own text per word, never per token, against a model trained on it. [Score the store's text with a general model](#score-the-store-text)
+4. Score your own text per word or per character on the same events, never per token, against a model trained on it. [Score the store's text with a general model](#score-the-store-text)
 5. Describe heads by averages beside an even spread; keep the first token. [Find the same heads at scale](#same-heads-at-scale)
 6. Run the same input-change tests on every model. [Test copying at scale](#copying-at-scale)
 7. Measure its suggestions on your own prefixes. [Suggest the next word at scale](#suggestions-at-scale)
@@ -171,7 +171,7 @@ description: "Use when building, training, evaluating or choosing a language mod
 
 **Pitfalls:** [What goes wrong in production](#open-models-in-production): its text and tokenizer aren't yours; its details must match the running code; its revision changes, so pin it; check its licence.
 
-## Check an instruction-tuned model's answers
+## Tune an instruction model and check its answers
 
 **When:** a project uses a tuned model to answer or write about its own data, and must know what it gets wrong.
 
