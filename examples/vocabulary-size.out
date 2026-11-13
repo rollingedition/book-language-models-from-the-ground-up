@@ -6,6 +6,7 @@ merges  tokens used  tokens per word  rare types
  8,000        8,007             1.10         13%
 16,000       15,517             1.05         53%
 tokens per word at 4,000 merges: 1.22
+tokens per word with characters only: 5.61
 rare token types with characters only: 49%
 rare token types at 4,000 merges: 6%
 rare token types at 16,000 merges: 53%
