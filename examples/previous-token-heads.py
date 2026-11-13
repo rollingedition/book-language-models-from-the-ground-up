@@ -1,3 +1,5 @@
+"""Averages each head's weight on the previous token over 300 validation products, and sets the largest average beside
+an even spread. The prose's point rests on the head with the most weight on the previous token, and on the even spread beside it."""
 import numpy as np
 
 from lib import transformer

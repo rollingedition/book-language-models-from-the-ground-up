@@ -45,6 +45,5 @@ last = attention[-1][:, position]                        # the last layer's head
 head = int(last[:, name_cover].argmax())
 print("last-layer head with the most weight on the name's cover:", f"head {head + 1}")
 print("its weight on the name's cover:", f"{last[head, name_cover]:.2f}")
-# the token after the earlier furniture, and that head's weight on it
 print(f"its weight on {vocabulary[ids[earlier + 1]].removesuffix('</w>')}, after the description's earlier furniture:",
-      f"{last[head, earlier + 1]:.2f}")
+      f"{last[head, earlier + 1]:.2f}")   # that head's weight on the token after the earlier furniture
