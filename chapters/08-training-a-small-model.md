@@ -4,11 +4,11 @@ chapter_id: training-a-small-model
 
 # Training a small model
 
-By the end of this chapter you can train a small transformer from start to finish and judge the result. You'll turn texts into batches, update the weights with AdamW, set the step size's schedule, read the training curve, measure the model fairly against the counted baseline, and find out what more width, more text and more training buy at this scale. You'll also see where the model beats counting, and where it needs counting beside it.
+By the end of this chapter you can train a small transformer from start to finish and judge the result. You'll turn texts into batches, update the weights with AdamW, set the step size's schedule, read the training curve, measure the model fairly against the counted baseline, and find out what more width, more text and more training buy at this scale, and find where the model beats counting and where it needs counting beside it.
 
-[Chapter 7](#the-transformer-block) assembled the store's model and used its trained weights to check every part. This chapter asks where those weights came from: one training run, recorded in `recordings/transformer.py`. That run taught the model, from the names and descriptions in the furniture and home-goods catalog this book follows, to predict each next token. The chapter then measures it on the two jobs it's for: suggesting the next word of a product name in the search box, and predicting descriptions, where text runs long enough for distant context to matter.
+[Chapter 7](#the-transformer-block) assembled the store's model and used its trained weights to check every part. This chapter asks where those weights came from: one training run, recorded in `recordings/transformer.py`. That run taught the model to predict each next token of the store's catalog: the names and descriptions of the furniture and home goods it sells online. The chapter then measures the model on the two jobs it's for: suggesting the next word of a product name in the search box, and predicting descriptions, where text runs long enough for distant context to matter.
 
-As in [chapter 5](#train-with-pytorch), training ran once, in PyTorch, because its results depend on the machine. The examples read what it saved: the weights, the curves and the settings, recorded in the run's manifest. To train it yourself, install `recordings/requirements.txt` in its own environment, which adds PyTorch's CPU build, and run `python recordings/transformer.py` from the book's folder: it writes the same files to `examples/data/recorded/transformer/`, and runs on a laptop's processor.
+As in [chapter 5](#train-with-pytorch), training ran once, in PyTorch. The examples read what it saved: the weights, the curves and the settings, recorded in the run's manifest. To train it yourself, install `recordings/requirements.txt` in its own environment, which adds PyTorch's CPU build, and run `python recordings/transformer.py` from the book's folder: it writes the same files to `examples/data/recorded/transformer/`, and runs on a laptop's processor.
 
 ## Turn products into batches {#turn-products-into-batches}
 
@@ -151,7 +151,7 @@ These runs also show the limits of this book's scale. The store's training text 
 
 Averages say how good a model is; the search box shows what that means to a shopper. [Chapter 3's](#autocomplete-with-more-context) 4-gram suggested `&` and `with` after `outdoor bar`, a context no training name contains, and [chapter 5's](#suggest-from-similar-contexts) window model suggested `stool`. A few training descriptions do contain `outdoor bar`, and the transformer learned from them as well as from the names, while the 4-gram learned from names alone.
 
-To see what a shopper would get, ask the transformer, and the half-and-half mix that the [names comparison](#compare-on-names) favoured, for their three likeliest next tokens after the same five prefixes, each treated as the start of a name. A suggestion of `<sep>` means the model expects the name to end there:
+A shopper would see the transformer's three likeliest next tokens, and those of the half-and-half mix that the [names comparison](#compare-on-names) favoured, after the same five prefixes, each treated as the start of a name. A suggestion of `<sep>` means the model expects the name to end there:
 
 [Example: transformer-autocomplete](../examples/transformer-autocomplete.py)
 

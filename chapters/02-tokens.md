@@ -6,7 +6,7 @@ chapter_id: tokens
 
 By the end of this chapter you can build a byte-pair encoding tokenizer from scratch, choose its vocabulary size by measuring what each size costs, and read the tokenizer of an open language model well enough to apply its merges by hand. Every model in the rest of the book reads the store's text through the tokenizer you build here.
 
-The store sells furniture and home goods online, and its product names and descriptions have to be cut into tokens before any model can read them. [Chapter 1](#predicting-the-next-word) cut the product names into words, because the text already has spaces between words and around punctuation. That choice was quick and it fell short in two ways. The bigram model couldn't give any probability to a word it never saw in training, such as `barstools`, and that broke it. And it treated `chair` and `chairs`, or `48` and `49`, as unrelated words, with nothing learned about one carried over to the other.
+The store sells furniture and home goods online, and its product names and descriptions have to be cut into pieces before any model can read them. [Chapter 1](#predicting-the-next-word) cut the product names into words, because the text already has spaces between words and around punctuation. That choice was quick and it fell short in two ways. The bigram model couldn't give any probability to a word it never saw in training, such as `barstools`, and that broke it. And it treated `chair` and `chairs`, or `48` and `49`, as unrelated words, with nothing learned about one carried over to the other.
 
 A **token** is the unit a language model reads and predicts: whatever the text is cut into before the model sees it. The first problem comes from the choice of tokens, so this chapter fixes the tokens. The second needs more than tokens can give, and [chapter 4](#words-as-vectors) takes it up. The chapter measures three ways to cut the store's text into tokens: words, characters, and the middle ground that most open generative models use, byte-pair encoding. Then it opens one of those models' tokenizers and takes it apart.
 
@@ -14,7 +14,7 @@ A **token** is the unit a language model reads and predicts: whatever the text i
 
 Cutting text into words gives a model tokens that carry meaning, which is why [chapter 1](#predicting-the-next-word) started there. The cost is the vocabulary. A model can only predict tokens in its **vocabulary**, the set of tokens it learned from training text, so any word that first appears after training is out of reach: an **out-of-vocabulary** word. In text with names, numbers and new products, there are always some.
 
-The validation names are the 10% of the store's products that no model learns from, kept aside to show how a model handles text it hasn't seen. To see how far words fall short, count the validation words the training names never use, and sort them into rare words and ordinary ones:
+The validation names are the 10% of the store's products that no model learns from, kept aside to show how a model handles text it hasn't seen. Those names show how far words fall short. Count the validation words the training names never use, and sort them into rare words and ordinary ones:
 
 [Example: unseen-words](../examples/unseen-words.py)
 
@@ -28,7 +28,7 @@ A larger training set would shrink the gap but never close it, because the catal
 
 Going to the other extreme fixes the gap. If every character is a token, the vocabulary is tiny and almost nothing is out of it: a new product line is spelled with the same letters as an old one. The price is length. Each word becomes several tokens, so the model has more steps to predict, and the context it needs, such as the start of a product's name, is many more tokens back.
 
-Can characters close the gap for the store's names? Compare the characters in training and validation names, and count the validation names' tokens both ways:
+Test whether characters close the gap for the store's names. Compare the characters in training and validation names, and count the validation names' tokens both ways:
 
 [Example: character-tokens](../examples/character-tokens.py)
 
@@ -65,7 +65,7 @@ That's the idea that solves [chapter 1](#predicting-the-next-word)'s first probl
 
 The algorithm in the [previous section](#merge-frequent-pairs) recounts every pair after every merge, which is fine for eight merges and too slow for thousands. The book's shared module `lib.bpe` runs the same algorithm, but counts pairs once and, after each merge, updates only the words the merge changed, keeping the counts in a heap so the most frequent pair is always on top. It learns thousands of merges in seconds, and gives the same merges the plain version does: the hand-written example asserts that its eight merges match `lib.bpe.train`.
 
-The store's tokenizer learns 4,000 merges from the training names and descriptions together, because the book's models will learn from both. To see what it does with an unseen word and with similar ones, encode five short texts with it: two product names and three pairs of words.
+The store's tokenizer learns 4,000 merges from the training names and descriptions together, because the book's models will learn from both. Five short texts, two product names and three pairs of words, show what it does with an unseen word and with similar ones:
 
 [Example: store-tokenizer](../examples/store-tokenizer.py)
 
@@ -73,7 +73,7 @@ Common words come out whole, and an unseen word still gets a spelling. `sled cof
 
 The last three lines of the output show what BPE doesn't do. `chair` and `chairs` are both common, so each became a whole token, and the two tokens share nothing. `48` is one token and `49` two, `4` and `9</w>`. And `noise-free` splits into pieces that share nothing with `noise`. Tokens give every word a spelling, not a meaning; relating them is the job of [chapter 4](#words-as-vectors).
 
-A model reading these tokens can spell any word made of characters the training text contains. It still has to learn what a new product line is, but it can at least predict one, and give it a probability.
+A model still has to learn what a new product line is, but it can at least predict one, and give it a probability.
 
 **Working rule:** Train the tokenizer on the same text your model will learn from, here names and descriptions together, so frequent words in that text become single tokens. Build it once and use it for every model you compare; the book's models all read the store's text through `lib.bpe.store_tokenizer()`.
 
@@ -81,11 +81,11 @@ A model reading these tokens can spell any word made of characters the training 
 
 [The previous section](#train-the-store-tokenizer) used 4,000 merges; this one shows why. The number of merges sets the vocabulary size, and it's the one real choice in a BPE tokenizer. More merges make sequences shorter, which saves computation. But each new token covers rarer text, and a token the training text shows only a few times gives a model too little to learn from: the same problem as rare words, in a new place.
 
-Learning 16,000 merges once and reading the first 0, 1,000, 2,000, 4,000, 8,000 and 16,000 of them gives six tokenizers. The first k merges of a longer run are exactly the merges a k-merge run would learn. Each one gets three measures: the different tokens the training text uses, the tokens each validation word becomes, and the share of those tokens, its **token types**, that the training text shows fewer than 20 times:
+Learning 16,000 merges once and reading the first 0, 1,000, 2,000, 4,000, 8,000 and 16,000 of them gives six tokenizers. The first k merges of a longer run are exactly the merges a k-merge run would learn. Each one gets three measures: the different tokens the training text uses, the tokens each validation word becomes, and the share of the different tokens the training text uses, its **token types**, that it shows fewer than 20 times. Before reading the table, decide what each end should show:
 
 [Example: vocabulary-size](../examples/vocabulary-size.py)
 
-The store's tokenizer sits where both costs stay low. At 4,000 merges, a validation word takes {{out:vocabulary-size:tokens per word at 4,000 merges}} tokens on average, and {{out:vocabulary-size:rare token types at 4,000 merges}} of the token types are rare, about as few as at 2,000.
+The store's tokenizer sits where sequences are short and few tokens are rare. At 4,000 merges, a validation word takes {{out:vocabulary-size:tokens per word at 4,000 merges}} tokens on average, and {{out:vocabulary-size:rare token types at 4,000 merges}} of the token types are rare, about as few as at 2,000.
 
 With no merges, every token is a character, so tokens are frequent but words are long: a word takes more than five tokens, and {{out:vocabulary-size:rare token types with characters only}} of the token types are rare, because the descriptions contain unusual characters. With many merges, words are short but rare types pile up: from 8,000 merges the rare share climbs, and at 16,000 it's {{out:vocabulary-size:rare token types at 16,000 merges}}, because most of the extra merges cover words the training text barely contains.
 
@@ -111,13 +111,13 @@ SmolLM2's vocabulary has {{out:smollm2-tokens:SmolLM2 vocabulary}} tokens, again
 
 A tokenizer trained on your own text does slightly better on it. The store's tokenizer uses {{out:smollm2-tokens:tokens per validation name, store}} tokens per validation name and SmolLM2's uses {{out:smollm2-tokens:tokens per validation name, SmolLM2}}, against {{out:smollm2-tokens:tokens per validation name, words}} words. The edge is partly because the store's tokenizer doesn't split numbers into digits, and partly because SmolLM2 spends a separate `Ġ` token before every number and splits each name's first word, which has no space before it.
 
-**Working rule:** When you use an open model, use its tokenizer exactly as shipped; a model only understands the tokens it was trained on. Count tokens with that tokenizer, not words, whenever you budget for context length or cost. When you train your own model on narrow text, train your own tokenizer on that text.
+**Working rule:** Use an open model's tokenizer exactly as shipped, whenever you use one; a model only understands the tokens it was trained on. Count tokens with that tokenizer, not words, whenever you budget for context length or cost. When you train your own model on narrow text, train your own tokenizer on that text.
 
 ## Apply SmolLM2's merges by hand {#apply-merges-by-hand}
 
 SmolLM2's tokenizer file looks like a black box until you see that it holds the same thing the store's tokenizer does: a list of merges, in order. The file, `tokenizer.json`, has three parts that matter here. A pre-tokenizer splits text into pieces before any merging: its steps, which the example prints by name, split digits apart one at a time, then split words with their leading spaces and map every byte to a printable character, which is where `Ġ` comes from. That mapping is GPT-2's `bytes_to_unicode` ([GPT-2's encoder](https://github.com/openai/gpt-2/blob/master/src/encoder.py)). Then a list of merges, ranked by when they were learned. And the vocabulary, which gives each token its number.
 
-To test the file's merges, merge the library's pre-tokenizer pieces of three product names by hand, earliest-learned pair first as the [store's tokenizer](#train-the-store-tokenizer) does, and compare the result with the library's tokens:
+Check the file's merges: merge the library's pre-tokenizer pieces of three product names by hand, earliest-learned pair first as the [store's tokenizer](#train-the-store-tokenizer) does, and compare the result with the library's tokens:
 
 [Example: merges-by-hand](../examples/merges-by-hand.py)
 

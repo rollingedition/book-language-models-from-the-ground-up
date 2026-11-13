@@ -6,7 +6,7 @@ chapter_id: a-neural-language-model
 
 By the end of this chapter you can build a neural language model that predicts the next token from a window of earlier tokens, compute its gradients by hand and check them, train it with PyTorch, and measure it fairly against the counted baseline. You'll also see that a learned model doesn't win by being learned: this one loses to counting on its own, and helps when the two are mixed.
 
-[Chapter 3](#counting-further-back) built the book's baseline, a 4-gram Kneser-Ney model that predicts each token of the product names of an online furniture and home-goods store, the store this book follows, from the three tokens before it, by counting. Its limit was that it can't relate one context to another: it has counts for `patio bar` and none for `outdoor bar`, and nothing links the two. [Chapter 4](#words-as-vectors) showed that vectors can relate tokens, since `patio` and `outdoor` get close vectors when they're learned from the store's text. This chapter puts vectors inside a model. A **neural language model** reads the previous tokens as vectors, combines them with learned arithmetic, and produces a probability for every token in the vocabulary. It learns its vectors and its arithmetic together, by being trained to predict the next token. The design is the one Bengio and colleagues introduced ([Bengio et al., 2003](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)).
+[Chapter 3](#counting-further-back) built the book's baseline, a 4-gram Kneser-Ney model that predicts each token of the store's product names from the three tokens before it, by counting. Its limit was that it can't relate one context to another: among the names of a shop selling furniture and home goods, it has counts for `patio bar` and none for `outdoor bar`, and nothing links the two. [Chapter 4](#words-as-vectors) showed that vectors can relate tokens, since `patio` and `outdoor` get close vectors when they're learned from the store's text. This chapter puts vectors inside a model. A **neural language model** reads the previous tokens as vectors, combines them with learned arithmetic, and produces a probability for every token in the vocabulary. It learns its vectors and its arithmetic together, by being trained to predict the next token. The design is the one Bengio and colleagues introduced ([Bengio et al., 2003](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf)).
 
 The store supplies the text, and the test is the one every model since [chapter 3](#counting-further-back) faces: [perplexity](#score-with-perplexity) per token on the validation names, through the store's tokenizer. Lower is better, and the baseline scores {{out:neural-vs-baseline:4-gram baseline validation perplexity}}.
 
@@ -18,7 +18,7 @@ The last step turns scores into probabilities. **Softmax** exponentiates every l
 
 P(token i) = exp(zᵢ) / Σⱼ exp(zⱼ)
 
-How does the model turn four tokens into probability? Its trained weights answer for the next token after a name starting `patio bar`. Each line of the example is one of the formulas above, and its printed shapes show what each step does:
+Worked through with the trained weights, one prediction shows how the model turns four tokens into probabilities: the next token after a name starting `patio bar`. Each line of the example is one of the formulas above, and its printed shapes show what each step does:
 
 [Example: window-model-by-hand](../examples/window-model-by-hand.py)
 
@@ -44,7 +44,7 @@ All {{out:gradients-by-hand:parameters checked}} gradients from backpropagation 
 
 With gradients in hand, training is a loop. **Gradient descent** moves every weight a small step against its gradient, w ← w − η · ∂L/∂w, where η, the **step size**, also called the **learning rate**, sets how far each step goes. Each step makes the loss a little smaller for the examples it was computed on, and repeated over many examples, the weights settle where the model predicts well.
 
-Does the loop lower the loss? Twenty steps of gradient descent at a step size of 0.5, using `lib.tinynet`'s gradients, on three examples for the store's tiny model from the [previous section](#compute-gradients), answer it:
+Twenty steps of gradient descent at a step size of 0.5, using `lib.tinynet`'s gradients, on three examples for the store's tiny model from the [previous section](#compute-gradients), show the loss falling:
 
 [Example: gradient-descent-by-hand](../examples/gradient-descent-by-hand.py)
 
@@ -67,7 +67,7 @@ optimizer.step()                                       # move every weight again
 
 The optimizer is **Adam**, a refinement of gradient descent ([Kingma and Ba, 2015](https://arxiv.org/abs/1412.6980)). It keeps, for every weight, a running average of its gradients and a running average of their squares, and steps by the first divided by the square root of the second. A weight whose gradients are consistently large gets steps of about the same size as one whose gradients are small, so one step size works for all of them.
 
-Training depends on the machine's floating-point arithmetic, which varies slightly between processors, so it runs once and the book's examples read the weights it saved, as they read every result that depends on the machine. The examples never import PyTorch: `lib.neural` recomputes the model's forward pass in NumPy, from those weights. That only works if the NumPy version computes what PyTorch computed, so the training script saved PyTorch's own logits for 64 validation contexts, and the next example compares:
+Training depends on the machine's floating-point arithmetic, which [chapter 4](#compare-learned-and-counted) explains, so it runs once and the book's examples read the weights it saved, as they read every such result. The examples never import PyTorch: `lib.neural` recomputes the model's forward pass in NumPy, from those weights. That only works if the NumPy version computes what PyTorch computed, so the training script saved PyTorch's own logits for 64 validation contexts, and the next example compares:
 
 [Example: same-as-pytorch](../examples/same-as-pytorch.py)
 
@@ -97,7 +97,7 @@ The real test is the one every model in this book takes: perplexity per token on
 
 The counted model wins, by a wide margin: the window model's validation perplexity is {{out:neural-vs-baseline:window model validation perplexity}}, against the baseline's {{out:neural-vs-baseline:4-gram baseline validation perplexity}}.
 
-The gap may come from contexts the training names never showed. Splitting the validation tokens by whether their three-token context occurs in the training names, and scoring both on each part, shows where it comes from:
+To see where, split the validation tokens by whether their three-token context occurs in the training names, and score both models on each part:
 
 [Example: seen-and-unseen-contexts](../examples/seen-and-unseen-contexts.py)
 
@@ -125,11 +125,11 @@ The kept epoch and the share were both chosen by looking at the validation names
 
 If the network overfits because it learned from too little text, the obvious fix is more text. The store has plenty: its product descriptions. The training script can train the same model on names and descriptions together, and the book recorded that version too, scored on the same validation names.
 
-Set side by side, the two recorded models show whether the extra text helps:
+Compare the two recorded models on the validation names, one trained on names and one on names and descriptions:
 
 [Example: more-text-of-another-kind](../examples/more-text-of-another-kind.py)
 
-Adding the descriptions makes the model worse. The training names hold {{out:more-text-of-another-kind:training tokens, names}} tokens, and names and descriptions together {{out:more-text-of-another-kind:training tokens, names and descriptions}}, about eight times as many. The model that learned from names alone scores {{out:more-text-of-another-kind:learned from names}}, and the one that learned from names and descriptions scores {{out:more-text-of-another-kind:learned from all}}. That second model trained for four epochs, and its validation perplexity was still falling when it stopped, by smaller steps each epoch: {{out:more-text-of-another-kind:all-text model, validation perplexity by epoch}}. Our judgement is that more epochs wouldn't bring it near the names model.
+Adding the descriptions makes the model worse at names. The training names hold {{out:more-text-of-another-kind:training tokens, names}} tokens, and names and descriptions together {{out:more-text-of-another-kind:training tokens, names and descriptions}}, about eight times as many. The model that learned from names alone scores {{out:more-text-of-another-kind:learned from names}}, and the one that learned from names and descriptions scores {{out:more-text-of-another-kind:learned from all}}. That second model trained for four epochs, and its validation perplexity was still falling when it stopped, by smaller steps each epoch: {{out:more-text-of-another-kind:all-text model, validation perplexity by epoch}}. Our judgement is that more epochs wouldn't bring it near the names model.
 
 Descriptions are a different kind of text. They're written in full sentences, with words such as `your`, `this` and `perfect` that names rarely contain, and a model that learns mostly from them predicts names as if they were descriptions. The added text taught the model the wrong distribution for the task. A model learns the text it's given, and its perplexity measures how well it predicts text like that: data of another kind can make it worse, and needs to be weighted or kept apart.
 
@@ -139,7 +139,7 @@ Descriptions are a different kind of text. They're written in full sentences, wi
 
 The network lost on average, including on contexts the training names lack, but averages hide single cases. [Chapter 3's autocomplete](#autocomplete-with-more-context) showed the 4-gram's worst case, `outdoor bar`, a context no training name contains, where it fell back to generic continuations.
 
-The network's three likeliest next tokens after five name prefixes, and a few of its embeddings, show whether `outdoor bar` gets the `stool` suggestion that `patio bar` does:
+Next, the network's three likeliest tokens after five name prefixes, and a few embeddings, tell whether `outdoor bar` gets the `stool` suggestion that `patio bar` does:
 
 [Example: neural-autocomplete](../examples/neural-autocomplete.py)
 
@@ -154,7 +154,7 @@ This is one case, not an average: the [seen and unseen split](#compare-with-the-
 A neural language model brings new failure modes with its new strengths:
 
 - **Overfitting is silent.** Training loss always looks good. Without a validation curve, a model trained too long ships worse than one trained less. Keep the best epoch, and watch the gap.
-- **Results depend on the machine.** Retraining on another processor gives slightly different weights. Save the weights you ship, the code and settings that made them, and the library's outputs for a few inputs, as the training script here does.
+- **Save the weights you ship.** Retraining on another processor gives slightly different weights, so keep the code and settings that made them, and the library's outputs for a few inputs, as the training script here does.
 - **The output layer dominates.** Scoring every token in the vocabulary at every step is most of the computation and most of the parameters. A larger vocabulary costs here first.
 - **Mismatched training text hurts.** Adding text unlike the target, as descriptions were for names, makes predictions worse while the training loss looks fine. Measure on the target text after every change to the training data.
 - **Averages hide rare contexts.** A model can score well overall and still fail on the unusual prefixes that shoppers type when they look for something new. Score seen and unseen contexts separately, as this chapter did, and watch the unseen ones.

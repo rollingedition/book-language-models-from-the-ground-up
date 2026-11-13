@@ -6,7 +6,7 @@ chapter_id: predicting-the-next-word
 
 By the end of this chapter you can build a complete language model from a store's product names by counting, use it to suggest the next word as a shopper types, generate text with it, and measure with one number how well it predicts text it has never seen. Every later chapter replaces one part of this model with a better one, and from [chapter 3](#counting-further-back) on, measures each change the same way.
 
-One case study recurs throughout: an online furniture and home-goods store, which we call the store. Its search box needs autocomplete, so that a shopper who types `coffee` sees `table` offered as the next word, and its short product descriptions need writing and checking. Both are problems of predicting the next word, and the store has the text to learn them from: the names and descriptions of every product in its catalog.
+Throughout the book, one case study recurs: an online furniture and home-goods store, which we call the store. Its search box needs autocomplete, so that a shopper who types `coffee` sees `table` offered as the next word, and its short product descriptions need writing and checking. Both are problems of predicting the next word, and the store has the text to learn them from: the names and descriptions of every product in its catalog.
 
 A **language model** is a program that assigns a probability to every word that could come next, given the words so far. That one ability covers a lot. Suggesting how to finish a search query means picking a likely next word. Writing a sentence means picking a next word, adding it, and picking again. A model that predicts well has learned something about the text it was trained on, so how well it predicts is how you measure it. The large language models behind chat assistants do the same thing at a vastly larger scale: given the text so far, they assign a probability to each possible next piece of text. This book builds that machinery one part at a time, small enough to run on a laptop, so you can see what each part does.
 
@@ -18,7 +18,7 @@ Before a model can learn which words follow which, it needs text to learn from, 
 
 The store's text, which every example in this book learns from, is real. It comes from WANDS, a public product-search dataset that Wayfair published with a paper at ECIR 2022 ([Chen et al., 2022](https://easychair.org/publications/preprint/wm4R)), under the MIT licence ([licence](https://github.com/wayfair/WANDS/blob/main/LICENSE)). The script `prep/wands_text.py` prepares it, and its data card, `examples/data/wands-text/README.md`, says how: the text is already lowercased, with spaces around punctuation, and descriptions are cut at a sentence end to keep the file small. Products whose text names the store itself are left out, so no model in this book learns to write the store's name. The examples read the text through `lib.store`, one of the book's shared modules: short files in `examples/lib/` that hold setup code many examples need, which you can open and read.
 
-Before counting anything, look at the text: how many products each split holds, and what a few names look like:
+Before counting anything, look at the text: the size of each split, and a few names:
 
 [Example: store-text](../examples/store-text.py)
 
@@ -68,7 +68,7 @@ Five typed prefixes, from one word to two, show where the suggestions help and w
 
 [Example: autocomplete](../examples/autocomplete.py)
 
-The suggestions are good after `coffee`, `bar` and `kitchen`, where the top ones are what a shopper would want: tables, stools, sinks and islands. After `outdoor` they're weaker. The top suggestion, `door`, starts a real product type: {{out:autocomplete:of them, followed by 'mat'}} of the {{out:autocomplete:training names containing 'outdoor door'}} training names containing `outdoor door` go on to `mat`. But a one-word suggestion can't offer a two-word product type, and after `door` the shares are small, because `outdoor` is followed by many different words. A comma and an ampersand also show up as suggestions, which no search box should offer. Filtering punctuation out of suggestions is a reasonable patch, and [chapter 2](#tokens) treats the cause.
+After `coffee`, `bar` and `kitchen`, the top suggestions are what a shopper would want: tables, stools, sinks and islands. After `outdoor` they're weaker. The top suggestion, `door`, starts a real product type: {{out:autocomplete:of them, followed by 'mat'}} of the {{out:autocomplete:training names containing 'outdoor door'}} training names containing `outdoor door` go on to `mat`. But a one-word suggestion can't offer a two-word product type, and after `door` the shares are small, because `outdoor` is followed by many different words. A comma and an ampersand also show up as suggestions, which no search box should offer. Filtering punctuation out of suggestions is a reasonable patch, and [chapter 2](#tokens) treats the cause.
 
 The last line shows the model's real limit. A shopper who types `patio bar` gets exactly the suggestions for `bar`, because a bigram model looks at one word of context and nothing before it. `patio` is lost, so the model offers `pull` and `&`, which belong to cabinet hardware and to names such as `bar & counter stools`. Using more context is the subject of [chapter 3](#counting-further-back), and a model that weighs every earlier word is where the book is heading.
 
@@ -96,7 +96,7 @@ Start from one pair. If the model gave the actual next word probability p, its *
 
 cross-entropy = −(1/N) Σ log P(next word | previous word)
 
-**Perplexity** is that average turned back into a count: perplexity = exp(cross-entropy) ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)). It reads as the number of equally likely words the model was choosing between at each step. A perplexity of 10 means the model was, on average, as uncertain as if it had to pick among 10 equally likely words. Lower is better, and a model that knew every next word would score 1. This book uses natural logarithms throughout, which changes cross-entropy's units but not perplexity.
+**Perplexity** is that average turned back into a count: perplexity = exp(cross-entropy) ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)). It reads as the number of equally likely words the model was choosing between, on average, at each step. A perplexity of 10 means the model was, on average, as uncertain as if it had to pick among 10 equally likely words. Lower is better, and a model that knew every next word would score 1. This book uses natural logarithms throughout, which changes cross-entropy's units but not perplexity.
 
 Score one training name, `sled coffee table`, pair by pair to see where its surprise sits, and then every training name at once:
 
@@ -136,7 +136,7 @@ Two numbers show the cost, the probability of `table` after `coffee` and perplex
 
 The vocabulary holds {{out:add-one-smoothing:vocabulary}} words, the end marker and `<unk>` included, and that's the problem. Add-one smoothing adds one imagined occurrence for every one of them after every word, so after `coffee` it imagines tens of thousands of extra pairs against about a thousand real ones.
 
-The model now believes far less in what it has seen, so the probability of `table` after `coffee` falls from {{out:add-one-smoothing:P(table | coffee) counted}} to {{out:add-one-smoothing:P(table | coffee) add-one}}, and the training perplexity rises from {{out:add-one-smoothing:training perplexity, counted}} to {{out:add-one-smoothing:training perplexity, add-one}}.
+The probability of `table` after `coffee` falls from {{out:add-one-smoothing:P(table | coffee) counted}} to {{out:add-one-smoothing:P(table | coffee) add-one}}. The model now believes far less in what it has seen, and the perplexities show it: on the training names, perplexity rises from {{out:add-one-smoothing:training perplexity, counted}} to {{out:add-one-smoothing:training perplexity, add-one}}.
 
 The validation perplexity is finite, {{out:add-one-smoothing:validation perplexity, add-one}}, which is progress, but the model gives so much probability to word pairs that never happen that its predictions are nearly useless.
 

@@ -6,11 +6,11 @@ chapter_id: the-transformer-block
 
 By the end of this chapter you can assemble a transformer block from its parts, joined by residual connections: attention, normalization, a gated feed-forward layer and position information. You can then stack blocks into a complete language model. You'll check each part on the store's trained model, check the whole model against PyTorch's own implementations, measure what each block and each detail contributes, and count where the parameters go.
 
-[Chapter 6](#attention) built attention: each position looks back at earlier ones and takes a weighted average of what it finds. Attention alone isn't a language model. It moves information between positions but transforms little of it, and it has almost no sense of word order. Layers of it stacked directly also degrade: without the other parts of a block, the output of pure attention tends towards the same vector at every position, faster with every layer ([Dong et al., 2021](https://arxiv.org/abs/2103.03404)). The **transformer block** adds the parts that fix those problems around attention ([Vaswani et al., 2017](https://arxiv.org/abs/1706.03762)).
+[Chapter 6](#attention) built attention: each position looks back at earlier ones and takes a weighted average of what it finds. Attention alone isn't a language model, and the store, an online furniture and home-goods shop, needs more than attention. It moves information between positions but transforms little of it, and it has almost no sense of word order. Layers of it stacked directly also degrade: without the other parts of a block, the output of pure attention tends towards the same vector at every position, faster with every layer ([Dong et al., 2021](https://arxiv.org/abs/2103.03404)). The **transformer block** adds the parts that fix those problems around attention ([Vaswani et al., 2017](https://arxiv.org/abs/1706.03762)).
 
 This chapter builds the block in the form the LLaMA models popularized: normalization of each part's input with RMSNorm, a gated feed-forward layer and rotary position embeddings in every layer ([Touvron et al., 2023](https://arxiv.org/abs/2302.13971), section 2.2). SmolLM2, whose tokenizer [chapter 2](#read-an-open-tokenizer) read, is built the same way. Its 360-million-parameter model has 960 dimensions, 32 layers and 15 heads, and differs from the store's model in two details covered below: its heads share keys and values, and its rotary positions turn more slowly ([configuration](https://huggingface.co/HuggingFaceTB/SmolLM2-360M/blob/f8027fd0eaeea54caa13c31d31b9fdc459c38b49/config.json)).
 
-The store's model, trained on the text of its catalog, is {{out:transformer-parameters:layers}} of these blocks between an embedding table and an output layer, and [chapter 6](#read-trained-heads) read its heads. This book calls each block a layer of the model. At every position, each block does two things in order:
+The store's model, trained on the store's product text, is {{out:transformer-parameters:layers}} of these blocks between an embedding table and an output layer, and [chapter 6](#read-trained-heads) read its heads. This book calls each block a layer of the model. At every position, each block does two things in order:
 
 1. normalize the vector, run attention, and add the result back to the vector;
 2. normalize again, run a feed-forward layer, and add that result back too.
@@ -37,7 +37,7 @@ RMSNorm(x) = x / √(mean(x²) + ε) · g
 
 where ε is a tiny number, 10⁻⁵ here, that keeps the division safe, and g is the gain, which starts at 1. Zhang and Sennrich found RMSNorm about as accurate as layer normalization, and faster. The store's model uses it before attention, before the feed-forward layer, and once more before the output layer.
 
-To check the arithmetic against the library, take the stream of the same validation product at both ends of the model, entering the first block and leaving the last. Normalize every position's vector by hand, with the gain left at 1, and compare with `lib.transformer.rms_norm`:
+Normalize the stream of the same validation product by hand at both ends of the model, entering the first block and leaving the last, with the gain left at 1, and compare every position's vector with `lib.transformer.rms_norm`:
 
 [Example: rms-norm-by-hand](../examples/rms-norm-by-hand.py)
 
@@ -79,7 +79,7 @@ So the first pairs turn fast, a full radian per position, and the last pairs slo
 
 Rotation has two properties that suit attention. It doesn't change a vector's length, so it adds position without distorting content. And if a query at position m is turned by mθᵢ and a key at position n by nθᵢ, their dot product depends only on the difference, (m − n)θᵢ: the score depends on how far apart they are, not on where they sit in the text. A head can learn to look 3 tokens back, and it works the same at the start of a name and deep in a description.
 
-To test that, take a random query and key of {{out:trained-attention:dimensions per head}} numbers, the size of the store's heads, rotate them for positions 0 to 19, and compare scaled scores, as [chapter 6](#attention) defines them, at three pairs:
+Rotate a random query and key of {{out:trained-attention:dimensions per head}} numbers, the size of the store's heads, for positions 0 to 19, and compare scaled scores, as [chapter 6](#attention) defines them, at three pairs, which tests that:
 
 [Example: rope-by-hand](../examples/rope-by-hand.py)
 
@@ -131,7 +131,7 @@ The NumPy model reproduces all {{out:transformer-same-as-pytorch:logits compared
 
 The model is checked; now measure what its blocks contribute. Because every block adds to the residual stream, a block can be left out and the model still runs: the stream passes through it unchanged, and the next block reads it as before. That allows a simple experiment, called an **ablation**: remove one part, and measure what the model loses. It shows how much each block contributes to the trained model's predictions, which reading its weights can't.
 
-Before you run it, predict which block's removal hurts most. Score the names and descriptions of the first 100 validation products, {{out:skip-a-block:tokens scored, names and descriptions}} predictions in all, with the full model and with each block left out in turn:
+Which block's removal hurts most? Predict one, then score the names and descriptions of the first 100 validation products, {{out:skip-a-block:tokens scored, names and descriptions}} predictions in all, with the full model and with each block left out in turn:
 
 [Example: skip-a-block](../examples/skip-a-block.py)
 
@@ -147,21 +147,21 @@ The reason is in what the later blocks expect. They were trained on a stream tha
 
 Every detail of a block has to match the weights it runs with, and a mismatch doesn't announce itself: the model still produces probabilities. The details most often wrong when loading another model's weights are in RoPE, because implementations differ in how they pair numbers and in their base, as SmolLM2's differs from the store's model's.
 
-To see what a wrong detail costs, score the same 100 validation products with the trained weights, changing one detail of RoPE at a time: pairing neighbouring numbers instead of halves, a base of 100,000, SmolLM2's, instead of the store's 10,000, and no RoPE at all:
+One wrong detail of RoPE at a time shows what each costs: score the same 100 validation products with the trained weights, pairing neighbouring numbers instead of halves, a base of 100,000, SmolLM2's, instead of the store's 10,000, and no RoPE at all:
 
 [Example: mismatched-details](../examples/mismatched-details.py)
 
 Two mismatches would be caught by the first sample of generated text. Pairing neighbouring numbers instead of halves raises the perplexity from {{out:mismatched-details:perplexity, as trained}} to {{out:mismatched-details:perplexity, RoPE pairing neighbouring numbers}}, and leaving RoPE out raises it to {{out:mismatched-details:perplexity, no RoPE}}.
 
-The base is the dangerous one. At 100,000 the perplexity is {{out:mismatched-details:perplexity, RoPE with base 100,000}}, only slightly worse than {{out:mismatched-details:perplexity, as trained}}, with no error and fluent-looking output, a mistake that could ship.
+The base is the dangerous one. At 100,000 the perplexity is {{out:mismatched-details:perplexity, RoPE with base 100,000}}, slightly worse than {{out:mismatched-details:perplexity, as trained}}, with no error and fluent-looking output, a mistake that could ship.
 
 The other difference from SmolLM2 is **grouped-query attention**: its 15 query heads share 5 sets of keys and values, so its key and value matrices are a third of the size of its query matrix ([Ainslie et al., 2023](https://arxiv.org/abs/2305.13245)). Loading such weights into a model that expects a key and value for every head fails with a shape error, which is the kind of mismatch you want.
 
-**Working rule:** When you load another model's weights, compare its configuration with your code line by line: normalization and its ε, RoPE's pairing and base, the feed-forward layer's gating, tied outputs, and how many heads share keys and values. Then score text you know against the original implementation's outputs; a small loss with no error is the case to fear.
+**Working rule:** Check another model's configuration against your code, line by line, when you load its weights: normalization and its ε, RoPE's pairing and base, the feed-forward layer's gating, tied outputs, and how many heads share keys and values. Then score text you know against the original implementation's outputs; a small loss with no error is the case to fear.
 
 ## Count where the parameters go {#count-the-parameters}
 
-With every part built, count what the model learns, and where. A model's parameters are its capacity to learn, and where they sit says what it spends that capacity on. Here is the trained model's count, by part:
+With every part built, count what the model learns, and where. A model's parameters are its capacity to learn, and where they sit says what it spends that capacity on. The trained model's count, by part:
 
 [Example: transformer-parameters](../examples/transformer-parameters.py)
 
@@ -178,7 +178,7 @@ A transformer's parts have to fit together exactly, and most of what goes wrong 
 - **Mismatched details can fail quietly.** Where the norms go, how RoPE pairs numbers and its base, whether the feed-forward layer is gated and whether the output is tied all have to match the trained weights. Some mismatches give nonsense at once; others, like the RoPE base [measured here](#measure-mismatched-details), cost a little accuracy with no error. Check against reference outputs.
 - **Lengths beyond training are untested.** RoPE gives an angle for any position, but a model trained on texts of up to {{out:transformer-parameters:longest text, in tokens}} tokens has never learned to use the angles beyond. Treat the training length as the model's limit until you've measured past it.
 - **Large values can overflow at reduced precision.** Formats with fewer bits keep the same relative precision at every ordinary magnitude, but float16 can't hold values above 65,504, and in 8-bit formats a few large outliers ruin the precision of every other value ([Dettmers et al., 2022](https://arxiv.org/abs/2208.07339)). The store's model's stream peaks at {{out:residual-stream:largest number in the stream}} for the product measured here, far from float16's limit; check the largest values in your model's stream before serving it at lower precision.
-- **Results depend on the machine.** As with every trained model in this book, keep the weights, the reference outputs and the exact training script together, and rerun the check after any change to the code or libraries.
+- **Keep the reference outputs with the weights.** Results depend on the machine, as [chapter 4](#compare-learned-and-counted) explains, so keep the weights, the reference outputs and the exact training script together, and rerun the check after any change to the code or libraries.
 - **Every part runs at every position.** The feed-forward layers cost the same at every position, and attention's cost grows with the square of the length, as [chapter 6](#attention-in-production) showed. Measure which dominates for your texts before you optimize either.
 
 ## What this chapter decided {#transformer-decisions}
