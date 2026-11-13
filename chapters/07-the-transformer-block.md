@@ -10,12 +10,10 @@ By the end of this chapter you can assemble a transformer block from its parts, 
 
 This chapter builds the block in the form the LLaMA models popularized: normalization of each part's input with RMSNorm, a gated feed-forward layer and rotary position embeddings in every layer ([Touvron et al., 2023](https://arxiv.org/abs/2302.13971), section 2.2). SmolLM2, whose tokenizer [chapter 2](#read-an-open-tokenizer) read, is built the same way. Its 360-million-parameter model has 960 dimensions, 32 layers and 15 heads, and differs from the store's model in two details covered below: its heads share keys and values, and its rotary positions turn more slowly ([configuration](https://huggingface.co/HuggingFaceTB/SmolLM2-360M/blob/f8027fd0eaeea54caa13c31d31b9fdc459c38b49/config.json)).
 
-The store's model, trained on the text of the store's catalog, is {{out:transformer-parameters:layers}} of these blocks between an embedding table and an output layer, and [chapter 6](#read-trained-heads) read its heads. This book calls each block a layer of the model. At every position, each block does two things in order:
+The store's model, trained on the text of its catalog, is {{out:transformer-parameters:layers}} of these blocks between an embedding table and an output layer, and [chapter 6](#read-trained-heads) read its heads. This book calls each block a layer of the model. At every position, each block does two things in order:
 
 1. normalize the vector, run attention, and add the result back to the vector;
 2. normalize again, run a feed-forward layer, and add that result back too.
-
-The sections take those parts one at a time, starting with the additions that hold them together.
 
 ## Add each part's output to a residual stream {#add-to-the-residual-stream}
 
@@ -23,11 +21,11 @@ In [chapter 5](#a-neural-language-model)'s [window model](#predict-from-a-window
 
 Two consequences follow. With the additions, the signal can pass "directly from one block to any other block", forwards and, as [gradients](#compute-gradients), backwards, so a deep stack trains far more reliably than it would without them ([He et al., 2016b](https://arxiv.org/abs/1603.05027)). And every position's vector becomes a shared workspace that each part reads from and writes to: the token's embedding goes in at the bottom, each part adds what it computes, and the output layer reads the sum at the top. Elhage and colleagues call this running sum the **residual stream** ([Elhage et al., 2021](https://transformer-circuits.pub/2021/framework/index.html)).
 
-How much does each layer add to the stream, and how fast does the stream grow? Run the store's model on one validation product and, at every layer, measure the length of what attention adds, of what the feed-forward layer adds, and of the vectors after both additions, averaged over positions. A vector's length here is the square root of the sum of its squared numbers:
+Run the store's model on one validation product and, at every layer, measure the length of what attention adds, of what the feed-forward layer adds, and of the vectors after both additions, averaged over positions. A vector's length here is the square root of the sum of its squared numbers:
 
 [Example: residual-stream](../examples/residual-stream.py)
 
-The stream grows through the layers, from an average length of {{out:residual-stream:length of the vectors entering layer 1}} entering the first layer to {{out:residual-stream:length of the vectors leaving the last layer}} leaving the last. Every layer adds to it, and what attention adds is comparable in size to what the feed-forward layer adds, though the feed-forward layer adds more at every layer, and by more in the later ones: both parts do real work at every layer. Each addition piles onto the last, so the vectors grow as they go. A layer reading the long vectors near the top and one reading the short ones at the bottom would need very differently scaled weights, unless something rescales what each layer reads; the [next section](#normalize-before-each-part) does.
+The stream grows through the layers, because each addition piles onto the last: from an average length of {{out:residual-stream:length of the vectors entering layer 1}} entering the first layer to {{out:residual-stream:length of the vectors leaving the last layer}} leaving the last. Every layer adds to it, and what attention adds is comparable in size to what the feed-forward layer adds, though the feed-forward layer adds more at every layer, and by more in the later ones: both parts do real work at every layer. A layer reading long vectors near the top would need differently scaled weights from one reading short ones at the bottom, unless something rescales each read; the [next section](#normalize-before-each-part) does.
 
 **Working rule:** Write every block as additions to the residual stream, never as replacements, and keep the stream's width the same through the whole model so the additions line up. When you debug a deep model, measure what each part adds: a part that adds almost nothing is doing almost nothing.
 
@@ -39,11 +37,11 @@ RMSNorm(x) = x / √(mean(x²) + ε) · g
 
 where ε is a tiny number, 10⁻⁵ here, that keeps the division safe, and g is the gain, which starts at 1. Zhang and Sennrich found RMSNorm about as accurate as layer normalization, and faster. The store's model uses it before attention, before the feed-forward layer, and once more before the output layer.
 
-Normalizing by hand is short enough to check against the library: take the stream of the same validation product at both ends of the model, entering the first block and leaving the last. Normalize every position's vector by hand, with the gain left at 1, and compare with `lib.transformer.rms_norm`:
+Check the arithmetic against the library: take the stream of the same validation product at both ends of the model, entering the first block and leaving the last. Normalize every position's vector by hand, with the gain left at 1, and compare with `lib.transformer.rms_norm`:
 
 [Example: rms-norm-by-hand](../examples/rms-norm-by-hand.py)
 
-The hand calculation matches the library's at both ends of the model, and after normalizing, the root mean square is {{out:rms-norm-by-hand:root mean square entering block 1, after}} at both. Before it, the root mean square averages {{out:rms-norm-by-hand:root mean square entering block 1, before}} entering the first block and {{out:rms-norm-by-hand:root mean square leaving the last block, before}} leaving the last. RMSNorm rescales but doesn't centre: a position's numbers can still average away from zero afterwards, by up to {{out:rms-norm-by-hand:largest mean of a position's numbers after, leaving the last block}} here. That's the step it saves over layer normalization.
+Normalizing by hand matches the library at both ends, and afterwards the root mean square is {{out:rms-norm-by-hand:root mean square entering block 1, after}} at both. Before it, the root mean square averages {{out:rms-norm-by-hand:root mean square entering block 1, before}} entering the first block and {{out:rms-norm-by-hand:root mean square leaving the last block, before}} leaving the last. RMSNorm rescales but doesn't centre: a position's numbers can still average away from zero afterwards, by up to {{out:rms-norm-by-hand:largest mean of a position's numbers after, leaving the last block}} here. That's the step it saves over layer normalization.
 
 So though the stream grew many times longer across the layers, every attention and feed-forward layer read vectors of the same scale, times its learned gains.
 
@@ -59,11 +57,13 @@ FFN(x) = (SiLU(x W_gate) ⊙ (x W_up)) W_down
 
 where ⊙ multiplies number by number, and SiLU(z) = z · σ(z), with σ the logistic function from [chapter 4](#learn-by-predicting-neighbours). SiLU passes large positive numbers almost unchanged and turns large negative ones to nearly zero, smoothly. Shazeer compared several gated forms with the plain one, at the same number of parameters, and found the gated ones predicted better; this form is called SwiGLU.
 
-What does the gate actually shut? Compute SiLU at three points, then run the first block's real feed-forward layer on the same validation product and count, at each position, how many of its hidden units the gate nearly shuts:
+What does the gate shut? Compute SiLU at three points, then run the first block's real feed-forward layer on the same validation product and count, at each position, how many of its hidden units the gate nearly shuts:
 
 [Example: gated-feed-forward](../examples/gated-feed-forward.py)
 
-SiLU of −3, 0 and 3 gives {{out:gated-feed-forward:silu(-3), silu(0), silu(3)}}: nearly zero for the negative number, nearly unchanged for the positive one. The gate filters the layer, and which units it shuts depends on the input: at a typical position it nearly shuts {{out:gated-feed-forward:hidden units nearly shut at a position (gate under 0.05 in size), on average}} of the first block's {{out:gated-feed-forward:hidden units}} hidden units, and the count ranges between {{out:gated-feed-forward:fewest and most nearly shut at a position}} over the positions. So each position uses its own mix of them. The output has one vector per position at the stream's width again, {{out:gated-feed-forward:output shape}}, ready to add.
+SiLU of −3, 0 and 3 gives {{out:gated-feed-forward:silu(-3), silu(0), silu(3)}}: nearly zero for the negative number, nearly unchanged for the positive one.
+
+The gate filters the layer, and which units it shuts depends on the input: at a typical position it nearly shuts {{out:gated-feed-forward:hidden units nearly shut at a position (gate under 0.05 in size), on average}} of the first block's {{out:gated-feed-forward:hidden units}} hidden units, and the count ranges between {{out:gated-feed-forward:fewest and most nearly shut at a position}} over the positions. So each position uses its own mix of them. The output has one vector per position at the stream's width again, {{out:gated-feed-forward:output shape}}, ready to add.
 
 The feed-forward layers hold most of a block's parameters: in the store's model, three matrices of {{out:transformer-parameters:width}} by {{out:transformer-parameters:feed-forward width}}, against attention's four of {{out:transformer-parameters:width}} by {{out:transformer-parameters:width}}. Geva and colleagues found that in trained models these layers work like stores of patterns: each hidden unit responds to particular patterns in the text, and pushes the prediction towards particular next tokens ([Geva et al., 2021](https://arxiv.org/abs/2012.14913)).
 
@@ -79,13 +79,13 @@ So the first pairs turn fast, a full radian per position, and the last pairs slo
 
 Rotation has two properties that suit attention. It doesn't change a vector's length, so it adds position without distorting content. And if a query at position m is turned by mθᵢ and a key at position n by nθᵢ, their dot product depends only on the difference, (m − n)θᵢ: the score depends on how far apart they are, not on where they sit in the text. A head can learn to look 3 tokens back, and it works the same at the start of a name and deep in a description.
 
-The claim to test is that a score depends only on how far apart two positions are. Take a random query and key of {{out:trained-attention:dimensions per head}} numbers, the size of one of the store's model's heads, rotate them for positions 0 to 19, and compare scaled scores, as [chapter 6](#attention) defines them, at three pairs of positions:
+The claim to test is that a score depends only on how far apart two positions are. Take a random query and key of {{out:trained-attention:dimensions per head}} numbers, rotate them for positions 0 to 19, and compare scaled scores, as [chapter 6](#attention) defines them, at three pairs:
 
 [Example: rope-by-hand](../examples/rope-by-hand.py)
 
-The score depends on how far apart two positions are, not on where they sit. The key at position 2 and the query at 5 score {{out:rope-by-hand:score with the key at 2 and the query at 5}}, and so do the key at 12 and the query at 15, because both pairs are 3 apart. The key at 2 and the query at 8, 6 apart, score {{out:rope-by-hand:score with the key at 2 and the query at 8}}: the same query and key, scored differently because they're further apart. The rotation keeps both vectors' lengths, which the example asserts.
+The score depends on how far apart two positions are, not on where they sit. The key at position 2 and the query at 5 score {{out:rope-by-hand:score with the key at 2 and the query at 5}}, and the key at 12 and the query at 15 score {{out:rope-by-hand:score with the key at 12 and the query at 15}}, the same, because both pairs are 3 apart. The key at 2 and the query at 8, 6 apart, score {{out:rope-by-hand:score with the key at 2 and the query at 8}}: the same query and key, scored differently because they're further apart. The rotation keeps both vectors' lengths, which the example asserts.
 
-RoPE has no learned parameters. The angles are fixed, and the model learns queries and keys that make use of them. The store's model applies it to the queries and keys of every head in every layer, which gives [chapter 6's](#attend-to-the-previous-token) previous-token heads a direct way to find the previous token, alongside the weak signal the mask provides.
+RoPE has no learned parameters: the angles are fixed, and the model learns queries and keys that use them. The store's model applies it to the queries and keys of every head in every layer, which gives [chapter 6's](#attend-to-the-previous-token) previous-token heads a direct way to find the previous token, alongside the weak signal the mask provides.
 
 **Working rule:** Use rotary position embeddings, applied to queries and keys, never values. When you load another model's weights, check how its RoPE pairs the numbers and what base it uses. Some implementations pair neighbouring numbers; others pair the first half with the second, as `lib.transformer.rope` does and as SmolLM2's configuration states with `"rope_interleaved": false`. SmolLM2 uses a base of 100,000 where the store's model uses 10,000.
 
@@ -117,13 +117,13 @@ The last line holds one more idea: the output layer reuses the embedding table, 
 
 ## Check the model against PyTorch {#check-against-pytorch}
 
-PyTorch trained the store's model once, in `recordings/transformer.py`, as it trained [chapter 5](#a-neural-language-model)'s (see [Train with PyTorch](#train-with-pytorch)), and the script saved PyTorch's own logits for every position of one validation product. The training script uses PyTorch's own implementations of RMSNorm, causal attention and SiLU, so comparing them with `lib.transformer` checks the NumPy code against a library's, not against a second copy of itself. RoPE is the exception: PyTorch has no built-in version, so both programs write it out, and the check confirms only that they agree. The [rope-by-hand example](#rotary-positions) checks its properties instead.
+PyTorch trained the store's model once, in `recordings/transformer.py`, as it trained [chapter 5](#a-neural-language-model)'s (see [Train with PyTorch](#train-with-pytorch)), and the script saved PyTorch's own logits for every position of one validation product. The training script uses PyTorch's own RMSNorm, causal attention and SiLU, so comparing them with `lib.transformer` checks the NumPy code against a library's, not against a second copy of itself. RoPE is the exception: PyTorch has no built-in version, so both programs write it out, and the check confirms only that they agree. The [rope-by-hand example](#rotary-positions) checks its properties instead.
 
-Does the NumPy model compute what PyTorch does, on a whole text? This example recomputes the logits for the saved product and compares every position:
+Recomputing the saved product's logits in NumPy and comparing every position with PyTorch's tests the whole forward pass:
 
 [Example: transformer-same-as-pytorch](../examples/transformer-same-as-pytorch.py)
 
-The NumPy model reproduces all {{out:transformer-same-as-pytorch:logits compared}} of PyTorch's logits, for {{out:transformer-same-as-pytorch:positions compared}} positions, to four decimal places, as the example asserts. The reference was PyTorch {{out:transformer-same-as-pytorch:PyTorch version}}. Because the check covers a whole text, it covers the parts that depend on position, the mask and the rotations, as well as the norms, the gates and the tied output.
+The NumPy model reproduces all {{out:transformer-same-as-pytorch:logits compared}} of PyTorch's logits, for {{out:transformer-same-as-pytorch:positions compared}} positions, to four decimal places, against PyTorch {{out:transformer-same-as-pytorch:PyTorch version}}. Because the check covers a whole text, it covers the parts that depend on position, the mask and the rotations, as well as the norms, gates and tied output.
 
 **Working rule:** Check your own forward pass against the training library's outputs on a full text, not a single position. Where the library has its own implementation of a part, train with it, so the check compares two independent implementations; where it doesn't, as with RoPE here, test the part's properties by hand.
 
@@ -131,11 +131,11 @@ The NumPy model reproduces all {{out:transformer-same-as-pytorch:logits compared
 
 The model is checked; now measure what its blocks contribute. Because every block adds to the residual stream, a block can be left out and the model still runs: the stream passes through it unchanged, and the next block reads it as before. That allows a simple experiment, called an **ablation**: remove one part, and measure what the model loses. It shows how much each block contributes to the trained model's predictions, which reading its weights can't.
 
-Make a guess first: which block's removal will hurt most? To test it, score the names and descriptions of the first 100 validation products, {{out:skip-a-block:tokens scored, names and descriptions}} predictions in all, with the full model and then with each block left out in turn:
+Make a guess first: which block's removal will hurt most? Score the names and descriptions of the first 100 validation products, {{out:skip-a-block:tokens scored, names and descriptions}} predictions in all, with the full model and with each block left out in turn:
 
 [Example: skip-a-block](../examples/skip-a-block.py)
 
-With all four blocks, the [perplexity](#score-with-perplexity) per token is {{out:skip-a-block:all blocks}}. Leaving out block 2, 3 or 4 more than doubles it, to {{out:skip-a-block:without block 2}}, {{out:skip-a-block:without block 3}} and {{out:skip-a-block:without block 4}}: each later block contributes a share of the model's skill, and none is dispensable. This perplexity covers names and descriptions together, so it can't be set beside the [baseline](#the-baseline) of chapter 3 or the [window model](#predict-from-a-window) of chapter 5, which are scored on validation names alone. [Chapter 8](#training-a-small-model) makes that comparison.
+Leaving out block 2, 3 or 4 more than doubles the [perplexity](#score-with-perplexity) per token, from {{out:skip-a-block:all blocks}} with all four blocks to {{out:skip-a-block:without block 2}}, {{out:skip-a-block:without block 3}} and {{out:skip-a-block:without block 4}}: each later block contributes a share of the model's skill, and none is dispensable. This perplexity covers names and descriptions together, so it can't be set beside the [baseline](#the-baseline) of chapter 3 or the [window model](#predict-from-a-window) of chapter 5, which are scored on validation names alone. [Chapter 8](#training-a-small-model) makes that comparison.
 
 Leaving out block 1 is a different kind of failure: perplexity rises to {{out:skip-a-block:without block 1}}, worse than guessing evenly among all {{out:transformer-parameters:vocabulary}} tokens, which would score {{out:transformer-parameters:vocabulary}}.
 
@@ -151,7 +151,7 @@ To see what a wrong detail costs, score the same 100 validation products with th
 
 [Example: mismatched-details](../examples/mismatched-details.py)
 
-Two of the mismatches are easy to catch. Pairing neighbouring numbers instead of halves raises the perplexity from {{out:mismatched-details:perplexity, as trained}} to {{out:mismatched-details:perplexity, RoPE pairing neighbouring numbers}}, and leaving RoPE out raises it to {{out:mismatched-details:perplexity, no RoPE}}. Both would be caught by the first sample of generated text.
+Two mismatches would be caught by the first sample of generated text. Pairing neighbouring numbers instead of halves raises the perplexity from {{out:mismatched-details:perplexity, as trained}} to {{out:mismatched-details:perplexity, RoPE pairing neighbouring numbers}}, and leaving RoPE out raises it to {{out:mismatched-details:perplexity, no RoPE}}.
 
 The base is the dangerous one. At 100,000 the perplexity is {{out:mismatched-details:perplexity, RoPE with base 100,000}}, slightly worse than the {{out:mismatched-details:perplexity, as trained}} as trained, with no error and fluent-looking output, a mistake that could ship.
 
@@ -161,7 +161,7 @@ The other difference from SmolLM2 is **grouped-query attention**: its 15 query h
 
 ## Count where the parameters go {#count-the-parameters}
 
-With every part in place, you can count what the model learns, and where. A model's parameters are what it can learn, and where they sit says what it spends that capacity on. Counting the trained model's parameters by part shows where its capacity goes:
+A model's parameters are what it can learn, and where they sit says what it spends that capacity on. Counting the trained model's parameters by part shows where its capacity goes:
 
 [Example: transformer-parameters](../examples/transformer-parameters.py)
 
