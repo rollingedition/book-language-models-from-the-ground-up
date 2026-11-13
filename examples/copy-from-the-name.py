@@ -1,6 +1,7 @@
 """Changes the name of one validation product and reads the model's probabilities for cover and set at the same position,
 then counts what follows this outdoor patio furniture in the training descriptions. The prose's point rests on P(cover)
-falling when cover leaves the name, and on the training counts, which the four tokens alone would give."""
+falling when cover leaves the name, and on how rarely this outdoor patio furniture is followed by cover in the training
+descriptions, which is all the four tokens alone give."""
 from lib import transformer
 from lib.store import load_products
 

@@ -1,12 +1,15 @@
+"""Runs the store's model on one validation product, one block at a time, and prints how much attention and the
+feed-forward layer add to the residual stream at each layer. The prose's point rests on the two lengths printed
+first and last: the vectors entering layer 1 and leaving the last layer."""
 import numpy as np
 
 from lib import transformer
 from lib.products import product_texts
 
 weights, _, manifest = transformer.load()
-ids, sep = product_texts("validation", 1)[0]
-x = weights["embedding"][np.array(ids)]
-print("length of the vectors entering layer 1:", f"{np.linalg.norm(x, axis=1).mean():.2f}")
+ids, sep = product_texts("validation", 1)[0]          # the first validation product; sep, its <sep> position, isn't needed here
+x = weights["embedding"][np.array(ids)]               # the stream entering block 1: each token's embedding
+print("length of the vectors entering layer 1:", f"{np.linalg.norm(x, axis=1).mean():.2f}")   # a vector's length, per position, averaged
 for layer in range(manifest["settings"]["layers"]):
     layer_weights = transformer.layer_weights(layer)
     added_by_attention, _ = transformer.attention(transformer.rms_norm(x, layer_weights["norm1"]), layer_weights, manifest["settings"]["heads"])

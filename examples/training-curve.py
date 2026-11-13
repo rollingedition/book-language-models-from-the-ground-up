@@ -12,4 +12,4 @@ for c in curves:                                             # losses are averag
 best = min(curves, key=lambda c: c["validation_loss"])       # the epoch with the lowest validation loss, which the kept epoch should match
 print("epoch kept:", manifest["kept_epoch"])
 print("validation perplexity at the kept epoch:", f"{math.exp(best['validation_loss']):.1f}")
-print("validation perplexity at the last epoch:", f"{math.exp(curves[-1]['validation_loss']):.1f}")   # the last epoch, not the best
+print("validation perplexity at the last epoch:", f"{math.exp(curves[-1]['validation_loss']):.1f}")   # curves[-1]: the final epoch's record, whatever was kept
