@@ -1,4 +1,4 @@
-"""Computes the DPO margin and loss by hand for two made-up cases, with a beta of 0.1. The prose's point rests on the
+"""Computes the DPO margin and loss by hand for two made-up cases, with a fixed beta. The prose's point rests on the
 two loss lines, one for each case.
 """
 import numpy as np

@@ -19,7 +19,7 @@ def repeats(text):
     words = text.lower().split()
     # every window of four consecutive words, so a text of n words has n - 3 of them
     phrases = [tuple(words[i:i + 4]) for i in range(len(words) - 3)]
-    # a phrase counts as repeated each time after its first appearance; max keeps an empty text from dividing by zero
+    # a phrase counts as repeated each time after its first appearance; max keeps a text of fewer than four words from dividing by zero
     return sum(count - 1 for count in Counter(phrases).values()) / max(len(phrases), 1)
 
 

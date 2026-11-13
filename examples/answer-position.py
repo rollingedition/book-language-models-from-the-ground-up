@@ -12,7 +12,7 @@ print("product listings in each context:", others + 1)
 results = defaultdict(list)
 for row in context:
     # only products whose data names a material: a product with none gives an answer nothing to name
-    if claims.materials(row["description"]) | claims.materials(row["name"]):   # only products whose data names one
+    if claims.materials(row["description"]) | claims.materials(row["name"]):
         # supported: every material the answer names is in the asked product's own data
         results[row["place"]].append(claims.classify(row["tuned"]["text"], row["description"], row["name"]) == "supported")
 print("products asked about at each place:", len(results["first"]))

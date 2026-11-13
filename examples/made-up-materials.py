@@ -12,7 +12,6 @@ given = [bool(claims.materials(row["description"]) | claims.materials(row["name"
 print("products whose name or description names a material:", sum(given))
 print("products whose name and description name none:", len(given) - sum(given))
 for role in ["base", "tuned"]:
-    # True keeps the products whose data names a material; False keeps those whose data names none
     for label, keep in [("data names a material", True), ("data names none", False)]:
         rows = [row for row, named in zip(asked, given) if named == keep]
         # each answer is classed against the product's data, by the rules in lib.claims
