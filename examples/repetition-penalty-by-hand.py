@@ -1,6 +1,6 @@
 """The repetition penalty applied by hand to the next token's logits, checked against lib.decoding.penalize, and then
-used for a whole greedy description. The prose's points rest on the probability of distressed without the penalty
-and with it."""
+used for a whole greedy description. The two P(distressed) lines are the ones the prose quotes, and the
+assert against lib.decoding.penalize is the match it states as fact."""
 import numpy as np
 
 from lib import decoding, transformer

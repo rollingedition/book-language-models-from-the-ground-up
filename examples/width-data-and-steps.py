@@ -21,5 +21,5 @@ for label, folder in runs:
     print(f"{label}, best epoch:", best["epoch"])
     print(f"{label}, perplexity on names:", f"{math.exp(best['validation_name_loss']):.1f}")
     print(f"{label}, perplexity on descriptions:", f"{math.exp(best['validation_description_loss']):.1f}")
-    print(f"{label}, perplexity on names, last epoch:", f"{math.exp(curves[-1]['validation_name_loss']):.1f}")   # the list's last entry
+    print(f"{label}, perplexity on names, last epoch:", f"{math.exp(curves[-1]['validation_name_loss']):.1f}")   # the last epoch trained, not the one kept
     print(f"{label}, perplexity on descriptions, last epoch:", f"{math.exp(curves[-1]['validation_description_loss']):.1f}")

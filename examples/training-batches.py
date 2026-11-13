@@ -16,7 +16,7 @@ size = settings["batch"]
 order = np.random.default_rng(settings["seed"]).permutation(len(texts))   # one shuffled epoch, from the run's seed, so it repeats
 padding, targets_seen, shares = 0, 0, []
 for start in range(0, len(texts), size):
-    batch = [texts[i] for i in order[start:start + size]]                      # this step's texts: the next size in the shuffle
+    batch = [texts[i] for i in order[start:start + size]]                      # this step's texts: the next `size` in the shuffled order
     longest = max(len(ids) for ids in batch)
     padded = np.array([ids + [pad] * (longest - len(ids)) for ids in batch])   # short texts filled out with <pad>
     inputs, targets = padded[:, :-1], padded[:, 1:]                            # each position predicts the next token

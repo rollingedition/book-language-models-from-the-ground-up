@@ -1,6 +1,6 @@
 """Four samplers write the same description from one seed, and the temperature-1 draws are then replayed to mark the
-tokens outside each step's 90% nucleus. The prose's points rest on the last two lines: how many draws came from the
-tail, and which tokens they were."""
+tokens outside each step's 90% nucleus. The last two lines are the ones the prose quotes: how many draws came from
+the tail, and which tokens they were."""
 import numpy as np
 
 from lib import decoding, transformer

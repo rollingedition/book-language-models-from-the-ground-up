@@ -1,5 +1,5 @@
-"""Beam search with a beam of four, on a search query and on a product's description. The prose's points rest on the
-two completions of outdoor bar, the likeliest description and its probability, and the likeliest per token."""
+"""Beam search with a beam of four, on a search query and on a product's description. The prose quotes the two
+completions of outdoor bar, then the likeliest description, its probability and the likeliest per token."""
 import numpy as np
 
 from lib import decoding, transformer
@@ -9,7 +9,7 @@ width, longest = 4, 4
 print("beam width:", width)
 print("longest completion, in tokens, its end included:", longest)
 start = decoding.prompt("outdoor bar")[:-1]                  # a search query: <s> and the words typed so far
-for score, written in decoding.beam(start, width=width, longest=longest, stops=(transformer.SEP,))[:2]:   # stops at <sep>: the name's end, the two likeliest
+for score, written in decoding.beam(start, width=width, longest=longest, stops=(transformer.SEP,))[:2]:   # stop at <sep>, where a name ends; keep the two likeliest
     print("completion of outdoor bar:", decoding.text([t for t in written if vocabulary[t] != transformer.SEP]),
           f"(probability {np.exp(score):.3f})")
 

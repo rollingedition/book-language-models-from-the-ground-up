@@ -1,6 +1,6 @@
 """The next token's distribution after the first nine tokens of the greedy description, at three temperatures, and how
-many tokens each needs to cover 90% of the probability. The prose's points rest on those counts and on the share of
-probability outside temperature 1's 90% cover."""
+many tokens each needs to cover 90% of the probability. The prose quotes the three counts, and the share at 1.5 that
+falls outside temperature 1's 90% cover."""
 import numpy as np
 
 from lib import decoding, transformer

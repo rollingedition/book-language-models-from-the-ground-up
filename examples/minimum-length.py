@@ -1,6 +1,6 @@
 """Greedy decoding of the bulb's description, without a minimum length and with one that forbids the end marker until
-it has that many tokens. The prose's points rest on the probability of an empty description and on the description
-with the minimum."""
+it has that many tokens. The prose quotes the printed probability of an empty description, and
+the description the minimum produces."""
 from lib import decoding, transformer
 
 end = transformer.load()[1].index(transformer.END)                    # the index of </s>, to read its probability

@@ -23,6 +23,6 @@ print("peak step size:", settings["peak_rate"])
 print("weight decay:", settings["weight_decay"])
 for step in [0, settings["warmup_steps"] // 2, settings["warmup_steps"], total // 2, total - 1]:
     print(f"step size at step {step:,}:", f"{rate(step):.2e}")
-gap = max(abs(recorded - rate(10 * i + 1)) for i, recorded in enumerate(recorded_rates))   # rates[10 * i] was saved after step 10 * i + 1
+gap = max(abs(recorded - rate(10 * i + 1)) for i, recorded in enumerate(recorded_rates))   # recorded_rates[i] was saved after step 10 * i, so it is the size used at step 10 * i + 1
 assert gap < 1e-9                   # every saved step size matches the hand calculation, to a billionth
 print("same as the recorded step sizes:", "yes")

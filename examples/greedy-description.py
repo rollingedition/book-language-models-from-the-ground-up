@@ -1,6 +1,6 @@
 """Greedy decoding writes one description of a product that has none, and shows how it repeats itself, and how likely
-the model is to leave a bulb's description empty. The prose's points rest on the greedy description, its repeated
-phrases, and the last line."""
+the model is to leave a bulb's description empty. The prose quotes the greedy description, its repeated phrases, and
+the line with the bulb's probability of an empty description."""
 from collections import Counter
 
 from lib import decoding, transformer

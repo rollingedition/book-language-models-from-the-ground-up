@@ -1,6 +1,6 @@
 """Scores the descriptions of the first 500 validation products with a 4-gram trained on whole texts, with the transformer,
-and with their even mix, then splits the tokens by whether their context was seen in training. The prose's point rests on
-the half-and-half and unseen-context lines."""
+and with their even mix, then splits the tokens by whether their context was seen in training. The prose's point rests on the
+4-gram baseline and transformer lines, the half-and-half line and the unseen-context lines."""
 import numpy as np
 
 from lib import transformer
