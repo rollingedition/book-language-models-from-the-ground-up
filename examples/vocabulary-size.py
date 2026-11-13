@@ -21,7 +21,6 @@ for k in [0, 1000, 2000, 4000, 8000, 16000]:
     print(f"{k:>6,}  {len(seen):>11,}  {per_word:>15.2f}  {rare:>10.0%}")
     results[k] = per_word, rare
 print("tokens per word at 4,000 merges:", f"{results[4000][0]:.2f}")
-print("tokens per word with characters only:", f"{results[0][0]:.2f}")
 print("rare token types with characters only:", f"{results[0][1]:.0%}")
 print("rare token types at 4,000 merges:", f"{results[4000][1]:.0%}")
 print("rare token types at 16,000 merges:", f"{results[16000][1]:.0%}")
