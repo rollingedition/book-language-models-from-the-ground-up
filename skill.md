@@ -99,7 +99,7 @@ description: "Use when building, training, evaluating or choosing a language mod
 7. Describe heads by averages over a few hundred texts, beside an even spread. [Some heads attend to the previous token](#attend-to-the-previous-token)
 8. Measure how far back it attends, report marker weight apart, and keep the first tokens when cutting context. [Reach past the window](#reach-past-the-window)
 
-**Check:** run [the example](examples/causal-mask.py): weight on later tokens is {{out:causal-mask:weight on later tokens}}, and with the mask, whether an earlier output changes with the last token reads {{out:causal-mask:output at coffee changes with the last token, with the mask}}.
+**Check:** run [the example](examples/causal-mask.py): weight on later tokens is {{out:causal-mask:weight on later tokens}}, and with the mask, changing the last token moves the output at an earlier position by {{out:causal-mask:largest change in coffee's output, with the mask}}.
 
 **Pitfalls:** [What goes wrong in production](#attention-in-production): cost grows with the square of the length; a wrong mask fails silently; attention weights aren't explanations; a fully masked row becomes NaN.
 

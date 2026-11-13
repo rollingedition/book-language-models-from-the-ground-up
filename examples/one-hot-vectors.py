@@ -1,5 +1,5 @@
 """One-hot vectors for the 2,000 most frequent tokens, and the cosine similarity of patio with outdoor, with sofa and with
-itself. The prose's point rests on the two 0.0 lines: patio is as unrelated to outdoor as to sofa."""
+itself. The prose's point rests on the patio–outdoor and patio–sofa lines: patio is as unrelated to outdoor as to sofa."""
 import numpy as np
 
 from lib.vectors import BREAK, training_ids                 # the book's shared module; BREAK marks the gap between two texts

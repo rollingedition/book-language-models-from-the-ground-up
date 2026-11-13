@@ -18,7 +18,7 @@ def name_vector(text):                               # the average of the text's
     return average / (np.linalg.norm(average) or 1.0)            # `or 1.0`: a zero average stays zero, rather than dividing by zero
 
 
-names = load_products("train")["name"].tolist()        # the training names, the text the vectors were learned from
+names = load_products("train")["name"].tolist()        # the training split's product names, the texts to compare
 matrix = np.array([name_vector(n) for n in names])
 for query in ["outdoor bar", "patio umbrella"]:
     best = np.argsort(-(matrix @ name_vector(query)), kind="stable")[:4]   # unit vectors, so the dot product is the cosine; the four largest, most similar first

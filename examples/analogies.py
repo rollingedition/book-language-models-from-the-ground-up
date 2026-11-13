@@ -1,5 +1,5 @@
 """Three analogies on the skip-gram vectors, each answered by the tokens nearest b minus a plus c; whether lamps and light
-have vectors at all; and the nearest tokens to a few single words. The prose rests on the first analogy's line and the lamps line."""
+have vectors at all; and the nearest tokens to a few single words. The prose rests on the three analogy lines, the lamps line and the neighbour lists."""
 import json
 
 import numpy as np

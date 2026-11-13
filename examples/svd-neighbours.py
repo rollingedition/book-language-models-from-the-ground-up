@@ -1,5 +1,5 @@
 """Compresses the PPMI matrix into 64 numbers per token, and lists the four nearest neighbours of six tokens. The prose's
-point rests on those lists, and on the last line: patio and outdoor are each other's nearest neighbour."""
+point rests on the first two lists and the last line: patio and outdoor are each other's nearest neighbour, at the cosine printed last."""
 from lib.vectors import DIMENSIONS, nearest, svd_vectors          # svd_vectors does the PPMI and SVD steps; nearest ranks tokens by cosine similarity
 
 vectors, vocabulary = svd_vectors()                               # one 64-number row per token, each scaled to unit length

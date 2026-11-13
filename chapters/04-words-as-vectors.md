@@ -14,11 +14,11 @@ Vectors need text that shows how words get used, and the store's catalog supplie
 
 Every model so far has treated tokens as names: `patio` is one entry in a table and `outdoor` another, with nothing linking them. Written as vectors, that's a **one-hot** encoding: each token gets a vector as long as the vocabulary, with a 1 in its own position and 0 everywhere else. To measure how alike two vectors are, this book uses **cosine similarity**: the cosine of the angle between them, 1 when they point the same way, 0 when they're at right angles. It ignores how long the vectors are and compares only their directions.
 
-This example gives one-hot vectors to the 2,000 most frequent tokens, about half of the store tokenizer's vocabulary, which keeps every matrix here small enough to compute in seconds. It compares three pairs, two of them outdoor words:
+Give the 2,000 most frequent tokens of the training text one-hot vectors, and compare `patio` with `outdoor`, with `sofa` and with itself. Those 2,000 are about half of the store tokenizer's vocabulary, which keeps every matrix in this chapter small enough to compute in seconds:
 
 [Example: one-hot-vectors](../examples/one-hot-vectors.py)
 
-A one-hot encoding says the two outdoor words are exactly as unrelated as a patio and a sofa. The cosine similarity of `patio` and `outdoor` is {{out:one-hot-vectors:cosine(patio, outdoor)}}, and so is that of `patio` and `sofa`. Only a token compared with itself scores {{out:one-hot-vectors:cosine(patio, patio)}}. Each vector has {{out:one-hot-vectors:numbers in each vector}} numbers, and the 2,000 tokens that get them make up {{out:one-hot-vectors:share of training tokens with a vector}} of the training text; the rest are rarer, and this chapter leaves them out. Every pair of different tokens sits at right angles to every other, so nothing learned about one can carry over to another.
+A one-hot encoding says the two outdoor words are exactly as unrelated as a patio and a sofa. The cosine similarity of `patio` and `outdoor` is {{out:one-hot-vectors:cosine(patio, outdoor)}}, and so is that of `patio` and `sofa`. Only a token compared with itself scores {{out:one-hot-vectors:cosine(patio, patio)}}. Each vector has {{out:one-hot-vectors:numbers in each vector}} numbers. The 2,000 tokens that get vectors make up {{out:one-hot-vectors:share of training tokens with a vector}} of the training text; the rest are rarer, and this chapter leaves them out. Every pair of different tokens sits at right angles to every other, so nothing learned about one can carry over to another.
 
 That's the same flaw as [chapter 3](#counting-further-back)'s counts, in another form. A model that reads one-hot vectors has to learn about every token separately, from the contexts that token itself appears in. Rare tokens get little, and unseen combinations get nothing.
 
@@ -28,11 +28,11 @@ That's the same flaw as [chapter 3](#counting-further-back)'s counts, in another
 
 The way out is to describe a word by the company it keeps. Two words that appear among the same neighbours, such as `patio` and `outdoor`, which both turn up near `furniture`, `chair` and `umbrella`, are likely to mean similar things, even if they rarely appear together. So describe each token by its neighbours: count, for every pair of tokens, how often one appears within a small **window** of the other, here two tokens either side, and never across the gap between two products' texts. Each token's row of counts is then a vector of what it appears near.
 
-Before any fix, see what raw counts near `patio` are made of. The training split's names and descriptions supply the counts:
+What sits most often near `patio` in the training split's names and descriptions? Count co-occurrences there:
 
 [Example: cooccurrence-counts](../examples/cooccurrence-counts.py)
 
-The most frequent neighbours of `patio` are disappointing: a comma, `or`, `with`, `your` and a full stop come before the first word with anything to do with patios, `furniture`. Within two places of `patio`, the training text holds {{out:cooccurrence-counts:tokens near patio, counting repeats}} tokens, counting a token again each time it appears there. Those common tokens appear near almost everything, because they're everywhere. A row of raw counts mostly says how common each neighbour is, not what's special about the token whose row it is.
+Of the {{out:cooccurrence-counts:tokens near patio, counting repeats}} tokens within two places of `patio`, counting a token again each time it appears there, the most frequent are disappointing: a comma, `or`, `with`, `your` and a full stop, before the first word with anything to do with patios, `furniture`. Those tokens appear near almost everything, because they're everywhere. A row of raw counts mostly says how common each neighbour is, not what's special about the token whose row it is.
 
 So raw counts make poor vectors. Two tokens that both appear often will look alike because they share the same frequent neighbours, commas and `with`, whatever they mean. What matters is which neighbours a token has more often than you'd expect from how common those neighbours are.
 
@@ -52,7 +52,7 @@ pmi = np.log(counts / expected)
 return np.where(counts > 0, np.maximum(pmi, 0), 0.0)
 ```
 
-Swapping the raw counts for PPMI changes that list, and this example shows the change:
+Reweighting is meant to stop frequent neighbours dominating, so swap the raw counts for PPMI and list `patio`'s strongest neighbours again:
 
 [Example: ppmi-neighbours](../examples/ppmi-neighbours.py)
 
@@ -66,7 +66,7 @@ PPMI vectors are already useful: two tokens with similar PPMI rows have similar 
 
 A [PPMI vector](#weigh-by-surprise) of 2,000 numbers, mostly zeros, has a lot of room and little information. Compressing it into a short, dense vector keeps the strongest patterns of co-occurrence, drops the noise, and puts tokens with related neighbours close together even when they share few exact neighbours. The tool is the **singular value decomposition**, SVD, which finds the 64 directions that together reconstruct the PPMI rows best, and weights each by how much of the rows it explains. A token's 64 weighted coordinates along those directions are its new vector: an **embedding**, a dense vector that stands for a token. The method `lib.vectors.svd_vectors` computes them, scales each to unit length, and `lib.vectors.nearest` finds the tokens with the highest cosine similarity to any vector.
 
-Compression is judged by its neighbours, so this example computes the 64-number embeddings and lists the four nearest neighbours of six tokens:
+To check what the 64 numbers keep, compute the embeddings and list the four nearest neighbours of six tokens:
 
 [Example: svd-neighbours](../examples/svd-neighbours.py)
 
@@ -96,15 +96,15 @@ Run three updates on one real pair, `patio` and `umbrella`, with `sofa` and `48`
 
 [Example: skipgram-step](../examples/skipgram-step.py)
 
-Training pulls real neighbours together and pushes random tokens apart, and three updates show it in miniature. Before any update, the neighbour vectors are zero, so every score is zero, and σ(0) is one half: the model knows nothing. After three, `umbrella` scores {{out:skipgram-step:P(umbrella is a real neighbour of patio), after 3 steps}} as a neighbour of `patio`, up from {{out:skipgram-step:P(umbrella is a real neighbour of patio), before}}, and `sofa` and `48` have dropped to {{out:skipgram-step:P(sofa, 48 are real neighbours), after 3 steps}}. Training does that millions of times over.
+Training pulls real neighbours together and pushes random tokens apart, and three updates show it in miniature. Before any update, the neighbour vectors are zero, so every score is zero, and σ(0) is one half: the model knows nothing. After three, `umbrella` scores {{out:skipgram-step:P(umbrella is a real neighbour of patio), after 3 steps}} as a neighbour of `patio`, up from {{out:skipgram-step:P(umbrella is a real neighbour of patio), before}}, and `sofa` and `48` have dropped to {{out:skipgram-step:P(sofa, 48 are real neighbours), after 3 steps}}. That's all training does, millions of times over.
 
 **Working rule:** When you train embeddings, start the second set of vectors at zero and the first at small random values, as `lib.skipgram.train` does, and draw noise tokens in proportion to their frequency raised to the power 0.75, which Mikolov et al. found works better than plain frequency. Check one update by hand before running millions: a probability moving the wrong way means the gradient's sign is wrong.
 
 ## Compare learned vectors with counted ones {#compare-learned-and-counted}
 
-Training on all the store's training text runs millions of updates, and its exact result depends on the machine's floating-point arithmetic, which varies between processors. So it runs once, in `recordings/skipgram.py`, with the book's own code and a fixed seed, and the examples read its saved vectors, as the book does with every result that depends on the machine. Its manifest records the settings: a window of two tokens, 64 dimensions, five noise tokens per pair and two passes over the text. One setting is fixed in `lib.skipgram` rather than recorded: pairs centred on very frequent tokens, such as commas, are mostly skipped, with a threshold of 10⁻⁴, which keeps them from dominating training ([Mikolov et al., 2013b](https://arxiv.org/abs/1310.4546), who suggest around 10⁻⁵ for larger text).
+Training skip-gram on all the store's training text runs millions of updates, and its exact result depends on the machine's floating-point arithmetic, which varies slightly between processors. So it runs once, in `recordings/skipgram.py`, with the book's own code and a fixed seed, and the examples read its saved vectors, as the book does with every result that depends on the machine. Its manifest records the settings: a window of two tokens, 64 dimensions, five noise tokens per pair and two passes over the text. One setting is fixed in `lib.skipgram` rather than recorded: pairs centred on very frequent tokens, such as commas, are mostly skipped, with a threshold of 10⁻⁴, which keeps them from dominating training ([Mikolov et al., 2013b](https://arxiv.org/abs/1310.4546), who suggest around 10⁻⁵ for larger text).
 
-Here the recorded vectors give the same six tokens' neighbours as the [SVD](#compress-into-dense-vectors), for a side-by-side reading:
+Ask the recorded skip-gram vectors for the same six tokens' neighbours, and compare them with the [SVD's](#compress-into-dense-vectors):
 
 [Example: skipgram-neighbours](../examples/skipgram-neighbours.py)
 
@@ -132,11 +132,11 @@ Analogies are a demonstration, not a measure. They work for relationships the te
 
 Embeddings for tokens give, with one more step, embeddings for whole texts: average the vectors of a text's tokens, scale the result to unit length, and similar texts get similar vectors. That's a rough version of what search engines call semantic retrieval, finding texts by meaning rather than by matching words, which this book's companion, *A Primer on Search Relevance*, builds properly with a trained model ([semantic retrieval](https://rollingedition.com/primer-on-search-relevance/semantic-retrieval)). Here it tests the one thing this chapter set out to fix: [chapter 3's](#autocomplete-with-more-context) counted model can't relate `outdoor bar` to `patio bar`.
 
-Averaging every training name's skip-gram vectors turns each name into one vector. Two queries show what that buys: `outdoor bar`, the prefix that stumped the counted model, and `patio umbrella`:
+Averaging every training name's skip-gram vectors turns each name into one vector. Rare words, most often a product line's name, print as `[name]`, as [chapter 1](#load-the-store-text) explained. Two queries show what that buys: `outdoor bar`, the prefix that stumped the counted model, and `patio umbrella`:
 
 [Example: name-vectors](../examples/name-vectors.py)
 
-The averaged vectors connect `outdoor bar` to two `patio bar stool` names, neither of which contains the word `outdoor`. [Chapter 3](#counting-further-back)'s 4-gram model couldn't make that link, because it had counts for `patio bar stool` and none for `outdoor bar`. The averaged vectors make it through `outdoor` and `patio`, whose vectors are close. For `patio umbrella`, the closest names are patio and outdoor products, and the top one is an umbrella cover, but none of them is an umbrella itself: averaging lets `patio` outweigh `umbrella`. The example prints a rare word, most often a product line's name, as `[name]`, as [chapter 1](#load-the-store-text) explained.
+The averaged vectors connect `outdoor bar` to two `patio bar stool` names, neither of which contains the word `outdoor`. [Chapter 3](#counting-further-back)'s 4-gram model couldn't make that link, because it had counts for `patio bar stool` and none for `outdoor bar`. The link runs through `outdoor` and `patio`, whose vectors are close. For `patio umbrella`, the closest names are patio and outdoor products, and the top one is an umbrella cover, but none of them is an umbrella itself: averaging lets `patio` outweigh `umbrella`.
 
 Averaging is crude: it forgets word order, so `bar stool` and `stool bar` get the same vector, and it lets frequent tokens drown out the one that matters. But it shows the property every later model in this book is built on: a model that reads embeddings instead of one-hot tokens can carry what it learned about one phrase over to another.
 
@@ -149,7 +149,7 @@ Embeddings carry their training text's habits into everything that uses them:
 - **Similar use isn't similar meaning.** `indoor` and `outdoor` sit close together. A system that treats close vectors as interchangeable will happily swap opposites; check the nearest neighbours of the words your product depends on.
 - **Rare and new tokens get poor vectors, or none.** This chapter kept 2,000 tokens. A token outside that list has no vector, and a token seen a handful of times has a noisy one. The store's tokenizer has more than twice that many tokens, and a rare word that the tokenizer splits into pieces gets a vector only from those of its pieces that are among the 2,000; a model that learns its own embeddings, as every later chapter's does, covers the whole vocabulary.
 - **Vectors reflect the text they came from.** The store's text describes `light` as a lamp, so its vector sits with lighting. Embeddings trained on one domain carry its senses, and its biases, into another.
-- **Results depend on the machine.** Training by gradient descent gives slightly different vectors on different processors, which is why this book records them. Store the vectors you ship with the code and settings that made them.
+- **Results depend on the machine.** Training embeddings by gradient descent gives slightly different vectors on different processors, which is why this book records them. Store the vectors you ship, with the code and settings that made them.
 - **Embeddings go stale.** New product lines and words appear in the catalog; retrain or extend embeddings when the vocabulary drifts, and check neighbour lists for the tokens that matter after each retrain.
 
 ## What this chapter decided {#vectors-decisions}
