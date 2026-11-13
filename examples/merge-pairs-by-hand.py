@@ -1,5 +1,5 @@
 """Runs the merge algorithm by hand on the training names for eight merges, printing each one and how table is spelled
-afterwards. The prose's point rests on those eight merges, which the example asserts match lib.bpe.train."""
+afterwards. Those eight merges are the ones to read; the example asserts they match lib.bpe.train."""
 from collections import Counter
 
 from lib import bpe

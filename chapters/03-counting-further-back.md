@@ -62,7 +62,7 @@ It has two weaknesses. The weights are fixed, and these were picked by hand, not
 
 When a model backs off to a shorter context, it's asking a specific question: how likely is this token to show up in a context we haven't seen? Raw frequency answers a different one. A token can be very common and still occur only after one or two particular tokens, and such a token is a poor guess for a new context. The better measure is the number of different tokens it follows, its **continuation count**: a token that has followed many different tokens is likely to follow a new one too.
 
-Which frequent tokens follow only a few different tokens? Among the 300 most frequent in the training names, these three follow the fewest for how often they occur, set beside two ordinary product words:
+Which frequent tokens follow only a few different tokens? Among the 300 most frequent in the training names, these three have the fewest followers for how often they occur, set beside two ordinary product words:
 
 [Example: continuation-counts](../examples/continuation-counts.py)
 

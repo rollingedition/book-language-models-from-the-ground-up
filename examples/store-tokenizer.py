@@ -1,5 +1,5 @@
 """Learns 4,000 merges from the training names and descriptions, then encodes five short texts with the resulting
-tokenizer. The printed vocabulary size and the tokens of each text are what the prose's point rests on."""
+tokenizer. Read the vocabulary size and the tokens of each text, which the prose cites."""
 from collections import Counter
 
 from lib import bpe

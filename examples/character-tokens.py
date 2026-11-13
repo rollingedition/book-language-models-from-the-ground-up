@@ -1,5 +1,5 @@
 """Compares the characters of the training names with those of the validation names, and counts the validation tokens
-both ways. The printed characters per word is the factor the prose's point rests on."""
+both ways. Its characters-per-word line is the one to read."""
 import unicodedata
 
 from lib.store import load_products, words
@@ -13,7 +13,7 @@ character_tokens = sum(len(name) for name in validation_names)     # len counts 
 
 print("different characters in training names:", len(characters))
 print("validation characters never seen in training:", len(unseen))
-print("they are:", ", ".join(unicodedata.name(c).lower() for c in sorted(unseen)))   # Unicode names: a soft hyphen prints as nothing
+print("they are:", ", ".join(unicodedata.name(c).lower() for c in sorted(unseen)))   # printed by Unicode name, because a soft hyphen itself prints as nothing
 print("validation tokens as words:", f"{word_tokens:,}")
 print("validation tokens as characters:", f"{character_tokens:,}")
 print("characters per word:", round(character_tokens / word_tokens, 1))

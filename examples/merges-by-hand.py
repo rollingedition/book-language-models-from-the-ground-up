@@ -1,5 +1,5 @@
 """Applies SmolLM2's learned merges by hand, earliest first, to the pieces its pre-tokenizer makes of three product names.
-The example asserts that the tokens match the library's, which is the check the prose's point rests on."""
+The example asserts that the tokens match the library's, which the prose cites."""
 import json
 
 from tokenizers import Tokenizer
