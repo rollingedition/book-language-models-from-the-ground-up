@@ -11,7 +11,7 @@ heads = open_model.read("heads")
 previous, first = np.array(heads["previous"]), np.array(heads["first"])   # (layers, heads)
 print("texts averaged:", heads["texts"])
 print("heads in all:", previous.size)
-print("heads with more than half their weight on the previous token:", int((previous > 0.5).sum()))   # more than half of one token's weight
+print("heads with more than half their weight on the previous token:", int((previous > 0.5).sum()))   # a position's weights sum to 1, so above 0.5 is most of it
 print("the most weight a head puts on the previous token:", f"{previous.max():.2f}")
 print("average weight on the first token, layers 1 to 4:", f"{first[:4].mean():.2f}")     # rows count layers from 0: rows 0 to 3
 print("average weight on the first token, layers 5 to 32:", f"{first[4:].mean():.2f}")    # rows from 4 on are layers 5 to 32

@@ -173,3 +173,5 @@ A tuned model is the kind people can use without help, and its failures sound as
 - **Made-up details are measured on questions the input can't answer** as well as ones it can. On the store's products, both SmolLM2 models made up a material for most products whose data named none, and neither declined once, so generated product facts are always checked against the product's data.
 - **A model's confidence is a signal, not a filter.** It's used only with a threshold measured on the store's own questions, and the errors it lets through are counted.
 - **The details a model needs go at the start or the end of its context,** never buried among other products.
+- **Perplexity stays the book's yardstick for comparing models,** on the same text, tokenizer and events every time, and the job each model is chosen for is measured with tests built for that job.
+- **Teaching a general model the store's text means fine-tuning,** measured per word against the store's own model; instruction tuning changes how a model answers, not what it knows. Measuring a model inside an application, beyond the next-token tests of this book, is a subject of its own.

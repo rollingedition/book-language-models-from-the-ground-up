@@ -10,6 +10,7 @@ _, vocabulary, _ = transformer.load()           # load() returns the weights, th
 index = {token: i for i, token in enumerate(vocabulary)}
 scores, tokenizer = open_model.read("scores"), bpe.store_tokenizer()
 per = lambda log_p, count: f"{math.exp(-log_p / count):,.1f}"    # perplexity: e to the average negative log-probability per count
+
 # Names: each name's tokens and its end (<sep> for the store's model, a newline for SmolLM2), from the start token.
 names = list(load_products("validation")["name"])[:len(scores["names"])]     # as many names as SmolLM2 was scored on, from the top of the split
 # The start marker, the name's tokens and <sep>: the model scores everything after the start marker.
