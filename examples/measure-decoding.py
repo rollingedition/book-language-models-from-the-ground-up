@@ -1,6 +1,6 @@
 """Seven ways of choosing the next token, measured on the same 20 product descriptions: how often each repeats
 itself, how likely the model finds its own text, whether it ends, and whether it stays on the product. The real
-descriptions come first, as the bar the others are read against."""
+descriptions come first, as the bar the others are read against. The prose quotes these lines for each setting."""
 import numpy as np
 
 from lib import decoding                    # the store's model, and the decoding methods this chapter builds

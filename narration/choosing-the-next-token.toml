@@ -34,4 +34,4 @@ say = "The first line sorts the tokens from likeliest to least likely; the last 
 [[tables]]
 section = "sample-with-a-temperature"
 starts = "| Temperature | Three likeliest tokens"
-say = "The table has one row for each temperature: the three likeliest tokens and their probabilities, how many tokens it takes to cover 90% of the probability, and how much probability falls outside the tokens that cover 90% at temperature 1."
+say = "The table has a row for each of three temperatures, 0.5, 1 and 1.5, and compares how many tokens cover 90% of the probability and how much falls outside temperature 1's cover. At 0.5, {{out:temperature-by-hand:temperature 0.5, tokens needed to cover 90% of the probability}} tokens cover 90%; at 1, {{out:temperature-by-hand:temperature 1.0, tokens needed to cover 90% of the probability}}; at 1.5, {{out:temperature-by-hand:temperature 1.5, tokens needed to cover 90% of the probability}}, and {{out:temperature-by-hand:temperature 1.5, probability outside temperature 1.0's 90% cover}} of the probability falls outside temperature 1's cover."
