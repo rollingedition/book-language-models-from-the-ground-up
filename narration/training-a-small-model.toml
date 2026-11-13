@@ -4,7 +4,7 @@
 say = "The code turns every training product into one text, shuffles the texts with the run's seed, and builds one epoch's batches, filling short texts out with padding and shifting each text by one token for its targets. It prints the number of texts and tokens, the share cut at the length limit, one batch's shapes, the share of targets that are padding, {{out:training-batches:share of targets that are padding, over one shuffled epoch}}, and the steps per epoch and in the recorded run."
 
 [examples.learning-rate-schedule]
-say = "The code computes the step-size schedule by hand from the recorded settings, a straight-line warm-up to the peak, then half a cosine down to a tenth of it, and prints it at five steps from the first to the last. Then it checks the schedule against the step sizes the training script saved every tenth step: {{out:learning-rate-schedule:same as the recorded step sizes}}."
+say = "The code computes the step-size schedule by hand from the recorded settings, a straight-line warm-up to the peak, then half a cosine down to a tenth of it, and prints it at five steps from the first to the last. Then it checks the schedule against the step sizes the training script saved every tenth step. The check is an assertion, so the run fails if any step size differs."
 
 [examples.transformer-training-curve]
 say = "The code reads the recorded run's curves and prints, for each epoch, the training perplexity and the validation perplexity on names and on descriptions. Then it prints the epoch kept, {{out:transformer-training-curve:epoch kept, the lowest name and description losses added together}}, its two validation perplexities, and the names' perplexity at epoch 4. Both validation columns fall until the last epochs, then level off."

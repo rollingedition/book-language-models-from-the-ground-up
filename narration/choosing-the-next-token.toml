@@ -30,3 +30,8 @@ say = "One line: for every text in the beam, it adds one candidate for each of i
 section = "sample-and-cut-the-tail"
 starts = "order = np.argsort(-probabilities,"
 say = "The first line sorts the tokens from likeliest to least likely; the last adds up their probabilities in that order and keeps the tokens up to the first point where the running sum reaches p."
+
+[[tables]]
+section = "sample-with-a-temperature"
+starts = "| Temperature | Three likeliest tokens"
+say = "The table has a row for each of three temperatures, 0.5, 1 and 1.5, and compares how many tokens cover 90% of the probability and how much falls outside temperature 1's cover. At 0.5, {{out:temperature-by-hand:temperature 0.5, tokens needed to cover 90% of the probability}} tokens cover 90%; at 1, {{out:temperature-by-hand:temperature 1.0, tokens needed to cover 90% of the probability}}; at 1.5, {{out:temperature-by-hand:temperature 1.5, tokens needed to cover 90% of the probability}}, and {{out:temperature-by-hand:temperature 1.5, probability outside temperature 1.0's 90% cover}} of the probability falls outside temperature 1's cover."

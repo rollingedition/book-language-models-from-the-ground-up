@@ -13,7 +13,7 @@ say = "The code computes SiLU at −3, 0 and 3. Then it runs the first block's f
 say = "The code rotates one random 32-number query and key for every position from 0 to 19, checks that the rotation keeps both lengths, and prints the scaled score for the key at 2 and the query at 5, at 12 and 15, and at 2 and 8. The first two pairs, both 3 apart, get the same score."
 
 [examples.transformer-same-as-pytorch]
-say = "The code recomputes the store's model's logits in NumPy for every position of the validation product the training script saved, compares them with PyTorch's own, and prints the PyTorch version, how many positions and logits it compared, and whether all of them match to four decimal places: {{out:transformer-same-as-pytorch:same as PyTorch to 4 decimal places}}."
+say = "The code recomputes the store's model's logits in NumPy for every position of the validation product the training script saved, compares them with PyTorch's own, checks that all of them match to four decimal places, and prints the PyTorch version and how many positions and logits it compared."
 
 [examples.skip-a-block]
 say = "The code scores the names and descriptions of the first 100 validation products with the full model, then with each block left out in turn, and prints the perplexity per token and the top token's average probability each time."
