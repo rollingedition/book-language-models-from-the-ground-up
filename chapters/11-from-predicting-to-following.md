@@ -137,7 +137,7 @@ This book has scored every model the same way on names, from [chapter 3](#counti
 
 [Example: test-names](../examples/test-names.py)
 
-The choices made on validation flattered the results very little: the test column agrees with the validation one to within a few tenths. Set side by side, the scores tell the book's story in one table.
+The choices made on validation flattered the results very little: the test column stays close to the validation one. Set side by side, the scores tell the book's story in one table.
 
 | Model | Chapter | Validation names | Test names |
 | --- | --- | --- | --- |

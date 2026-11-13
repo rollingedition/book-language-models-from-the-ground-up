@@ -18,7 +18,7 @@ Scored on the names they were counted from, with no smoothing, the orders show w
 
 [Example: ngram-memorizes](../examples/ngram-memorizes.py)
 
-Perplexity falls fast as the context grows: {{out:ngram-memorizes:1-gram training perplexity}} with no context at all, {{out:ngram-memorizes:2-gram training perplexity}} with one token, and {{out:ngram-memorizes:5-gram training perplexity}} with four. At four tokens of context the model is choosing among about three tokens at each step, because most n-grams that long occur only once: {{out:ngram-memorizes:4-grams seen once}} of the 4-grams in the training names are seen a single time, and the model has memorized what followed each.
+Perplexity falls fast as the context grows: {{out:ngram-memorizes:1-gram training perplexity}} with no context at all, {{out:ngram-memorizes:2-gram training perplexity}} with one token, and {{out:ngram-memorizes:5-gram training perplexity}} with four. At four tokens of context the model is choosing among about three tokens at each step, because most n-grams that long occur only once: {{out:ngram-memorizes:5-grams seen once}} of the 5-grams in the training names are seen a single time, and the model has memorized what followed each.
 
 That's the trap. On the text it counted, a longer context always looks better, because with enough context every text is unique and the model can recite it. Scoring a model on its own training text measures memory, which is why [chapter 1](#predicting-the-next-word) set aside validation text in the first place.
 
