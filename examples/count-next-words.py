@@ -15,5 +15,5 @@ print("different pairs:", f"{len(pairs):,}")
 
 after_coffee = {following: n for (word, following), n in pairs.items() if word == "coffee"}   # pairs that start with coffee, by the word after
 print("words after coffee:", f"{sum(after_coffee.values()):,}")
-for following, n in sorted(after_coffee.items(), key=lambda item: -item[1])[:4]:   # the key negates the count, so largest first; [:4] keeps four
+for following, n in sorted(after_coffee.items(), key=lambda item: -item[1])[:4]:   # the key negates the count, so largest first
     print(f"  coffee {following:<6} {n:>6,}")

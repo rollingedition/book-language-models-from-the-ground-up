@@ -1,5 +1,5 @@
 """Builds an interpolated trigram model by hand, with fixed weights, and an add-one bigram model on the same tokens.
-The point rests on the two validation perplexity lines: the interpolated trigram's, and the add-one bigram's."""
+The two validation perplexity lines to compare are the interpolated trigram's and the add-one bigram's."""
 import math
 from collections import Counter
 
@@ -28,7 +28,7 @@ class Interpolated:
     def probability(self, context, token):
         p, carried = 0.0, 0.0
         for k in (3, 2, 1):
-            # the same last k-1 of the two context tokens, so each order looks up its own context
+            # each order's own context
             weight, total = weights[k] + carried, totals[k][context[3 - k:]]
             if total:                                    # an unseen context passes its weight down
                 p, carried = p + weight * counts[k][(context[3 - k:], token)] / total, 0.0

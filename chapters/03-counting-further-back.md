@@ -8,13 +8,13 @@ By the end of this chapter you can build an n-gram language model that looks sev
 
 [Chapter 1](#predicting-the-next-word) built a model that predicted the next word from the one before it, and two things went wrong. It looked back only one word, so a shopper who typed `patio bar` got the suggestions for `bar`. And it gave probability zero to every pair of words it hadn't counted, which made its perplexity on new text infinite. [Chapter 2](#tokens) then gave the book better units to count: the store's tokenizer, which splits every word into pieces it knows, so almost every word is spelled from tokens it has seen. This chapter goes back to counting with those tokens, looks further back, and handles the unseen properly.
 
-Every method here is tried on the product names of the online furniture and home-goods store, and each one has to count its longer contexts before it can use them. From this chapter on, every model in the book is scored the same way: by its [perplexity](#score-with-perplexity) per token on the store's validation names, tokenized with the store's tokenizer. The validation names are the product names of the 10% of products no model learns from. Product names are what the search box's autocomplete has to predict, and they're short enough for every example to run in seconds. One fixed text, one tokenizer and one measure make every model in the book comparable with every other on names; later chapters add descriptions, from [chapter 8](#training-a-small-model), and per-word scores, in [chapter 10](#inside-an-open-model), where a model's tokenizer differs.
+Every method here is tried on the product names of the online furniture and home-goods store. Each one has to count its longer contexts before it can use them. From this chapter on, every model in the book is scored the same way: by its [perplexity](#score-with-perplexity) per token on the store's validation names, tokenized with the store's tokenizer. The validation names are the product names of the 10% of products no model learns from. Product names are what the search box's autocomplete has to predict, and they're short enough for every example to run in seconds. One fixed text, one tokenizer and one measure make every model in the book comparable with every other on names; later chapters add descriptions, from [chapter 8](#training-a-small-model), and per-word scores, in [chapter 10](#inside-an-open-model), where a model's tokenizer differs.
 
 ## Longer contexts fit the training text better {#longer-contexts-fit-training}
 
 An **n-gram model** predicts each token from the n − 1 tokens before it: a **bigram** model (n = 2) from one, a trigram model (n = 3) from two, and so on. The tokens before the one being predicted are its **context**. More context should mean better predictions: after `patio bar`, the next token is far more predictable than after `bar` alone. Counting works exactly as in [chapter 1](#predicting-the-next-word), except that the counts are now of a context of n − 1 tokens followed by a token, and each text is padded with n − 1 start markers, so even its first token has a full context.
 
-Count the n-grams of every order from 1 to 5 in the training names, then score each model on those same names, with no smoothing. The scores show what a model does with text it has already memorized:
+Does a longer context always predict better? Score each order on the names it was counted from, with no smoothing. The scores show what a model does with text it has already memorized:
 
 [Example: ngram-memorizes](../examples/ngram-memorizes.py)
 
@@ -28,17 +28,17 @@ That's the trap. On the text it counted, a longer context always looks better, b
 
 Memorizing the training names says nothing about new ones. A model can only use a context it has counted, and the number of possible contexts grows exponentially with their length: with four thousand tokens, there are sixteen million possible pairs and sixty-four billion possible triples. No training text comes close to covering them. So the longer the context, the more often a new text uses one the model has never seen.
 
-Make a guess before running anything: for 4-grams, what share of the validation names' 4-grams never occur in the training names? The example measures that share for each order from 1 to 5:
+Make a guess before running anything: for 4-grams, what share of the validation names' 4-grams never occur in the training names? Here is that share for every order from 1 to 5:
 
 [Example: unseen-ngrams](../examples/unseen-ngrams.py)
 
-Almost every validation token occurs somewhere in training, but the longer the context, the more of the validation n-grams are new. Only {{out:unseen-ngrams:1-grams in validation never seen in training}} of the validation tokens are unseen, which is the store's tokenizer doing its job. But {{out:unseen-ngrams:2-grams in validation never seen in training}} of the validation bigrams are unseen, {{out:unseen-ngrams:4-grams in validation never seen in training}} of the 4-grams and {{out:unseen-ngrams:5-grams in validation never seen in training}} of the 5-grams. With four tokens of context, the model has never seen more than half of what it needs to predict.
+The longer the context, the more of the validation names' n-grams are new. Only {{out:unseen-ngrams:1-grams in validation never seen in training}} of the validation tokens are unseen, which is the store's tokenizer doing its job. Among validation bigrams, {{out:unseen-ngrams:2-grams in validation never seen in training}} are unseen, {{out:unseen-ngrams:4-grams in validation never seen in training}} of the 4-grams and {{out:unseen-ngrams:5-grams in validation never seen in training}} of the 5-grams. With four tokens of context, the model has never seen more than half of what it needs to predict.
 
 More training text helps less than you might hope. In language, a few n-grams occur very often and most occur rarely, so each doubling of the text adds mostly n-grams seen once or twice, which barely improve the counts behind any one prediction. The store's catalog shows the same pattern in miniature: a common phrase such as `coffee table` is counted more than a thousand times, while {{out:ngram-memorizes:4-grams seen once}} of the training names' 4-grams are counted once. Our judgement, not a measurement, is that a catalog ten times as large would still leave a large share of new 4-grams unseen, because new product lines and new combinations of sizes and materials keep appearing.
 
 The two examples together are the core problem of counting. Longer contexts predict better when they've been seen, and are seen less and less often. Every method in the rest of this chapter is a way to use long contexts when the counts support them, and fall back to shorter ones when they don't.
 
-**Working rule:** Before choosing an n-gram order, measure the share of held-out n-grams your training text never contains, as above. As a rule of thumb, where it nears a third, as it does for trigrams in the store's names, a model of that order depends mostly on how it handles the unseen, so its smoothing matters more than its order.
+**Working rule:** Before choosing an n-gram order, measure the share of held-out n-grams your training text never contains. As a rule of thumb, where it nears a third, as it does for trigrams in the store's names, a model of that order depends mostly on how it handles the unseen, so its smoothing matters more than its order.
 
 ## Mix short and long contexts {#mix-short-and-long-contexts}
 
@@ -48,11 +48,11 @@ P(token | a b) = λ₃ · P₃(token | a b) + λ₂ · P₂(token | b) + λ₁ �
 
 where each P is a maximum-likelihood estimate from counts, as in [chapter 1's probabilities](#counts-to-probabilities). Chen and Goodman's study of smoothing methods covers interpolation and its variants in detail ([Chen and Goodman, 1996](https://aclanthology.org/P96-1041/)).
 
-Build an interpolated trigram model by hand, with weights of 0.6, 0.3 and 0.09 for the three orders, and the last 0.01 spread evenly over every token, so no token ever gets probability zero. When a context was never seen, its weight passes to the orders below, so the probabilities still sum to one:
+To see what mixing buys, take an interpolated trigram with hand-set weights: 0.6, 0.3 and 0.09 for the three orders, and the last 0.01 spread evenly over every token, so no token gets probability zero. When a context was never seen, its weight passes to the orders below, so the probabilities still sum to one:
 
 [Example: interpolate-orders](../examples/interpolate-orders.py)
 
-Mixing orders beats [chapter 1's add-one smoothing](#smooth-unseen-pairs). The interpolated trigram model's validation perplexity is {{out:interpolate-orders:interpolated 3-gram validation perplexity}}. Perplexities are comparable only over the same tokens, so the example also runs add-one on a bigram model of those tokens, which scores {{out:interpolate-orders:add-one 2-gram validation perplexity}}. Add-one spreads most of its probability over pairs that never happen; mixing orders keeps what each order knows.
+Mixing orders beats [chapter 1's add-one smoothing](#smooth-unseen-pairs), though add-one here is a bigram. Perplexities are comparable only over the same tokens, so the interpolated trigram scores {{out:interpolate-orders:interpolated 3-gram validation perplexity}}, and add-one, run on a bigram model of those same validation tokens, scores {{out:interpolate-orders:add-one 2-gram validation perplexity}}. Add-one spreads most of its probability over pairs that never happen; mixing orders keeps what each order knows.
 
 It has two weaknesses. The weights are fixed, and these were picked by hand, not tuned: the same 0.6 goes to the trigram whether its context was seen once or a thousand times, though a context seen a thousand times deserves more trust. And the unigram part gives each token probability in proportion to how often it occurs, which, as the next section shows, is the wrong question for a fallback.
 
@@ -62,7 +62,7 @@ It has two weaknesses. The weights are fixed, and these were picked by hand, not
 
 When a model backs off to a shorter context, it's asking a specific question: how likely is this token to show up in a context we haven't seen? Raw frequency answers a different one. A token can be very common and still occur only after one or two particular tokens, and such a token is a poor guess for a new context. The better measure is the number of different tokens it follows, its **continuation count**: a token that has followed many different tokens is likely to follow a new one too.
 
-Among the 300 most frequent tokens in the training names, find the three that follow the fewest different tokens for how often they occur. Then set them beside two ordinary product words:
+Which frequent tokens follow only a few different tokens? Among the 300 most frequent in the training names, these three follow the fewest for how often they occur, set beside two ordinary product words:
 
 [Example: continuation-counts](../examples/continuation-counts.py)
 
@@ -76,7 +76,7 @@ This is the insight behind Kneser-Ney smoothing ([Kneser and Ney, 1995](https://
 
 ## Smooth with Kneser-Ney {#smooth-with-kneser-ney}
 
-Kneser-Ney smoothing combines [interpolation of orders](#mix-short-and-long-contexts) with [continuation counts](#count-contexts-a-token-follows). At each order, it subtracts a fixed **discount** d from every count it has seen, and gives the probability it took to the next order down, so a context seen often keeps nearly all its own prediction, and a context seen rarely leans on the shorter context. In words: trust the counts you have, minus a little, and spend that little on tokens that turn up in many contexts.
+Kneser-Ney smoothing combines [interpolation of orders](#mix-short-and-long-contexts) with [continuation counts](#count-contexts-a-token-follows). At each order, it subtracts a fixed **discount** d from every count it has seen, and gives the probability it took to the next order down, so a context seen often keeps nearly all its own prediction, and a context seen rarely leans on the shorter context, with the discount it frees going to tokens that turn up in many contexts.
 
 The same formula applies at every order. Below the highest, the counts are continuation counts, except for n-grams that start a text, which keep their raw counts, as the KenLM toolkit does. For a context h and a token w, with c(h w) the count of the pair, c(h) the count of the context, and N(h) the number of different tokens seen after h:
 
@@ -84,19 +84,19 @@ P(w | h) = max(c(h w) − d, 0) / c(h) + d · N(h) / c(h) · P(w | shorter h)
 
 The book's shared module `lib.ngrams` implements interpolated Kneser-Ney as Chen and Goodman describe it ([Chen and Goodman, 1999](https://doi.org/10.1006/csla.1999.0128)), with a discount of 0.75, a common default. Its lowest order mixes in a uniform share over the vocabulary, so even a token never seen in training keeps a small probability.
 
-Before trusting the module, compute by hand the probability of `stool` after a name that starts `patio bar`, order by order, and set it beside the module's answer and its total over every token:
+Before trusting the module, work out one probability by hand: `stool` after a name that starts `patio bar`, order by order. Set it beside the module's answer, and beside the module's probabilities after this context, summed over every token:
 
 [Example: kneser-ney-by-hand](../examples/kneser-ney-by-hand.py)
 
-Worked by hand, the formula gives {{out:kneser-ney-by-hand:by hand}} for `stool`, the module {{out:kneser-ney-by-hand:lib.ngrams}}. Each order keeps a share and passes the rest down; the shares add up to that answer. Over every token in the vocabulary, the module's probabilities after this context sum to {{out:kneser-ney-by-hand:probabilities after the context, summed}}, as a probability distribution must.
+Worked by hand, the formula gives {{out:kneser-ney-by-hand:by hand}} for `stool`, the same as the module's {{out:kneser-ney-by-hand:lib.ngrams}}. Each order keeps a share and passes the rest down; the shares add up to that answer. Over every token in the vocabulary, the module's probabilities after this context sum to {{out:kneser-ney-by-hand:probabilities after the context, summed}}, as a probability distribution must.
 
-Build Kneser-Ney models of every order from 1 to 5 on the training names, and score each on the validation names:
+Do longer contexts pay off on new names? Kneser-Ney models of every order from 1 to 5, scored on the validation names, answer it:
 
 [Example: kneser-ney-by-order](../examples/kneser-ney-by-order.py)
 
 Kneser-Ney beats the hand-weighted interpolated trigram from the [interpolation section](#mix-short-and-long-contexts) at the same order, with no weights to choose. Its trigram scores {{out:kneser-ney-by-order:3-gram validation perplexity}}, against {{out:interpolate-orders:interpolated 3-gram validation perplexity}} for the hand-weighted one.
 
-Longer contexts now help on new text, up to a point. The bigram model's validation perplexity is {{out:kneser-ney-by-order:2-gram validation perplexity}}, the 4-gram's {{out:kneser-ney-by-order:4-gram validation perplexity}} and the 5-gram's {{out:kneser-ney-by-order:5-gram validation perplexity}}. The step from trigram to 4-gram is small, and the 5-gram is worse than the 4-gram, because by then most contexts are unseen and the extra order adds noise. The discount, too, can be estimated from the counts: Chen and Goodman give D = n₁ / (n₁ + 2 n₂), where n₁ and n₂ are the numbers of n-grams seen once and twice, and on the store's 4-grams it's {{out:kneser-ney-by-order:discount estimated from them}}, close to the default.
+Longer contexts now help on new text, instead of only on the text the model counted, up to a point: validation perplexity falls from {{out:kneser-ney-by-order:2-gram validation perplexity}} for the bigram to {{out:kneser-ney-by-order:4-gram validation perplexity}} for the 4-gram, then rises to {{out:kneser-ney-by-order:5-gram validation perplexity}} for the 5-gram. The step from trigram to 4-gram is small, and the 5-gram is worse, because by then most contexts are unseen and the extra order adds noise. The discount, too, can be estimated from the counts: Chen and Goodman give D = n₁ / (n₁ + 2 n₂), where n₁ and n₂ are the numbers of n-grams seen once and twice, and on the store's 4-grams it's {{out:kneser-ney-by-order:discount estimated from them}}, close to the default.
 
 **Working rule:** Smooth n-gram models with interpolated Kneser-Ney and a discount of 0.75 unless held-out text says otherwise. Raise the order only while validation perplexity keeps falling noticeably, and stop when a step barely helps or hurts, as the step from 4-gram to 5-gram does. A variant, modified Kneser-Ney, uses three discounts instead of one and is the one toolkits such as KenLM build; it would likely lower the baseline a little, and this book keeps the single discount because it's easier to follow by hand.
 
@@ -104,7 +104,7 @@ Longer contexts now help on new text, up to a point. The bigram model's validati
 
 A longer context should fix the search box's worst suggestion from [chapter 1](#predicting-the-next-word), where `patio bar` got the same suggestions as `bar`. The 4-gram Kneser-Ney model sees the last three tokens a shopper typed, so `patio` stays in view.
 
-Ask the 4-gram model for its three likeliest next tokens after three prefixes. Each prefix is treated as the start of a name, as a shopper's typing is, and each suggestion shows its token without the end-of-word marker:
+Do the suggestions change from `bar` to `patio bar` to `outdoor bar`? Take the 4-gram model's three likeliest next tokens after each. Each prefix is treated as the start of a name, as a shopper's typing is, and each suggestion shows its token without the end-of-word marker:
 
 [Example: ngram-autocomplete](../examples/ngram-autocomplete.py)
 

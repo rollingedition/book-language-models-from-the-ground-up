@@ -1,5 +1,5 @@
 """Counts, for each order from 1 to 5, the share of the validation names' n-grams that never occur in the training names.
-The point rests on the lines for 2-grams to 5-grams, where that share rises with the order."""
+Compare the lines for 2-grams to 5-grams: that share rises with the order."""
 from lib.names import name_tokens
 from lib.ngrams import ngrams, padded
 

@@ -6,7 +6,7 @@ from lib.bigrams import END, START, Bigrams
 from lib.store import load_products, masked
 
 model = Bigrams(load_products("train")["name"])
-rng = np.random.default_rng(2026)                    # a fixed seed, so the names printed in this book match what the code produces
+rng = np.random.default_rng(2026)                    # fixed seed: any seed gives six names, this one gives the book's
 
 
 def generate(longest=12):                            # twelve words at most, if the end marker hasn't come first
@@ -22,5 +22,5 @@ def generate(longest=12):                            # twelve words at most, if 
 
 
 generated = [generate() for _ in range(6)]
-print("\n".join(masked(name) for name in generated))   # masked shows each rare word, used in fewer than 30 training descriptions, as [name]
+print("\n".join(masked(name) for name in generated))   # masked shows each rare word, used in fewer than 30 training descriptions, as [name]; most are product lines' names
 print("generated words never seen in training:", sum(w not in model.counts for name in generated for w in name.split()))   # every training word is a key, since each is followed by something

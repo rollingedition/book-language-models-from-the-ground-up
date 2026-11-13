@@ -1,5 +1,5 @@
 """Counts the n-grams of orders 1 to 5 in the training names, and scores each order on those same names with no smoothing.
-The point rests on the training perplexity lines, which fall as the order grows, and on the seen-once lines, which rise."""
+Read the training perplexity lines, which fall as the order grows, against the seen-once lines, which rise."""
 import math
 from collections import Counter
 
@@ -16,4 +16,4 @@ for n in [1, 2, 3, 4, 5]:
     # the total surprise, in nats: each n-gram's probability is its count over its context's count, the model's own estimate
     surprise = -sum(count * math.log(count / contexts[context]) for (context, _), count in pairs.items())
     print(f"{n}-gram training perplexity: {math.exp(surprise / sum(pairs.values())):.1f}")
-    print(f"{n}-grams seen once: {sum(1 for c in pairs.values() if c == 1) / len(pairs):.0%}")   # a count of 1: seen once in training
+    print(f"{n}-grams seen once: {sum(1 for c in pairs.values() if c == 1) / len(pairs):.0%}")

@@ -1,5 +1,5 @@
 """Builds Kneser-Ney models of orders 1 to 5 on the training names, scores each on the validation names, and estimates a
-discount from the 4-gram counts. The point rests on the validation perplexity lines for orders 4 and 5, and on the discount line."""
+discount from the 4-gram counts. The lines to read are the validation perplexities, the 3-gram's set against the interpolated trigram's, and the discount line."""
 from lib.names import name_tokens
 from lib.ngrams import KneserNey, perplexity
 

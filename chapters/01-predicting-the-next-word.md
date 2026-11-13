@@ -4,9 +4,9 @@ chapter_id: predicting-the-next-word
 
 # Predicting the next word
 
-By the end of this chapter you can count a store's product names into a language model, use it to suggest the next word as a shopper types, generate text with it, and measure with one number how well it predicts text it has never seen. Every later chapter replaces one part of this model with a better one, and from [chapter 3](#counting-further-back) on, measures each change the same way.
+By the end of this chapter you can build a complete language model from a store's product names by counting, use it to suggest the next word as a shopper types, generate text with it, and measure with one number how well it predicts text it has never seen. Every later chapter replaces one part of this model with a better one, and from [chapter 3](#counting-further-back) on, measures each change the same way.
 
-The book's running case is an online furniture and home-goods store, which we call the store. Its search box needs autocomplete, so that a shopper who types `coffee` sees `table` offered as the next word, and its product descriptions need writing and checking. Both are language-model problems, and the store has the text to learn them from: the names and descriptions of every product in its catalog.
+One case study recurs throughout: an online furniture and home-goods store, which we call the store. Its search box needs autocomplete, so that a shopper who types `coffee` sees `table` offered as the next word, and its short product descriptions need writing and checking. Both are problems of predicting the next word, and the store has the text to learn them from: the names and descriptions of every product in its catalog.
 
 A **language model** is a program that assigns a probability to every word that could come next, given the words so far. That one ability covers a lot. Suggesting how to finish a search query means picking a likely next word. Writing a sentence means picking a next word, adding it, and picking again. A model that predicts well has learned something about the text it was trained on, so how well it predicts is how you measure it. The large language models behind chat assistants do the same thing at a vastly larger scale: given the text so far, they assign a probability to each possible next piece of text. This book builds that machinery one part at a time, small enough to run on a laptop, so you can see what each part does.
 
@@ -16,27 +16,27 @@ In this chapter you count which word follows which in the product names, turn th
 
 Before a model can learn which words follow which, it needs text to learn from, and a way to tell whether what it learned carries over to text it hasn't seen. The second need matters as much as the first. A model can predict the text it learned from perfectly by memorizing it, which says nothing about how it will do on the next product the store adds. So the text is split once, before anything learns from it, into three parts: a **training split** that models learn from, a **validation split** for comparing models while you build them, and a **test split** kept for final reports. Each product belongs to exactly one split, so no name or description a model is scored on appears in what it learned from.
 
-The store's text, which every example in this book learns from, is real. Wayfair published it as WANDS, a public product-search dataset, with a paper at ECIR 2022 ([Chen et al., 2022](https://easychair.org/publications/preprint/wm4R)), and released it under the MIT licence ([licence](https://github.com/wayfair/WANDS/blob/main/LICENSE)). The script `prep/wands_text.py` prepares it, and its data card, `examples/data/wands-text/README.md`, says how: the text is already lowercased, with spaces around punctuation, and descriptions are cut at a sentence end to keep the file small. Products whose text names the store itself are left out, so no model in this book learns to write the store's name. The examples read the text through `lib.store`, one of the book's shared modules: short files in `examples/lib/` that hold setup code many examples need, which you can open and read.
+The store's text, which every example in this book learns from, is real. It comes from WANDS, a public product-search dataset that Wayfair published with a paper at ECIR 2022 ([Chen et al., 2022](https://easychair.org/publications/preprint/wm4R)), under the MIT licence ([licence](https://github.com/wayfair/WANDS/blob/main/LICENSE)). The script `prep/wands_text.py` prepares it, and its data card, `examples/data/wands-text/README.md`, says how: the text is already lowercased, with spaces around punctuation, and descriptions are cut at a sentence end to keep the file small. Products whose text names the store itself are left out, so no model in this book learns to write the store's name. The examples read the text through `lib.store`, one of the book's shared modules: short files in `examples/lib/` that hold setup code many examples need, which you can open and read.
 
-Counting the splits and the words is the first thing to do with any text, and printing a few of its names shows what a model will see:
+Before counting anything, look at the text: how many products each split holds, and what a few names look like:
 
 [Example: store-text](../examples/store-text.py)
 
-Product names are short and repetitive enough for counting to work, so this chapter learns from them alone. The store's text covers {{out:store-text:products}} products, {{out:store-text:train products}} of them in the training split, and the output beside this paragraph gives the other two splits. The training names hold {{out:store-text:words in training names}} words, of {{out:store-text:different words in training names}} different kinds. That second count is large for a catalog of furniture, because many names start with a product line's name, a word that appears in a handful of products and nowhere else. This book doesn't print those names. Where an example's output would show one, it prints `[name]` instead, for any word used in fewer than 30 of the training descriptions. Those rare words will matter by the end of the chapter.
+Product names are short and repetitive enough for counting to work, so this chapter learns from them alone. The store's text covers {{out:store-text:products}} products, {{out:store-text:train products}} of them in the training split. The training names hold {{out:store-text:words in training names}} words, of {{out:store-text:different words in training names}} different kinds. That second count is large for a catalog of furniture, because many names start with a product line's name, a word that appears in a handful of products and nowhere else. This book doesn't print those names. Where an example's output would show one, it prints `[name]` instead, for any word used in fewer than 30 of the training descriptions, most often a product line's name. Those rare words will matter by the end of the chapter.
 
 **Working rule:** Split your text into training, validation and test parts before any model sees it, and split by document (here, by product), so near-duplicates of one item never straddle two parts. Compare models on validation text while you work, and touch the test text only for the final report. Learn from the shortest, most regular text you have first; this chapter starts with names, and descriptions come later in the book.
 
 ## Count which word follows which {#count-word-pairs}
 
-With the training names loaded, a simple model of what comes next is a table of how often each word followed each other word. A **bigram** is a pair of adjacent words, such as `coffee table`. Count every bigram in the training names, and you know, for any word, which words came after it and how often. Claude Shannon used exactly this idea in the paper that founded information theory: he approximated English by choosing each word according to how often it follows the one before ([Shannon, 1948](https://doi.org/10.1002/j.1538-7305.1948.tb01338.x)).
+With the training names loaded, a simple model of what comes next is a table of how often each word followed each other word. A **bigram** is a pair of adjacent words, such as `coffee table`. Count every bigram in the training names, and you know, for any word, which words came after it and how often. Claude Shannon used exactly this idea in the paper that founded information theory, approximating English by choosing each word according to how often it follows the one before ([Shannon, 1948](https://doi.org/10.1002/j.1538-7305.1948.tb01338.x)).
 
 Two details make the counts complete. A name's first word follows nothing, and its last word is followed by nothing, but both are worth predicting: the first word decides what kind of product a shopper is typing, and knowing where a name ends lets a model stop. So each name is padded with two markers, `<s>` at the start and `</s>` at the end, which count as words. The pair `<s> coffee` then records that a name started with `coffee`, and `table </s>` records that a name ended with `table`.
 
-Start with the word whose next word matters most to the search box: `coffee`. Counting every pair in the training names, then listing what followed `coffee`, takes one short program:
+Start with a word whose next word matters to the search box, `coffee`. The example counts every pair in the training names, then lists what followed it:
 
 [Example: count-next-words](../examples/count-next-words.py)
 
-One word dominates. Almost every `coffee` in the store's names is a `coffee table`: of the {{out:count-next-words:words after coffee}} words that follow `coffee` in the training names, most are `table`. A comma comes third, because the store's text treats punctuation as words of its own. That's a choice about tokens, the units a model counts, and [chapter 2](#tokens) shows how much it matters.
+One word dominates. Almost every `coffee` in the store's names is a `coffee table`, and of the {{out:count-next-words:words after coffee}} words that follow `coffee` in the training names, almost all are `table`. A comma comes third, because the store's text treats punctuation as words of its own. That's a choice about tokens, the units a model counts, and [chapter 2](#tokens) shows how much it matters.
 
 The table of counts is the whole model. It has no rules about grammar and no knowledge of furniture; it has seen `coffee table` many times and `coffee lamp` never, and that is all it knows. The shared module `lib.bigrams` holds this same counting code, as the class `Bigrams`, so later examples can build the model in one line.
 
@@ -50,25 +50,25 @@ P(v | w) = count(w v) / count(w)
 
 Read it as "the probability of `v`, given `w`". Estimating probabilities this way, from the fraction of times something happened, is called **maximum likelihood estimation**: of all the probability tables you could choose, it's the one that makes the training text likeliest ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)).
 
-Apply the formula to `coffee` and four words that might follow it, printing each probability beside the counts behind it, and then their sum:
+Apply the formula to `coffee` and four words that might follow it, printing each probability beside the counts behind it, and then the sum over every word that followed `coffee`:
 
 [Example: next-word-probabilities](../examples/next-word-probabilities.py)
 
-The probabilities after `coffee` add up to {{out:next-word-probabilities:sum over every word after coffee}}, as a distribution must, and `table` takes most of them: {{out:next-word-probabilities:P(table | coffee)}}. `mug` gets far less, {{out:next-word-probabilities:P(mug | coffee)}}.
+The probabilities of every word that followed `coffee` add up to {{out:next-word-probabilities:sum over every word after coffee}}, as a distribution must, because whatever comes next is one of those words. `table` takes most of that probability, {{out:next-word-probabilities:P(table | coffee)}}, and `mug` far less, {{out:next-word-probabilities:P(mug | coffee)}}.
 
-The fourth line of the output is the one to remember. `coffee lamp` never occurs in the training names, so its probability is {{out:next-word-probabilities:P(lamp | coffee)}}. The model doesn't say that a coffee lamp is unlikely; it says a coffee lamp is impossible. For a furniture store that's a reasonable bet, but the same zero applies to every pair the model hasn't seen, including perfectly ordinary ones. That's the flaw this chapter ends on.
+The fourth line is the one to remember. `coffee lamp` never occurs in the training names, so its probability is {{out:next-word-probabilities:P(lamp | coffee)}}. The model doesn't say that a coffee lamp is unlikely; it says a coffee lamp is impossible. For a furniture store that's a reasonable bet, but the same zero applies to every pair the model hasn't seen, including perfectly ordinary ones. That's the flaw this chapter ends on.
 
 **Working rule:** Derive probabilities from counts by division, and check that each word's probabilities sum to one; a sum that doesn't is a bug in the counting. Treat a probability as only as good as the count under it: 0.9 from 1,000 pairs is evidence, while 1.0 from a single pair is an anecdote.
 
 ## Suggest the next word as a shopper types {#suggest-next-words}
 
-Autocomplete wants the likeliest next words, and a probability table already ranks them. A shopper who has typed `coffee` sees `table` first. With the bigram model, the suggestions for any typed text are the words with the highest probability after its last word. The bigram model's class, `Bigrams`, from [count which word follows which](#count-word-pairs), has a method, `next_words`, that returns them, likeliest first.
+Autocomplete, the store's first need, wants the likeliest next words, and a probability table ranks them. A shopper who has typed `coffee` sees `table` first. With the bigram model, the suggestions for any typed text are the words with the highest probability after its last word. The bigram model's class, `Bigrams`, from [count which word follows which](#count-word-pairs), has a method, `next_words`, that returns them, likeliest first.
 
 Five typed prefixes, from one word to two, show where the suggestions help and where they go wrong. Three suggestions come back for each:
 
 [Example: autocomplete](../examples/autocomplete.py)
 
-The suggestions are good where one word has one common continuation, and poor where it has many. After `coffee`, `bar` and `kitchen`, the top suggestions are what a shopper would want: tables, stools, sinks and islands. After `outdoor` they're weaker. The top suggestion, `door`, starts a real product type: {{out:autocomplete:of them, followed by 'mat'}} of the {{out:autocomplete:training names containing 'outdoor door'}} training names containing `outdoor door` go on to `mat`. But a one-word suggestion can't offer a two-word product type, and after `door` the shares are small, because `outdoor` is followed by many different words. A comma and an ampersand also show up as suggestions, which no search box should offer. Filtering punctuation out of suggestions is a reasonable patch, and [chapter 2](#tokens) treats the cause.
+The suggestions are good after `coffee`, `bar` and `kitchen`, where the top ones are what a shopper would want: tables, stools, sinks and islands. After `outdoor` they're weaker. The top suggestion, `door`, starts a real product type: {{out:autocomplete:of them, followed by 'mat'}} of the {{out:autocomplete:training names containing 'outdoor door'}} training names containing `outdoor door` go on to `mat`. But a one-word suggestion can't offer a two-word product type, and after `door` the shares are small, because `outdoor` is followed by many different words. A comma and an ampersand also show up as suggestions, which no search box should offer. Filtering punctuation out of suggestions is a reasonable patch, and [chapter 2](#tokens) treats the cause.
 
 The last line shows the model's real limit. A shopper who types `patio bar` gets exactly the suggestions for `bar`, because a bigram model looks at one word of context and nothing before it. `patio` is lost, so the model offers `pull` and `&`, which belong to cabinet hardware and to names such as `bar & counter stools`. Using more context is the subject of [chapter 3](#counting-further-back), and a model that weighs every earlier word is where the book is heading.
 
@@ -98,11 +98,11 @@ cross-entropy = −(1/N) Σ log P(next word | previous word)
 
 **Perplexity** is that average turned back into a count: perplexity = exp(cross-entropy) ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)). It reads as the number of equally likely words the model was choosing between at each step. A perplexity of 10 means the model was, on average, as uncertain as if it had to pick among 10 equally likely words. Lower is better, and a model that knew every next word would score 1. This book uses natural logarithms throughout, which changes cross-entropy's units but not perplexity.
 
-Scoring one name pair by pair shows where its surprise sits, and scoring every training name gives the number the chapter compares. Start with `sled coffee table`, a training name:
+Score one training name, `sled coffee table`, pair by pair to see where its surprise sits, and then every training name at once:
 
 [Example: perplexity-by-hand](../examples/perplexity-by-hand.py)
 
-Most of the surprise falls on the first pair. Few names begin with `sled`, so the model was surprised by it, and after that each word was close to expected: `coffee` follows `sled` in most training names that contain `sled`, and `table` follows `coffee`. The name's average surprise is {{out:perplexity-by-hand:average -log P}}, and its perplexity {{out:perplexity-by-hand:perplexity of the name}}. Over every training name, the model's perplexity is {{out:perplexity-by-hand:perplexity of every training name}}: on the text it learned from, it was choosing among about that many likely words at each step.
+Almost all the surprise falls on the first pair. Few names begin with `sled`, so the model was surprised by it, and after that each word was close to expected: `coffee` follows `sled` in most training names that contain `sled`, and `table` follows `coffee`. The name's average surprise is {{out:perplexity-by-hand:average -log P}}, and its perplexity {{out:perplexity-by-hand:perplexity of the name}}. Over every training name, the model's perplexity is {{out:perplexity-by-hand:perplexity of every training name}}: on the text it learned from, it was choosing among about that many likely words at each step.
 
 That number flatters the model, because it's measured on the text the counts came from. Every pair in the training names has a count, so no pair surprises the model infinitely. The real test is text it hasn't seen.
 
@@ -114,7 +114,7 @@ A model trained by counting knows only the pairs it has counted, and the validat
 
 [Example: perplexity-on-new-names](../examples/perplexity-on-new-names.py)
 
-The validation perplexity is infinite: the example prints {{out:perplexity-on-new-names:validation perplexity}}. One pair the model gave probability zero is enough, because its surprise, −log 0, is infinite, and so is any average that includes it. And there isn't only one. {{out:perplexity-on-new-names:share never seen in training}} of the validation word pairs never occur in the training names, and {{out:perplexity-on-new-names:names with an unseen pair}} of the validation names contain at least one. The first unseen pairs in the output show the common cause: a validation name that starts with a product line the training names never mention, printed as `[name]`, makes both its first pair and its second unseen.
+The validation perplexity is infinite: the example prints {{out:perplexity-on-new-names:validation perplexity}}. One pair the model gave probability zero is enough, because its surprise, −log 0, is infinite, and so is any average that includes it. And there isn't only one. {{out:perplexity-on-new-names:share never seen in training}} of the validation word pairs never occur in the training names, and {{out:perplexity-on-new-names:names with an unseen pair}} of the validation names contain at least one. The first unseen pairs show why: a validation name that starts with a product line the training names never mention, printed as `[name]`, makes both its first pair and its second unseen.
 
 This is the flaw the [probabilities section](#counts-to-probabilities) warned about. Maximum likelihood gives every unseen pair probability zero, and in real text most new documents contain something unseen: a new product line, an unusual size, a familiar word in an unfamiliar place, such as `half-circle` after `wood`. More training text helps a little, but it can't solve the problem. Language keeps producing new combinations, so a model that calls every unseen combination impossible will always fail on new text.
 
@@ -130,13 +130,13 @@ P(v | w) = (count(w v) + 1) / (count(w) + V)
 
 where V is the size of the **vocabulary**, every word the model can predict. A word the training text doesn't contain at all is counted as one more vocabulary entry, `<unk>`, for unknown, so the probabilities still sum to one. No pair now has probability zero, so perplexity on new text is finite. The question is what it costs.
 
-Two numbers show the cost: the probability of `table` after `coffee`, and perplexity. Computing both under each model takes one short program:
+Two numbers show the cost, the probability of `table` after `coffee` and perplexity, under each model:
 
 [Example: add-one-smoothing](../examples/add-one-smoothing.py)
 
 The vocabulary holds {{out:add-one-smoothing:vocabulary}} words, the end marker and `<unk>` included, and that's the problem. Add-one smoothing adds one imagined occurrence for every one of them after every word, so after `coffee` it imagines tens of thousands of extra pairs against about a thousand real ones.
 
-The model now believes far less in what it has seen: the probability of `table` after `coffee` falls from {{out:add-one-smoothing:P(table | coffee) counted}} to {{out:add-one-smoothing:P(table | coffee) add-one}}, and the training perplexity rises from {{out:add-one-smoothing:training perplexity, counted}} to {{out:add-one-smoothing:training perplexity, add-one}}.
+The model now believes far less in what it has seen, so the probability of `table` after `coffee` falls from {{out:add-one-smoothing:P(table | coffee) counted}} to {{out:add-one-smoothing:P(table | coffee) add-one}}, and the training perplexity rises from {{out:add-one-smoothing:training perplexity, counted}} to {{out:add-one-smoothing:training perplexity, add-one}}.
 
 The validation perplexity is finite, {{out:add-one-smoothing:validation perplexity, add-one}}, which is progress, but the model gives so much probability to word pairs that never happen that its predictions are nearly useless.
 

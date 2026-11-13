@@ -1,12 +1,12 @@
 """Counts, for each token in the training names, how often it occurs and how many different tokens come right before it.
-The point rests on the three narrowest tokens, which occur often but follow few different tokens, beside table and chair."""
+Look at the three narrowest tokens, which occur often but follow few different tokens, beside table and chair."""
 from collections import Counter, defaultdict
 
 from lib.names import name_tokens
 
 occurrences, before = Counter(), defaultdict(set)
 for text in name_tokens("train"):
-    for previous, token in zip(["<s>"] + text, text):      # each name starts after the start marker, so its first token has one
+    for previous, token in zip(["<s>"] + text, text):      # the start marker stands before each name's first token, so that token has something to follow too
         occurrences[token] += 1
         before[token].add(previous)                 # the different tokens this one follows
 

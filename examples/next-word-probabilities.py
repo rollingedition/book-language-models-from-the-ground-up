@@ -1,5 +1,5 @@
-"""Divides how often each of four words followed coffee by how often coffee was followed by anything, then checks that the
-probabilities after coffee add up to one. The line for lamp, which prints 0.000, is the one the prose's point rests on:
+"""Divides how often each of four words followed coffee by how often coffee was followed by anything, then prints the sum of the
+probabilities of every word after coffee. The line for lamp, which prints 0.000, is the one the prose's point rests on:
 the bigram model gives a pair it never counted no probability at all."""
 from lib.bigrams import Bigrams
 from lib.store import load_products

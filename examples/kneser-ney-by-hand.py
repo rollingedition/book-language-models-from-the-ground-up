@@ -5,7 +5,7 @@ from lib import bpe
 from lib.names import name_tokens
 from lib.ngrams import START, KneserNey
 
-model = KneserNey(name_tokens("train"), 4)     # a 4-gram model; below the top order, its counts are continuation counts
+model = KneserNey(name_tokens("train"), 4)     # a 4-gram model; below the top order its counts are continuation counts, except for n-grams that start a name
 context = tuple([START] + bpe.store_tokenizer().encode("patio bar"))     # a name that starts "patio bar"
 token, d = "stool</w>", model.d                # </w> ends a word; d is the discount, 0.75 by default
 
