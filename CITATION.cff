@@ -8,7 +8,7 @@ abstract: 'How a language model works, built one part at a time: next-word predi
 url: https://rollingedition.com/language-models-from-the-ground-up
 repository-code: https://github.com/rollingedition/book-language-models-from-the-ground-up
 license:
-- CC-BY-4.0
+- CC-BY-NC-4.0
 - MIT
 preferred-citation:
   type: book
