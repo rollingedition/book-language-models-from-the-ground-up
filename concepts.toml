@@ -8,6 +8,7 @@ term = "language model"
 definition = "A language model is a program that assigns a probability to every word that could come next, given the words so far."
 section = "predicting-the-next-word"
 context = "natural-language-processing"
+wikidata = "Q3621696"
 
 [[concepts]]
 id = "training-split"
@@ -25,6 +26,10 @@ section = "load-the-store-text"
 context = "artificial-intelligence"
 example = "store-text"
 
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/model-evaluation/dev-split"]
+close-to = ["https://rollingedition.com/concepts/llm-evaluation/dev"]
+
 [[concepts]]
 id = "test-split"
 term = "test split"
@@ -33,12 +38,19 @@ section = "load-the-store-text"
 context = "artificial-intelligence"
 example = "store-text"
 
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/llm-evaluation/held-out"]
+close-to = ["https://rollingedition.com/concepts/model-evaluation/test-split"]
+
 [[concepts]]
 id = "shared-module"
 term = "shared module"
 definition = "the book's shared modules: short files in `examples/lib/` that hold setup code many examples need, which you can open and read"
 section = "load-the-store-text"
 context = "artificial-intelligence"
+
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/data-engineering/shared-module"]
 
 [[concepts]]
 id = "bigram"
@@ -47,6 +59,7 @@ definition = "A bigram is a pair of adjacent words, such as `coffee table`."
 section = "count-word-pairs"
 context = "natural-language-processing"
 example = "count-next-words"
+wikidata = "Q2773912"
 
 [[concepts]]
 id = "maximum-likelihood-estimation"
@@ -58,6 +71,7 @@ section = "counts-to-probabilities"
 context = "artificial-intelligence"
 example = "next-word-probabilities"
 
+wikidata = "Q1045555"
 [concepts.relations]
 computed-from = ["bigram"]
 
@@ -90,6 +104,7 @@ section = "score-with-perplexity"
 context = "natural-language-processing"
 example = "perplexity-by-hand"
 
+wikidata = "Q1685498"
 [concepts.relations]
 computed-from = ["surprise"]
 
@@ -102,6 +117,7 @@ section = "score-with-perplexity"
 context = "natural-language-processing"
 example = "perplexity-by-hand"
 
+wikidata = "Q372193"
 [concepts.relations]
 computed-from = ["cross-entropy"]
 
@@ -147,6 +163,7 @@ context = "natural-language-processing"
 
 [concepts.relations]
 prerequisite-of = ["vocabulary"]
+same-as = ["https://rollingedition.com/concepts/large-language-models/token", "https://rollingedition.com/concepts/semantic-search/token"]
 
 [[concepts]]
 id = "vocabulary"
@@ -174,6 +191,7 @@ term = "byte"
 definition = "in UTF-8, the usual text encoding, every character in every language is stored as one to four bytes, and there are only 256 possible byte values, so a vocabulary that starts from all 256 can represent any text at all"
 section = "characters-cover-everything"
 context = "natural-language-processing"
+wikidata = "Q8799"
 
 [[concepts]]
 id = "byte-pair-encoding"
@@ -184,6 +202,7 @@ section = "merge-frequent-pairs"
 context = "natural-language-processing"
 example = "merge-pairs-by-hand"
 
+wikidata = "Q860962"
 [concepts.relations]
 implemented-by = [{ to = "tokenizers", versions = ">=0.20" }]
 
@@ -197,6 +216,7 @@ example = "store-tokenizer"
 
 [concepts.relations]
 implemented-by = [{ to = "tokenizers", versions = ">=0.20" }]
+close-to = ["https://rollingedition.com/concepts/large-language-models/tokenizer"]
 
 [[concepts]]
 id = "token-type"
@@ -312,6 +332,9 @@ definition = "a baseline, a fixed yardstick: one model, one text, one tokenizer 
 section = "the-baseline"
 context = "artificial-intelligence"
 
+[concepts.relations]
+close-to = ["https://rollingedition.com/concepts/llm-evaluation/baseline", "https://rollingedition.com/concepts/search-and-recommendation/baseline", "https://rollingedition.com/concepts/model-evaluation/baseline"]
+
 [[concepts]]
 id = "vector"
 term = "vector"
@@ -328,6 +351,7 @@ section = "one-hot-vectors-know-nothing"
 context = "natural-language-processing"
 example = "one-hot-vectors"
 
+wikidata = "Q161690"
 [concepts.relations]
 contrasts-with = ["embedding"]
 
@@ -338,6 +362,11 @@ definition = "To measure how alike two vectors are, this book uses cosine simila
 section = "one-hot-vectors-know-nothing"
 context = "artificial-intelligence"
 example = "one-hot-vectors"
+
+wikidata = "Q1784941"
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/search-and-recommendation/cosine-similarity"]
+computed-from = ["vector"]
 
 [[concepts]]
 id = "co-occurrence-window"
@@ -381,6 +410,7 @@ section = "compress-into-dense-vectors"
 context = "natural-language-processing"
 example = "svd-neighbours"
 
+wikidata = "Q420904"
 [concepts.relations]
 computed-from = ["positive-pmi"]
 
@@ -449,6 +479,9 @@ definition = 'In vectors, the answer to "a is to b as c is to what?" is the toke
 section = "analogies-and-where-they-fail"
 context = "natural-language-processing"
 example = "analogies"
+
+[concepts.relations]
+computed-from = ["embedding"]
 
 [[concepts]]
 id = "neural-language-model"
@@ -538,8 +571,10 @@ section = "predict-from-a-window"
 context = "deep-learning"
 example = "window-model-by-hand"
 
+wikidata = "Q7554146"
 [concepts.relations]
 prerequisite-of = ["attention"]
+same-as = ["https://rollingedition.com/concepts/large-language-models/softmax"]
 
 [[concepts]]
 id = "parameter"
@@ -549,6 +584,9 @@ definition = "The window model has {{out:window-model-by-hand:parameters}} param
 section = "predict-from-a-window"
 context = "deep-learning"
 example = "window-model-by-hand"
+
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/large-language-models/parameter"]
 
 [[concepts]]
 id = "loss"
@@ -588,6 +626,7 @@ formula = "w ← w − η · ∂L/∂w"
 section = "take-gradient-descent-steps"
 context = "deep-learning"
 example = "gradient-descent-by-hand"
+wikidata = "Q1199743"
 
 [[concepts]]
 id = "step-size"
@@ -598,6 +637,7 @@ section = "take-gradient-descent-steps"
 context = "deep-learning"
 example = "gradient-descent-by-hand"
 
+wikidata = "Q65121812"
 [concepts.relations]
 part-of = ["gradient-descent"]
 
@@ -629,6 +669,10 @@ section = "stop-at-the-best-epoch"
 context = "artificial-intelligence"
 example = "training-curve"
 
+wikidata = "Q331309"
+[concepts.relations]
+measured-from = ["perplexity"]
+
 [[concepts]]
 id = "early-stopping"
 term = "early stopping"
@@ -636,6 +680,10 @@ definition = "the simplest defence is early stopping: measure validation loss af
 section = "stop-at-the-best-epoch"
 context = "deep-learning"
 example = "training-curve"
+
+wikidata = "Q5326898"
+[concepts.relations]
+close-to = ["https://rollingedition.com/concepts/search-and-recommendation/early-stopping"]
 
 [[concepts]]
 id = "epoch"
@@ -654,6 +702,7 @@ term = "regularization"
 definition = "regularization, which is anything in training that discourages memorizing"
 section = "stop-at-the-best-epoch"
 context = "artificial-intelligence"
+wikidata = "Q2061913"
 
 [[concepts]]
 id = "attention"
@@ -822,6 +871,9 @@ section = "add-to-the-residual-stream"
 context = "artificial-intelligence"
 example = "residual-stream"
 
+[concepts.relations]
+computed-from = ["vector"]
+
 [[concepts]]
 id = "normalization"
 term = "normalization"
@@ -840,6 +892,7 @@ term = "layer normalization"
 definition = "layer normalization, which subtracts each vector's mean and divides by its standard deviation"
 section = "normalize-before-each-part"
 context = "deep-learning"
+wikidata = "Q121322460"
 
 [[concepts]]
 id = "rmsnorm"
@@ -861,6 +914,10 @@ definition = "root mean square, the square root of the average of its squared nu
 section = "normalize-before-each-part"
 context = "artificial-intelligence"
 example = "rms-norm-by-hand"
+
+wikidata = "Q223323"
+[concepts.relations]
+computed-from = ["vector"]
 
 [[concepts]]
 id = "feed-forward-layer"
@@ -931,6 +988,9 @@ section = "leave-out-a-block"
 context = "artificial-intelligence"
 example = "skip-a-block"
 
+[concepts.relations]
+close-to = ["https://rollingedition.com/concepts/llm-evaluation/ablation"]
+
 [[concepts]]
 id = "padding"
 term = "padding"
@@ -957,6 +1017,9 @@ definition = "the targets are the text's tokens without the first, so position i
 section = "turn-products-into-batches"
 context = "natural-language-processing"
 example = "training-batches"
+
+[concepts.relations]
+close-to = ["https://rollingedition.com/concepts/feature-engineering/target"]
 
 [[concepts]]
 id = "packing"
@@ -1048,9 +1111,11 @@ definition = "The simplest decoder is greedy: at every step, take the single lik
 section = "choose-the-likeliest-token"
 context = "large-language-models"
 example = "greedy-description"
+agrees = [{ book = "small-open-models", definition = "greedy decoding, which takes the most likely token at each step" }]
 
 [concepts.relations]
 contrasts-with = ["sampling"]
+same-as = ["https://rollingedition.com/concepts/data-engineering/greedy-decoding"]
 
 [[concepts]]
 id = "beam-search"
@@ -1060,6 +1125,7 @@ section = "search-for-the-likeliest-text"
 context = "large-language-models"
 example = "beam-search"
 
+wikidata = "Q2835852"
 [concepts.relations]
 contrasts-with = ["greedy-decoding"]
 
@@ -1070,6 +1136,7 @@ definition = "total log-probability, the sum of the logarithms of a text's token
 section = "search-for-the-likeliest-text"
 context = "large-language-models"
 example = "beam-search"
+agrees = [{ book = "small-open-models", definition = "the log-probability of the answer, which is the sum of the answer's token log-probabilities" }]
 
 [concepts.relations]
 prerequisite-of = ["beam-search"]
@@ -1151,6 +1218,7 @@ term = "base model"
 definition = "the base model, the one trained only to predict the next token"
 section = "inside-an-open-model"
 context = "large-language-models"
+agrees = [{ book = "small-open-models", definition = "A base model is a model already pretrained on a large amount of text, which you adapt to one job." }]
 
 [[concepts]]
 id = "pinned-revision"
@@ -1159,6 +1227,9 @@ aliases = ["revision"]
 definition = "a pinned revision, a fixed version of its repository"
 section = "inside-an-open-model"
 context = "large-language-models"
+
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/artificial-intelligence/pinned-revision"]
 
 [[concepts]]
 id = "grouped-query-attention"
@@ -1272,6 +1343,7 @@ example = "chat-template"
 
 [concepts.relations]
 part-of = ["chat-template"]
+close-to = ["https://rollingedition.com/concepts/llm-evaluation/system-text"]
 
 [[concepts]]
 id = "supported-answer"
@@ -1336,6 +1408,7 @@ definition = "The way to teach a general model the store's text is fine-tuning: 
 section = "adapt-a-model"
 context = "large-language-models"
 
+wikidata = "Q117286419"
 [concepts.relations]
 contrasts-with = ["instruction-tuning"]
 
@@ -1349,6 +1422,7 @@ example = "lora-parameters"
 
 [concepts.relations]
 broader = ["fine-tuning"]
+same-as = ["https://rollingedition.com/concepts/fine-tuning/full-fine-tuning"]
 
 [[concepts]]
 id = "lora"
@@ -1363,4 +1437,4 @@ example = "lora-parameters"
 [concepts.relations]
 broader = ["fine-tuning"]
 contrasts-with = ["full-fine-tuning"]
-
+same-as = ["https://rollingedition.com/concepts/fine-tuning/lora"]
