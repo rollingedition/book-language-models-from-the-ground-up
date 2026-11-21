@@ -12,7 +12,7 @@ Every method here is tried where the store, an online furniture and home-goods s
 
 ## Longer contexts fit the training text better {#longer-contexts-fit-training}
 
-An **n-gram model** predicts each token from the n − 1 tokens before it: a **bigram** model (n = 2) from one, a trigram model (n = 3) from two, and so on. The tokens before the one being predicted are its **context**. More context should mean better predictions: after `patio bar`, the next token is far more predictable than after `bar` alone. Counting works exactly as in [chapter 1](#predicting-the-next-word), except that the counts are now of a context of n − 1 tokens followed by a token, and each text is padded with n − 1 start markers, so even its first token has a full context.
+An **n-gram model** predicts each token from the n − 1 tokens before it: a [bigram](#count-word-pairs) model (n = 2) from one, a trigram model (n = 3) from two, and so on. The tokens before the one being predicted are its **context**. More context should mean better predictions: after `patio bar`, the next token is far more predictable than after `bar` alone. Counting works exactly as in [chapter 1](#predicting-the-next-word), except that the counts are now of a context of n − 1 tokens followed by a token, and each text is padded with n − 1 start markers, so even its first token has a full context.
 
 Scored on the names they were counted from, with no smoothing, the orders show what a model does with text it has already memorized:
 
@@ -42,7 +42,7 @@ The two examples together are the core problem of counting. Longer contexts pred
 
 ## Mix short and long contexts {#mix-short-and-long-contexts}
 
-The obvious fix for unseen long contexts is to fall back on shorter ones. **Interpolation** does it smoothly: the probability of a token is a weighted mix of what the trigram, bigram and unigram counts say, so a long context the model has seen contributes its sharp prediction, and the shorter ones fill in what it hasn't. With weights λ₃, λ₂ and λ₁ that sum to one:
+The obvious fix for unseen long contexts is to fall back on shorter ones. **Interpolation** falls back smoothly: the probability of a token is a weighted mix of what the trigram, bigram and unigram counts say, so a long context the model has seen contributes its sharp prediction, and the shorter ones fill in what it hasn't. With weights λ₃, λ₂ and λ₁ that sum to one:
 
 P(token | a b) = λ₃ · P₃(token | a b) + λ₂ · P₂(token | b) + λ₁ · P₁(token)
 
@@ -56,11 +56,11 @@ Mixing orders beats [chapter 1's add-one smoothing](#smooth-unseen-pairs). For a
 
 It has two weaknesses. The weights are fixed, and these were picked by hand, not tuned: the same 0.6 goes to the trigram whether its context was seen once or a thousand times, though a context seen a thousand times deserves more trust. And the unigram part gives each token probability in proportion to how often it occurs, which, as the next section shows, is the wrong question for a fallback.
 
-**Working rule:** Never use a single n-gram order alone; always combine it with lower orders, so every token keeps some probability. Prefer methods that set each context's weight from its counts, such as Kneser-Ney below, over fixed weights. If you do use fixed weights, choose them on held-out text, not the text you counted.
+**Working rule:** Never use a single n-gram order alone; always combine it with lower orders, so every token keeps some probability. Prefer methods that set each context's weight from its counts, such as [Kneser-Ney](#smooth-with-kneser-ney) below, over fixed weights. If you do use fixed weights, choose them on held-out text, not the text you counted.
 
 ## Count the contexts a token follows {#count-contexts-a-token-follows}
 
-When a model backs off to a shorter context, it's asking a specific question: how likely is this token to show up in a context we haven't seen? Raw frequency answers a different one. A token can be very common and still occur only after one or two particular tokens, and such a token is a poor guess for a new context. The better measure is the number of different tokens it follows, its **continuation count**: a token that has followed many different tokens is likely to follow a new one too.
+When a model backs off to a shorter context, it's asking a specific question: how likely is this token to show up in a context we haven't seen? Raw frequency answers a different one. A token can be very common and still occur only after one or two particular tokens, and such a token is a poor guess for a new context. The better measure is a token's **continuation count**, the number of different tokens it follows: a token that has followed many different tokens is likely to follow a new one too.
 
 Among the 300 most frequent tokens in the training names, these three come after the fewest different tokens for how often they occur, set beside two ordinary product words:
 
@@ -76,7 +76,7 @@ This is the insight behind Kneser-Ney smoothing ([Kneser and Ney, 1995](https://
 
 ## Smooth with Kneser-Ney {#smooth-with-kneser-ney}
 
-Kneser-Ney smoothing combines [interpolation of orders](#mix-short-and-long-contexts) with [continuation counts](#count-contexts-a-token-follows). At each order, it subtracts a fixed **discount** d from every count it has seen, and gives the probability it took to the next order down, so a context seen often keeps nearly all its own prediction, and a context seen rarely leans on the shorter context, with the discount it frees going to tokens that turn up in many contexts.
+Kneser-Ney smoothing combines [interpolation of orders](#mix-short-and-long-contexts) with [continuation counts](#count-contexts-a-token-follows). At each order, Kneser-Ney subtracts a fixed **discount** d from every count it has seen, and gives the probability it took to the next order down, so a context seen often keeps nearly all its own prediction, and a context seen rarely leans on the shorter context, with the discount it frees going to tokens that turn up in many contexts.
 
 The same formula applies at every order. Below the highest, the counts are continuation counts, except for n-grams that start a text, which keep their raw counts, as the KenLM toolkit does. For a context h and a token w, with c(h w) the count of the pair, c(h) the count of the context, and N(h) the number of different tokens seen after h:
 
@@ -98,7 +98,7 @@ Kneser-Ney beats the hand-weighted interpolated trigram from the [interpolation 
 
 Longer contexts now help on new text, instead of only on the text the model counted, up to a point: validation perplexity falls from {{out:kneser-ney-by-order:2-gram validation perplexity}} for the bigram to {{out:kneser-ney-by-order:4-gram validation perplexity}} for the 4-gram, then rises to {{out:kneser-ney-by-order:5-gram validation perplexity}} for the 5-gram. The step from trigram to 4-gram is small, and the 5-gram is worse, because by then most contexts are unseen and the extra order adds noise. The discount, too, can be estimated from the counts: Chen and Goodman give D = n₁ / (n₁ + 2 n₂), where n₁ and n₂ are the numbers of n-grams seen once and twice, and on the store's 4-grams it's {{out:kneser-ney-by-order:discount estimated from them}}, close to the default.
 
-**Working rule:** Smooth n-gram models with interpolated Kneser-Ney and a discount of 0.75 unless held-out text says otherwise. Raise the order only while validation perplexity keeps falling noticeably, and stop when a step barely helps or hurts, as the step from 4-gram to 5-gram does. A variant, modified Kneser-Ney, uses three discounts instead of one and is the one toolkits such as KenLM build; it would likely lower the baseline a little, and this book keeps the single discount because it's easier to follow by hand.
+**Working rule:** Smooth n-gram models with interpolated Kneser-Ney and a discount of 0.75 unless held-out text says otherwise. Raise the order only while validation perplexity keeps falling noticeably, and stop when a step barely helps or hurts, as the step from 4-gram to 5-gram does. A variant, modified Kneser-Ney, uses three discounts instead of one and is the one toolkits such as KenLM build; it would likely lower the [baseline](#the-baseline) a little, and this book keeps the single discount because it's easier to follow by hand.
 
 ## Autocomplete with three tokens of context {#autocomplete-with-more-context}
 
@@ -118,7 +118,7 @@ The `outdoor bar` line is the limit of counting in miniature. The model has seen
 
 ## The baseline every later model is measured against {#the-baseline}
 
-Every chapter from here on builds a model that learns, not one that counts, and each claims to predict the store's text better. A claim like that needs a fixed yardstick: one model, one text, one tokenizer and one measure that every later model is compared against. That's a **baseline**, and it should be the strongest simple model available, so that beating it means something.
+Every chapter from here on builds a model that learns, not one that counts, and each claims to predict the store's text better. A claim like that needs a **baseline**, a fixed yardstick: one model, one text, one tokenizer and one measure that every later model is compared against. A baseline should be the strongest simple model available, so that beating it means something.
 
 The baseline for this book is the 4-gram Kneser-Ney model of this chapter, scored on the store's validation names with the store's tokenizer. Its validation perplexity is {{out:kneser-ney-by-order:4-gram validation perplexity}} per token, from the [Kneser-Ney example](#smooth-with-kneser-ney). The 5-gram model is worse, at {{out:kneser-ney-by-order:5-gram validation perplexity}}, and holds more counts, so the 4-gram is the baseline: the best of this chapter's counted models on the store's names. A stronger counted baseline exists, modified Kneser-Ney, and the book doesn't use it, for the reason the [Kneser-Ney section](#smooth-with-kneser-ney) gives.
 

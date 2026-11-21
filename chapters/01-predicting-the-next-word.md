@@ -48,7 +48,7 @@ Counts say what happened, but a language model needs probabilities: how likely e
 
 P(v | w) = count(w v) / count(w)
 
-Read it as "the probability of `v`, given `w`". Estimating probabilities this way, from the fraction of times something happened, is called **maximum likelihood estimation**: of all the probability tables you could choose, it's the one that makes the training text likeliest ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)).
+Read it as "the probability of `v`, given `w`". Estimating probabilities from the fraction of times something happened is called **maximum likelihood estimation**: of all the probability tables you could choose, it's the one that makes the training text likeliest ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)).
 
 Apply the formula to `coffee` and four words that might follow it, printing each probability beside the counts behind it, and then the sum over every word that followed `coffee`:
 
@@ -86,17 +86,17 @@ Each adjacent pair of words is plausible, because each pair occurred in a real n
 
 Generated names make a model's limits visible in a way a number can't, which makes them worth reading. They don't measure anything, though: six names are too few to compare two models, and a reader's sense of "plausible" changes from day to day. The next section gives the number.
 
-**Working rule:** Generate samples whenever you change a model, and read them, because they show failures that a score hides, such as text drifting from one product to another. Use a fixed seed so the samples are reproducible. Never compare models by their samples; compare them by perplexity on validation text.
+**Working rule:** Generate samples whenever you change a model, and read them, because they show failures that a score hides, such as text drifting from one product to another. Use a fixed seed so the samples are reproducible. Never compare models by their samples; compare them by [perplexity](#score-with-perplexity) on validation text.
 
 ## Score a model with perplexity {#score-with-perplexity}
 
-A language model is good when it gives high probability to the text that actually occurs. That suggests a score: run the model over real text, and see how much probability it gave to each word that came next. The standard way to summarize this is **perplexity**, and this book uses it to compare every model it builds.
+A language model is good when it gives high probability to the text that actually occurs. That suggests a score: run the model over real text, and see how much probability it gave to each word that came next. The standard way to summarize this is perplexity, and this book uses it to compare every model it builds.
 
 Start from one pair. If the model gave the actual next word probability p, its **surprise** at that word is −log p: zero when it was certain (p = 1) and larger the less it expected the word. The **cross-entropy** of a text is the average surprise over every word in it, written with N as the number of predicted words:
 
 cross-entropy = −(1/N) Σ log P(next word | previous word)
 
-**Perplexity** is that average turned back into a count: perplexity = exp(cross-entropy) ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)). It reads as the number of equally likely words the model was choosing between, on average, at each step. A perplexity of 10 means the model was, on average, as uncertain as if it had to pick among 10 equally likely words. Lower is better, and a model that knew every next word would score 1. This book uses natural logarithms throughout, which changes cross-entropy's units but not perplexity.
+**Perplexity** is the cross-entropy turned back into a count: perplexity = exp(cross-entropy) ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)). It reads as the number of equally likely words the model was choosing between, on average, at each step. A perplexity of 10 means the model was, on average, as uncertain as if it had to pick among 10 equally likely words. Lower is better, and a model that knew every next word would score 1. This book uses natural logarithms throughout, which changes cross-entropy's units but not perplexity.
 
 Score one training name, `sled coffee table`, pair by pair to see where its surprise sits, and then every training name at once:
 
@@ -118,7 +118,7 @@ The validation perplexity is infinite: the example prints {{out:perplexity-on-ne
 
 This is the flaw the [probabilities section](#counts-to-probabilities) warned about. Maximum likelihood gives every unseen pair probability zero, and in real text most new documents contain something unseen: a new product line, an unusual size, a familiar word in an unfamiliar place, such as `half-circle` after `wood`. More training text helps a little, but it can't solve the problem. Language keeps producing new combinations, so a model that calls every unseen combination impossible will always fail on new text.
 
-The fix has to give unseen pairs some probability, which means taking a little away from the pairs the model has seen. That's called **smoothing**.
+The fix is **smoothing**, which gives unseen pairs some probability by taking a little away from the pairs the model has seen.
 
 **Working rule:** Never trust a language model that gives zero probability to anything; check for infinite or undefined perplexity on validation text before you compare models. When you see one, count the unseen pairs, as above, to know how much of the text the model can't handle.
 
@@ -128,7 +128,7 @@ The model in [unseen word pairs break the model](#unseen-pairs-break-the-model) 
 
 P(v | w) = (count(w v) + 1) / (count(w) + V)
 
-where V is the size of the **vocabulary**, every word the model can predict. A word the training text doesn't contain at all is counted as one more vocabulary entry, `<unk>`, for unknown, so the probabilities still sum to one. No pair now has probability zero, so perplexity on new text is finite. The question is what it costs.
+where V is the size of the [vocabulary](#words-leave-gaps), every word the model can predict. A word the training text doesn't contain at all is counted as one more vocabulary entry, `<unk>`, for unknown, so the probabilities still sum to one. No pair now has probability zero, so perplexity on new text is finite. The question is what it costs.
 
 Two numbers show the cost, the probability of `table` after `coffee` and perplexity, under each model:
 

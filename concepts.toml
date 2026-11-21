@@ -1,0 +1,1366 @@
+# The terms this book defines, each quoted from the sentence that defines it (writing standards W-77 to W-80).
+
+context = "artificial-intelligence"
+
+[[concepts]]
+id = "language-model"
+term = "language model"
+definition = "A language model is a program that assigns a probability to every word that could come next, given the words so far."
+section = "predicting-the-next-word"
+context = "natural-language-processing"
+
+[[concepts]]
+id = "training-split"
+term = "training split"
+definition = "a training split that models learn from"
+section = "load-the-store-text"
+context = "artificial-intelligence"
+example = "store-text"
+
+[[concepts]]
+id = "validation-split"
+term = "validation split"
+definition = "a validation split for comparing models while you build them"
+section = "load-the-store-text"
+context = "artificial-intelligence"
+example = "store-text"
+
+[[concepts]]
+id = "test-split"
+term = "test split"
+definition = "a test split kept for final reports"
+section = "load-the-store-text"
+context = "artificial-intelligence"
+example = "store-text"
+
+[[concepts]]
+id = "shared-module"
+term = "shared module"
+definition = "the book's shared modules: short files in `examples/lib/` that hold setup code many examples need, which you can open and read"
+section = "load-the-store-text"
+context = "artificial-intelligence"
+
+[[concepts]]
+id = "bigram"
+term = "bigram"
+definition = "A bigram is a pair of adjacent words, such as `coffee table`."
+section = "count-word-pairs"
+context = "natural-language-processing"
+example = "count-next-words"
+
+[[concepts]]
+id = "maximum-likelihood-estimation"
+term = "maximum likelihood estimation"
+aliases = ["maximum likelihood", "MLE"]
+definition = "Estimating probabilities from the fraction of times something happened is called maximum likelihood estimation"
+formula = "P(v | w) = count(w v) / count(w)"
+section = "counts-to-probabilities"
+context = "artificial-intelligence"
+example = "next-word-probabilities"
+
+[concepts.relations]
+computed-from = ["bigram"]
+
+[[concepts]]
+id = "generation"
+term = "generation"
+aliases = ["generate"]
+definition = "To generate, start at `<s>`, draw the next word at random in proportion to its probability, append it, and repeat from the word you drew, until the model draws `</s>`."
+section = "generate-one-word-at-a-time"
+context = "natural-language-processing"
+example = "generate-names"
+
+[[concepts]]
+id = "surprise"
+term = "surprise"
+definition = "If the model gave the actual next word probability p, its surprise at that word is −log p: zero when it was certain (p = 1) and larger the less it expected the word."
+section = "score-with-perplexity"
+context = "natural-language-processing"
+example = "perplexity-by-hand"
+
+[concepts.relations]
+prerequisite-of = ["cross-entropy"]
+
+[[concepts]]
+id = "cross-entropy"
+term = "cross-entropy"
+definition = "The cross-entropy of a text is the average surprise over every word in it"
+formula = "cross-entropy = −(1/N) Σ log P(next word | previous word)"
+section = "score-with-perplexity"
+context = "natural-language-processing"
+example = "perplexity-by-hand"
+
+[concepts.relations]
+computed-from = ["surprise"]
+
+[[concepts]]
+id = "perplexity"
+term = "perplexity"
+definition = "Perplexity is the cross-entropy turned back into a count"
+formula = "perplexity = exp(cross-entropy)"
+section = "score-with-perplexity"
+context = "natural-language-processing"
+example = "perplexity-by-hand"
+
+[concepts.relations]
+computed-from = ["cross-entropy"]
+
+[[concepts]]
+id = "smoothing"
+term = "smoothing"
+definition = "smoothing, which gives unseen pairs some probability by taking a little away from the pairs the model has seen"
+section = "unseen-pairs-break-the-model"
+context = "natural-language-processing"
+example = "perplexity-on-new-names"
+
+[[concepts]]
+id = "add-one-smoothing"
+term = "add-one smoothing"
+definition = "The simplest smoothing method, add-one smoothing, pretends that every possible pair occurred once more than it did."
+formula = "P(v | w) = (count(w v) + 1) / (count(w) + V)"
+section = "smooth-unseen-pairs"
+context = "natural-language-processing"
+example = "add-one-smoothing"
+
+[concepts.relations]
+broader = ["smoothing"]
+computed-from = ["vocabulary"]
+
+[[concepts]]
+id = "unk"
+term = "<unk>"
+aliases = ["unknown token"]
+definition = "A word the training text doesn't contain at all is counted as one more vocabulary entry, `<unk>`, for unknown, so the probabilities still sum to one."
+section = "smooth-unseen-pairs"
+context = "natural-language-processing"
+example = "add-one-smoothing"
+
+[concepts.relations]
+part-of = ["vocabulary"]
+
+[[concepts]]
+id = "token"
+term = "token"
+definition = "A token is the unit a language model reads and predicts: whatever the text is cut into before the model sees it."
+section = "tokens"
+context = "natural-language-processing"
+
+[concepts.relations]
+prerequisite-of = ["vocabulary"]
+
+[[concepts]]
+id = "vocabulary"
+term = "vocabulary"
+definition = "A model can only predict tokens in its vocabulary, the set of tokens it learned from training text"
+section = "words-leave-gaps"
+context = "natural-language-processing"
+example = "unseen-words"
+
+[concepts.relations]
+prerequisite-of = ["out-of-vocabulary"]
+
+[[concepts]]
+id = "out-of-vocabulary"
+term = "out-of-vocabulary"
+aliases = ["OOV"]
+definition = "any word that first appears after training is out of reach: an out-of-vocabulary word"
+section = "words-leave-gaps"
+context = "natural-language-processing"
+example = "unseen-words"
+
+[[concepts]]
+id = "byte"
+term = "byte"
+definition = "in UTF-8, the usual text encoding, every character in every language is stored as one to four bytes, and there are only 256 possible byte values, so a vocabulary that starts from all 256 can represent any text at all"
+section = "characters-cover-everything"
+context = "natural-language-processing"
+
+[[concepts]]
+id = "byte-pair-encoding"
+term = "byte-pair encoding"
+aliases = ["BPE"]
+definition = "Byte-pair encoding, or BPE, starts from characters and builds bigger tokens out of the pairs that occur most often."
+section = "merge-frequent-pairs"
+context = "natural-language-processing"
+example = "merge-pairs-by-hand"
+
+[concepts.relations]
+implemented-by = [{ to = "tokenizers", versions = ">=0.20" }]
+
+[[concepts]]
+id = "tokenizer"
+term = "tokenizer"
+definition = "The list of merges, in the order they were learned, is the tokenizer."
+section = "merge-frequent-pairs"
+context = "natural-language-processing"
+example = "store-tokenizer"
+
+[concepts.relations]
+implemented-by = [{ to = "tokenizers", versions = ">=0.20" }]
+
+[[concepts]]
+id = "token-type"
+term = "token type"
+definition = "The different tokens a text uses are its token types."
+section = "choose-how-many-merges"
+context = "natural-language-processing"
+example = "vocabulary-size"
+
+[[concepts]]
+id = "pre-tokenizer"
+term = "pre-tokenizer"
+definition = "A pre-tokenizer splits text into pieces before any merging"
+section = "apply-merges-by-hand"
+context = "natural-language-processing"
+example = "merges-by-hand"
+
+[concepts.relations]
+part-of = ["tokenizer"]
+implemented-by = [{ to = "tokenizers", versions = ">=0.20" }]
+
+[[concepts]]
+id = "special-token"
+term = "special token"
+definition = "Open models mark the start or end of a text, or a turn in a conversation, with special tokens written as strings such as `<|endoftext|>`."
+section = "tokens-in-production"
+context = "large-language-models"
+
+[[concepts]]
+id = "n-gram-model"
+term = "n-gram model"
+aliases = ["n-gram", "n-gram language model"]
+definition = "An n-gram model predicts each token from the n − 1 tokens before it"
+section = "longer-contexts-fit-training"
+context = "natural-language-processing"
+example = "ngram-memorizes"
+
+[concepts.relations]
+broader = ["language-model"]
+
+[[concepts]]
+id = "context"
+term = "context"
+definition = "The tokens before the one being predicted are its context."
+section = "longer-contexts-fit-training"
+context = "natural-language-processing"
+example = "ngram-memorizes"
+
+[[concepts]]
+id = "interpolation"
+term = "interpolation"
+definition = "Interpolation falls back smoothly: the probability of a token is a weighted mix of what the trigram, bigram and unigram counts say"
+formula = "P(token | a b) = λ₃ · P₃(token | a b) + λ₂ · P₂(token | b) + λ₁ · P₁(token)"
+section = "mix-short-and-long-contexts"
+context = "natural-language-processing"
+example = "interpolate-orders"
+
+[concepts.relations]
+broader = ["smoothing"]
+contrasts-with = ["add-one-smoothing"]
+prerequisite-of = ["kneser-ney-smoothing"]
+
+[[concepts]]
+id = "continuation-count"
+term = "continuation count"
+definition = "a token's continuation count, the number of different tokens it follows"
+section = "count-contexts-a-token-follows"
+context = "natural-language-processing"
+example = "continuation-counts"
+
+[concepts.relations]
+prerequisite-of = ["kneser-ney-smoothing"]
+
+[[concepts]]
+id = "kneser-ney-smoothing"
+term = "Kneser-Ney smoothing"
+aliases = ["Kneser-Ney", "interpolated Kneser-Ney"]
+definition = "Kneser-Ney smoothing combines interpolation of orders with continuation counts."
+formula = "P(w | h) = max(c(h w) − d, 0) / c(h) + d · N(h) / c(h) · P(w | shorter h)"
+section = "smooth-with-kneser-ney"
+context = "natural-language-processing"
+example = "kneser-ney-by-hand"
+
+[concepts.relations]
+broader = ["smoothing"]
+
+[[concepts]]
+id = "discount"
+term = "discount"
+definition = "At each order, Kneser-Ney subtracts a fixed discount d from every count it has seen, and gives the probability it took to the next order down"
+formula = "D = n₁ / (n₁ + 2 n₂)"
+section = "smooth-with-kneser-ney"
+context = "natural-language-processing"
+example = "kneser-ney-by-order"
+
+[concepts.relations]
+part-of = ["kneser-ney-smoothing"]
+
+[[concepts]]
+id = "modified-kneser-ney"
+term = "modified Kneser-Ney"
+definition = "A variant, modified Kneser-Ney, uses three discounts instead of one"
+section = "smooth-with-kneser-ney"
+context = "natural-language-processing"
+
+[concepts.relations]
+broader = ["kneser-ney-smoothing"]
+
+[[concepts]]
+id = "baseline"
+term = "baseline"
+definition = "a baseline, a fixed yardstick: one model, one text, one tokenizer and one measure that every later model is compared against"
+section = "the-baseline"
+context = "artificial-intelligence"
+
+[[concepts]]
+id = "vector"
+term = "vector"
+definition = "a vector, a list of numbers"
+section = "words-as-vectors"
+context = "artificial-intelligence"
+
+[[concepts]]
+id = "one-hot-encoding"
+term = "one-hot encoding"
+aliases = ["one-hot", "one-hot vector"]
+definition = "a one-hot encoding, in which each token gets a vector as long as the vocabulary, with a 1 in its own position and 0 everywhere else"
+section = "one-hot-vectors-know-nothing"
+context = "natural-language-processing"
+example = "one-hot-vectors"
+
+[concepts.relations]
+contrasts-with = ["embedding"]
+
+[[concepts]]
+id = "cosine-similarity"
+term = "cosine similarity"
+definition = "To measure how alike two vectors are, this book uses cosine similarity: the cosine of the angle between them, 1 when they point the same way, 0 when they're at right angles."
+section = "one-hot-vectors-know-nothing"
+context = "artificial-intelligence"
+example = "one-hot-vectors"
+
+[[concepts]]
+id = "co-occurrence-window"
+term = "co-occurrence window"
+definition = "count, for every pair of tokens, how often one appears within a small window of the other, here two tokens either side, and never across the gap between two products' texts"
+section = "describe-by-neighbours"
+context = "natural-language-processing"
+example = "cooccurrence-counts"
+
+[concepts.relations]
+prerequisite-of = ["pointwise-mutual-information"]
+
+[[concepts]]
+id = "pointwise-mutual-information"
+term = "pointwise mutual information"
+aliases = ["PMI"]
+definition = "Pointwise mutual information, or PMI, measures how far the real count departs from chance: the log of the ratio between how often two tokens co-occur and how often they would by chance"
+formula = "PMI(a, b) = log [ P(a, b) / (P(a) · P(b)) ]"
+section = "weigh-by-surprise"
+context = "natural-language-processing"
+example = "ppmi-neighbours"
+
+[[concepts]]
+id = "positive-pmi"
+term = "positive PMI"
+aliases = ["PPMI", "positive pointwise mutual information"]
+definition = "positive PMI, or PPMI, replaces every negative value with zero."
+section = "weigh-by-surprise"
+context = "natural-language-processing"
+example = "ppmi-neighbours"
+
+[concepts.relations]
+computed-from = ["pointwise-mutual-information"]
+
+[[concepts]]
+id = "singular-value-decomposition"
+term = "singular value decomposition"
+aliases = ["SVD"]
+definition = "the singular value decomposition, SVD, which finds the 64 directions that together reconstruct the PPMI rows best, and weights each by how much of the rows it explains"
+section = "compress-into-dense-vectors"
+context = "natural-language-processing"
+example = "svd-neighbours"
+
+[concepts.relations]
+computed-from = ["positive-pmi"]
+
+[[concepts]]
+id = "embedding"
+term = "embedding"
+aliases = ["token embedding", "word embedding"]
+definition = "an embedding, a dense vector that stands for a token"
+section = "compress-into-dense-vectors"
+context = "natural-language-processing"
+example = "svd-neighbours"
+
+[concepts.relations]
+broader = ["artificial-intelligence/vector"]
+
+[[concepts]]
+id = "skip-gram-with-negative-sampling"
+term = "skip-gram with negative sampling"
+aliases = ["skip-gram", "SGNS"]
+definition = "Skip-gram with negative sampling, the method behind word2vec, gives each token two vectors, one for when it's the centre token and one for when it's a neighbour, and trains them on one task: given a token, tell its real neighbours apart from random tokens"
+section = "learn-by-predicting-neighbours"
+context = "natural-language-processing"
+example = "skipgram-step"
+
+[concepts.relations]
+contrasts-with = ["singular-value-decomposition"]
+
+[[concepts]]
+id = "noise-token"
+term = "noise token"
+definition = "For a few random noise tokens drawn from the vocabulary, the model nudges the probability down."
+section = "learn-by-predicting-neighbours"
+context = "natural-language-processing"
+example = "skipgram-step"
+
+[concepts.relations]
+part-of = ["skip-gram-with-negative-sampling"]
+
+[[concepts]]
+id = "logistic-function"
+term = "logistic function"
+aliases = ["sigmoid"]
+definition = "the logistic function, σ(s) = 1 / (1 + e⁻ˢ), which turns a score into a probability"
+formula = "σ(s) = 1 / (1 + e⁻ˢ)"
+section = "learn-by-predicting-neighbours"
+context = "artificial-intelligence"
+example = "skipgram-step"
+
+[[concepts]]
+id = "skip-gram-loss"
+term = "skip-gram loss"
+definition = "The skip-gram loss for one pair is the surprise at the real neighbour plus the surprise at each noise token's not being one"
+formula = "L = −log σ(v·u) − Σₙ log σ(−v·uₙ)"
+section = "learn-by-predicting-neighbours"
+context = "natural-language-processing"
+example = "skipgram-step"
+
+[concepts.relations]
+part-of = ["skip-gram-with-negative-sampling"]
+computed-from = ["artificial-intelligence/logistic-function", "noise-token"]
+
+[[concepts]]
+id = "analogy"
+term = "analogy"
+definition = 'In vectors, the answer to "a is to b as c is to what?" is the token nearest to b − a + c, leaving out the three tokens in the question'
+section = "analogies-and-where-they-fail"
+context = "natural-language-processing"
+example = "analogies"
+
+[[concepts]]
+id = "neural-language-model"
+term = "neural language model"
+definition = "A neural language model reads the previous tokens as vectors, combines them with learned arithmetic, and produces a probability for every token in the vocabulary."
+section = "a-neural-language-model"
+context = "natural-language-processing"
+
+[concepts.relations]
+broader = ["language-model"]
+
+[[concepts]]
+id = "input-window"
+term = "input window"
+definition = "This chapter's model looks at a fixed window of the previous tokens, four here, the same context a 5-gram counts."
+section = "predict-from-a-window"
+context = "natural-language-processing"
+example = "window-model-by-hand"
+
+[concepts.relations]
+part-of = ["neural-language-model"]
+
+[[concepts]]
+id = "embedding-table"
+term = "embedding table"
+definition = "Each token is looked up in an embedding table, a matrix with one row of numbers per token in the vocabulary, as in chapter 4, except that this table is learned for predicting the next token rather than computed from counts."
+section = "predict-from-a-window"
+context = "deep-learning"
+example = "window-model-by-hand"
+
+[concepts.relations]
+part-of = ["natural-language-processing/neural-language-model"]
+
+[[concepts]]
+id = "hidden-layer"
+term = "hidden layer"
+definition = "A hidden layer computes h = tanh(xW + b) from its input x: it multiplies x by a matrix of weights W, adds a vector of biases b, and passes each result through tanh"
+formula = "h = tanh(xW + b)"
+section = "predict-from-a-window"
+context = "deep-learning"
+example = "window-model-by-hand"
+
+[concepts.relations]
+part-of = ["natural-language-processing/neural-language-model"]
+
+[[concepts]]
+id = "tanh"
+term = "tanh"
+definition = "tanh, a function that squashes any number into the range from −1 to 1"
+section = "predict-from-a-window"
+context = "deep-learning"
+example = "window-model-by-hand"
+
+[concepts.relations]
+part-of = ["hidden-layer"]
+
+[[concepts]]
+id = "output-layer"
+term = "output layer"
+definition = "An output layer then computes z = hU + c from the hidden layer's output h"
+formula = "z = hU + c"
+section = "predict-from-a-window"
+context = "deep-learning"
+example = "window-model-by-hand"
+
+[concepts.relations]
+part-of = ["natural-language-processing/neural-language-model"]
+
+[[concepts]]
+id = "logit"
+term = "logits"
+aliases = ["logit"]
+definition = "one score per token in the vocabulary, called the logits"
+section = "predict-from-a-window"
+context = "deep-learning"
+example = "window-model-by-hand"
+
+[concepts.relations]
+prerequisite-of = ["softmax"]
+
+[[concepts]]
+id = "softmax"
+term = "softmax"
+definition = "Softmax exponentiates every logit and divides by the sum, so the results are positive and sum to one, and a higher score means a higher probability"
+formula = "P(token i) = exp(zᵢ) / Σⱼ exp(zⱼ)"
+section = "predict-from-a-window"
+context = "deep-learning"
+example = "window-model-by-hand"
+
+[concepts.relations]
+prerequisite-of = ["attention"]
+
+[[concepts]]
+id = "parameter"
+term = "parameter"
+aliases = ["parameters"]
+definition = "The window model has {{out:window-model-by-hand:parameters}} parameters, the numbers it learns."
+section = "predict-from-a-window"
+context = "deep-learning"
+example = "window-model-by-hand"
+
+[[concepts]]
+id = "loss"
+term = "loss"
+definition = "To measure how badly a model predicts, use the loss: L = −log P(next token), the negative log probability the model gave to the token that actually came next, the same surprise chapter 1 averaged into perplexity."
+formula = "L = −log P(next token)"
+section = "compute-gradients"
+context = "deep-learning"
+
+[concepts.relations]
+prerequisite-of = ["gradient"]
+
+[[concepts]]
+id = "gradient"
+term = "gradient"
+definition = "To lower the loss, each weight needs a gradient: how much the loss would change if that weight changed a little, written ∂L/∂w."
+section = "compute-gradients"
+context = "deep-learning"
+example = "gradients-by-hand"
+
+[concepts.relations]
+prerequisite-of = ["backpropagation", "gradient-descent"]
+
+[[concepts]]
+id = "backpropagation"
+term = "backpropagation"
+definition = "Backpropagation computes all the gradients at once, by applying the chain rule of calculus backwards through the forward pass"
+section = "compute-gradients"
+context = "deep-learning"
+example = "gradients-by-hand"
+
+[[concepts]]
+id = "gradient-descent"
+term = "gradient descent"
+definition = "Gradient descent moves every weight a small step against its gradient"
+formula = "w ← w − η · ∂L/∂w"
+section = "take-gradient-descent-steps"
+context = "deep-learning"
+example = "gradient-descent-by-hand"
+
+[[concepts]]
+id = "step-size"
+term = "step size"
+aliases = ["learning rate"]
+definition = "η, the step size, also called the learning rate, sets how far each step goes"
+section = "take-gradient-descent-steps"
+context = "deep-learning"
+example = "gradient-descent-by-hand"
+
+[concepts.relations]
+part-of = ["gradient-descent"]
+
+[[concepts]]
+id = "batch"
+term = "batch"
+definition = "Each step of real training is computed on a batch of examples, a few hundred at a time, instead of all of them, so each step is cheap and the steps vary a little."
+section = "take-gradient-descent-steps"
+context = "deep-learning"
+
+[concepts.relations]
+part-of = ["gradient-descent"]
+
+[[concepts]]
+id = "adam"
+term = "Adam"
+definition = "The training script's optimizer is Adam, a refinement of gradient descent (Kingma and Ba, 2015)."
+section = "train-with-pytorch"
+context = "deep-learning"
+
+[concepts.relations]
+broader = ["gradient-descent"]
+
+[[concepts]]
+id = "overfitting"
+term = "overfitting"
+definition = "A validation perplexity that turns up while training perplexity keeps falling is overfitting"
+section = "stop-at-the-best-epoch"
+context = "artificial-intelligence"
+example = "training-curve"
+
+[[concepts]]
+id = "early-stopping"
+term = "early stopping"
+definition = "the simplest defence is early stopping: measure validation loss after every epoch, one full pass over the training text, and keep the weights from the best epoch."
+section = "stop-at-the-best-epoch"
+context = "deep-learning"
+example = "training-curve"
+
+[[concepts]]
+id = "epoch"
+term = "epoch"
+definition = "epoch, one full pass over the training text"
+section = "stop-at-the-best-epoch"
+context = "deep-learning"
+example = "training-curve"
+
+[concepts.relations]
+prerequisite-of = ["early-stopping"]
+
+[[concepts]]
+id = "regularization"
+term = "regularization"
+definition = "regularization, which is anything in training that discourages memorizing"
+section = "stop-at-the-best-epoch"
+context = "artificial-intelligence"
+
+[[concepts]]
+id = "attention"
+term = "attention"
+definition = "Attention lets every position look at every earlier one, and decide from their contents how much each matters."
+section = "attention"
+context = "deep-learning"
+
+[concepts.relations]
+contrasts-with = ["natural-language-processing/input-window"]
+
+[[concepts]]
+id = "query"
+term = "query"
+definition = "a query, a vector for what this position is looking for"
+section = "look-back-with-a-weighted-average"
+context = "deep-learning"
+example = "attention-by-hand"
+
+[concepts.relations]
+part-of = ["attention"]
+
+[[concepts]]
+id = "key"
+term = "key"
+definition = "a key, a vector for what this position offers to the positions that look at it"
+section = "look-back-with-a-weighted-average"
+context = "deep-learning"
+example = "attention-by-hand"
+
+[concepts.relations]
+part-of = ["attention"]
+
+[[concepts]]
+id = "value"
+term = "value"
+definition = "a value, a vector for what this position passes on when it's looked at"
+section = "look-back-with-a-weighted-average"
+context = "deep-learning"
+example = "attention-by-hand"
+
+[concepts.relations]
+part-of = ["attention"]
+
+[[concepts]]
+id = "attention-score"
+term = "attention score"
+definition = "The score of position j for position i is the dot product of i's query with j's key, divided by the square root of d, the size of each query and key, meaning how many numbers it holds."
+section = "look-back-with-a-weighted-average"
+context = "deep-learning"
+example = "attention-by-hand"
+
+[concepts.relations]
+computed-from = ["query", "key"]
+part-of = ["attention"]
+
+[[concepts]]
+id = "causal-mask"
+term = "causal mask"
+definition = "the causal mask: before softmax, set every score for a later position to minus infinity."
+section = "hide-the-future"
+context = "deep-learning"
+example = "causal-mask"
+
+[concepts.relations]
+part-of = ["attention"]
+
+[[concepts]]
+id = "multi-head-attention"
+term = "multi-head attention"
+definition = "Multi-head attention runs several attention computations, called heads, side by side, each with its own query, key and value matrices, and each in a share of the vector's numbers"
+section = "several-heads"
+context = "deep-learning"
+example = "attention-heads"
+
+[concepts.relations]
+broader = ["attention"]
+
+[[concepts]]
+id = "head"
+term = "head"
+aliases = ["heads", "attention head"]
+definition = "several attention computations, called heads, side by side, each with its own query, key and value matrices"
+section = "several-heads"
+context = "deep-learning"
+example = "attention-heads"
+
+[concepts.relations]
+part-of = ["multi-head-attention"]
+
+[[concepts]]
+id = "output-projection"
+term = "output projection"
+definition = "The heads' outputs are joined side by side and mixed back together by one more learned matrix, the output projection"
+section = "several-heads"
+context = "deep-learning"
+example = "attention-heads"
+
+[concepts.relations]
+part-of = ["multi-head-attention"]
+
+[[concepts]]
+id = "induction-head"
+term = "induction head"
+aliases = ["induction heads"]
+definition = "an induction head: a head in an earlier layer copies each token's predecessor into its position, and the induction head uses that to find earlier positions that followed the current token, and attends to them"
+section = "read-trained-heads"
+context = "large-language-models"
+example = "trained-attention"
+
+[concepts.relations]
+broader = ["deep-learning/head"]
+
+[[concepts]]
+id = "even-spread"
+term = "even spread"
+definition = "an even spread, which puts 1 / (i + 1) on each of the i + 1 tokens position i can see"
+formula = "1 / (i + 1)"
+section = "attend-to-the-previous-token"
+context = "deep-learning"
+example = "previous-token-heads"
+
+[[concepts]]
+id = "attention-sink"
+term = "attention sink"
+aliases = ["attention sinks"]
+definition = "Xiao and colleagues found that language models put large weights on the first tokens of a text whatever they are, calling them attention sinks (Xiao et al., 2024)."
+section = "reach-past-the-window"
+context = "large-language-models"
+example = "attention-reaches-back"
+
+[[concepts]]
+id = "transformer-block"
+term = "transformer block"
+definition = "The transformer block adds parts around attention that transform each position, give it word order and keep a deep stack from degrading"
+section = "the-transformer-block"
+context = "large-language-models"
+
+
+[[concepts]]
+id = "residual-connection"
+term = "residual connection"
+definition = "Adding a part's output to its input, instead of replacing the input, is a residual connection."
+formula = "x ← x + attention(x), then x ← x + feed-forward(x)"
+section = "add-to-the-residual-stream"
+context = "deep-learning"
+example = "residual-stream"
+
+[concepts.relations]
+part-of = ["transformer-block"]
+prerequisite-of = ["residual-stream"]
+
+[[concepts]]
+id = "residual-stream"
+term = "residual stream"
+definition = "Elhage and colleagues call this running sum, each position's vector with every part's output added to it, the residual stream"
+section = "add-to-the-residual-stream"
+context = "deep-learning"
+example = "residual-stream"
+
+[[concepts]]
+id = "vector-length"
+term = "vector length"
+definition = "A vector's length here is the square root of the sum of its squared numbers"
+section = "add-to-the-residual-stream"
+context = "artificial-intelligence"
+example = "residual-stream"
+
+[[concepts]]
+id = "normalization"
+term = "normalization"
+definition = "Normalization rescales a vector to a standard size before a part reads it, so the part's weights work the same whether the stream is short or long."
+section = "normalize-before-each-part"
+context = "deep-learning"
+example = "rms-norm-by-hand"
+
+[concepts.relations]
+part-of = ["transformer-block"]
+narrower = ["layer-normalization", "rmsnorm"]
+
+[[concepts]]
+id = "layer-normalization"
+term = "layer normalization"
+definition = "layer normalization, which subtracts each vector's mean and divides by its standard deviation"
+section = "normalize-before-each-part"
+context = "deep-learning"
+
+[[concepts]]
+id = "rmsnorm"
+term = "RMSNorm"
+definition = "RMSNorm drops the mean: it divides each vector by its root mean square, the square root of the average of its squared numbers, and multiplies each dimension by a learned gain"
+formula = "RMSNorm(x) = x / √(mean(x²) + ε) · g"
+section = "normalize-before-each-part"
+context = "deep-learning"
+example = "rms-norm-by-hand"
+
+[concepts.relations]
+computed-from = ["root-mean-square"]
+contrasts-with = ["layer-normalization"]
+
+[[concepts]]
+id = "root-mean-square"
+term = "root mean square"
+definition = "root mean square, the square root of the average of its squared numbers"
+section = "normalize-before-each-part"
+context = "artificial-intelligence"
+example = "rms-norm-by-hand"
+
+[[concepts]]
+id = "feed-forward-layer"
+term = "feed-forward layer"
+definition = "Attention moves information between positions; the feed-forward layer transforms it, at each position separately."
+section = "transform-each-position"
+context = "deep-learning"
+example = "gated-feed-forward"
+
+[concepts.relations]
+part-of = ["transformer-block"]
+contrasts-with = ["attention"]
+
+[[concepts]]
+id = "gated-feed-forward-layer"
+term = "gated feed-forward layer"
+aliases = ["SwiGLU"]
+definition = "A gated feed-forward layer computes two widened vectors from the input, passes one through a function called SiLU, and multiplies the two number by number, so the first decides how much of the second gets through"
+formula = "FFN(x) = (SiLU(x W_gate) ⊙ (x W_up)) W_down"
+section = "transform-each-position"
+context = "deep-learning"
+example = "gated-feed-forward"
+
+[concepts.relations]
+broader = ["feed-forward-layer"]
+
+[[concepts]]
+id = "silu"
+term = "SiLU"
+definition = "SiLU passes large positive numbers almost unchanged and turns large negative ones to nearly zero, smoothly."
+formula = "SiLU(z) = z · σ(z)"
+section = "transform-each-position"
+context = "deep-learning"
+example = "gated-feed-forward"
+
+[concepts.relations]
+prerequisite-of = ["gated-feed-forward-layer"]
+
+[[concepts]]
+id = "rotary-position-embedding"
+term = "rotary position embeddings"
+aliases = ["RoPE"]
+definition = "Before scoring, RoPE rotates each query and key by angles that grow with its position."
+formula = "(a, b) → (a cos pθᵢ − b sin pθᵢ, a sin pθᵢ + b cos pθᵢ)"
+section = "rotary-positions"
+context = "large-language-models"
+example = "rope-by-hand"
+
+[concepts.relations]
+part-of = ["transformer-block"]
+
+[[concepts]]
+id = "weight-tying"
+term = "weight tying"
+aliases = ["tied embeddings"]
+definition = "weight tying: the output layer reuses the embedding table, turned on its side, instead of learning a matrix of its own."
+section = "tie-the-output"
+context = "deep-learning"
+
+[concepts.relations]
+computed-from = ["embedding-table"]
+
+[[concepts]]
+id = "ablation"
+term = "ablation"
+definition = "Leaving a part out allows a simple experiment, called an ablation: remove one part, and measure what the model loses."
+section = "leave-out-a-block"
+context = "artificial-intelligence"
+example = "skip-a-block"
+
+[[concepts]]
+id = "padding"
+term = "padding"
+aliases = ["padding token"]
+definition = "padding, which fills out short texts in a training batch"
+section = "count-the-parameters"
+context = "natural-language-processing"
+
+[[concepts]]
+id = "input"
+term = "inputs"
+definition = "The inputs are a text's tokens without the last"
+section = "turn-products-into-batches"
+context = "natural-language-processing"
+example = "training-batches"
+
+[concepts.relations]
+contrasts-with = ["target"]
+
+[[concepts]]
+id = "target"
+term = "targets"
+definition = "the targets are the text's tokens without the first, so position i is trained to predict token i + 1"
+section = "turn-products-into-batches"
+context = "natural-language-processing"
+example = "training-batches"
+
+[[concepts]]
+id = "packing"
+term = "packing"
+definition = "packing, several texts end to end in each row, with the attention kept from crossing between them"
+section = "turn-products-into-batches"
+context = "deep-learning"
+
+[concepts.relations]
+contrasts-with = ["padding"]
+
+[[concepts]]
+id = "adamw"
+term = "AdamW"
+definition = "AdamW, the Adam of chapter 5 with weight decay applied apart from the gradient"
+section = "update-with-adamw"
+context = "deep-learning"
+
+[concepts.relations]
+broader = ["adam"]
+
+[[concepts]]
+id = "weight-decay"
+term = "weight decay"
+definition = "Weight decay reduces each weight at every step by its value times the step size times a decay factor"
+section = "update-with-adamw"
+context = "deep-learning"
+example = "learning-rate-schedule"
+
+[concepts.relations]
+broader = ["regularization"]
+prerequisite-of = ["adamw"]
+
+[[concepts]]
+id = "gradient-clipping"
+term = "gradient clipping"
+aliases = ["clipping"]
+definition = "The training script also clips the gradients: when their combined length, measured as if every gradient were one long vector, exceeds 1.0, it scales them all down to that length"
+section = "update-with-adamw"
+context = "deep-learning"
+
+[[concepts]]
+id = "schedule"
+term = "schedule"
+aliases = ["learning-rate schedule"]
+definition = "changes the step size after every batch, following a schedule, which sets the step size for each step of the run"
+section = "warm-up-then-decay"
+context = "deep-learning"
+example = "learning-rate-schedule"
+
+[[concepts]]
+id = "warm-up"
+term = "warm-up"
+definition = "For the first {{out:learning-rate-schedule:warm-up steps}} steps, the step size rises in a straight line from nearly zero to its peak, {{out:learning-rate-schedule:peak step size}}: a warm-up"
+section = "warm-up-then-decay"
+context = "deep-learning"
+example = "learning-rate-schedule"
+
+[concepts.relations]
+part-of = ["schedule"]
+
+[[concepts]]
+id = "cosine-decay"
+term = "cosine decay"
+definition = "After the warm-up, the step size falls along half a cosine curve, to a tenth of the peak by the last step"
+formula = "rate = peak × (0.1 + 0.9 × ½ (1 + cos(π × progress)))"
+section = "warm-up-then-decay"
+context = "deep-learning"
+example = "learning-rate-schedule"
+
+[concepts.relations]
+part-of = ["schedule"]
+
+[[concepts]]
+id = "decoding"
+term = "decoding"
+definition = "Turning a model's probabilities into text, one chosen token at a time, is called decoding"
+section = "choosing-the-next-token"
+context = "large-language-models"
+
+[concepts.relations]
+narrower = ["greedy-decoding", "beam-search", "sampling"]
+
+[[concepts]]
+id = "greedy-decoding"
+term = "greedy decoding"
+aliases = ["greedy"]
+definition = "The simplest decoder is greedy: at every step, take the single likeliest token."
+section = "choose-the-likeliest-token"
+context = "large-language-models"
+example = "greedy-description"
+
+[concepts.relations]
+contrasts-with = ["sampling"]
+
+[[concepts]]
+id = "beam-search"
+term = "beam search"
+definition = "Beam search looks further, keeping the k likeliest partial texts, the beam, scored by their total log-probability"
+section = "search-for-the-likeliest-text"
+context = "large-language-models"
+example = "beam-search"
+
+[concepts.relations]
+contrasts-with = ["greedy-decoding"]
+
+[[concepts]]
+id = "total-log-probability"
+term = "total log-probability"
+definition = "total log-probability, the sum of the logarithms of a text's token probabilities, where higher means likelier"
+section = "search-for-the-likeliest-text"
+context = "large-language-models"
+example = "beam-search"
+
+[concepts.relations]
+prerequisite-of = ["beam-search"]
+
+[[concepts]]
+id = "sampling"
+term = "sampling"
+definition = "Sampling, which chapter 1 used to generate names, uses all of the distribution: draw the next token at random, in proportion to its probability, so a token with probability 0.2 is chosen one time in five."
+section = "sample-with-a-temperature"
+context = "large-language-models"
+
+[concepts.relations]
+narrower = ["top-k", "top-p"]
+
+[[concepts]]
+id = "temperature"
+term = "temperature"
+definition = "Before sampling, the distribution can be made sharper or flatter with a temperature, T: divide every logit by T before the softmax."
+formula = "P(token i) = exp(zᵢ / T) / Σⱼ exp(zⱼ / T)"
+section = "sample-with-a-temperature"
+context = "large-language-models"
+example = "temperature-by-hand"
+
+[[concepts]]
+id = "top-k"
+term = "top-k"
+aliases = ["top-k sampling"]
+definition = "Top-k keeps only the k likeliest tokens and renormalizes their probabilities to sum to one"
+section = "sample-and-cut-the-tail"
+context = "large-language-models"
+example = "sample-descriptions"
+
+[[concepts]]
+id = "top-p"
+term = "top-p"
+aliases = ["nucleus sampling", "top-p sampling"]
+definition = "Top-p, also called nucleus sampling, keeps the smallest set of likeliest tokens whose probabilities reach at least p"
+section = "sample-and-cut-the-tail"
+context = "large-language-models"
+example = "sample-descriptions"
+
+[concepts.relations]
+contrasts-with = ["top-k"]
+
+[[concepts]]
+id = "repetition"
+term = "repetition"
+definition = "repetition: the share of four-token phrases that repeat an earlier one in the same description"
+section = "measure-each-setting"
+context = "large-language-models"
+example = "measure-decoding"
+
+[[concepts]]
+id = "repetition-penalty"
+term = "repetition penalty"
+definition = "Keskar and colleagues proposed a repetition penalty: divide the logit of every token already generated by a factor θ above 1, so it becomes less likely"
+section = "penalize-repetition"
+context = "large-language-models"
+example = "repetition-penalty-by-hand"
+
+[[concepts]]
+id = "minimum-length"
+term = "minimum length"
+definition = "a minimum length: forbid the end marker, by setting its logit to minus infinity, until the description has some number of tokens"
+section = "forbid-an-empty-description"
+context = "large-language-models"
+example = "minimum-length"
+
+[[concepts]]
+id = "smollm2-360m"
+term = "SmolLM2-360M"
+definition = "SmolLM2-360M, an open model released by Hugging Face under the Apache 2.0 licence"
+section = "inside-an-open-model"
+context = "large-language-models"
+
+[[concepts]]
+id = "base-model"
+term = "base model"
+definition = "the base model, the one trained only to predict the next token"
+section = "inside-an-open-model"
+context = "large-language-models"
+
+[[concepts]]
+id = "pinned-revision"
+term = "pinned revision"
+aliases = ["revision"]
+definition = "a pinned revision, a fixed version of its repository"
+section = "inside-an-open-model"
+context = "large-language-models"
+
+[[concepts]]
+id = "grouped-query-attention"
+term = "grouped-query attention"
+aliases = ["GQA"]
+definition = "grouped-query attention, which shares each key and value head among several query heads"
+section = "parameters-at-scale"
+context = "large-language-models"
+example = "open-model-parameters"
+
+[concepts.relations]
+broader = ["deep-learning/multi-head-attention"]
+
+[[concepts]]
+id = "key-and-value-cache"
+term = "key and value cache"
+aliases = ["KV cache"]
+definition = "The key and value cache, every layer's keys and values for the earlier tokens, grows with the length of the text"
+formula = "cache per token, in bytes = layers × 2 × key and value heads × head size × 2"
+section = "cost-to-run"
+context = "large-language-models"
+example = "open-model-memory"
+
+[[concepts]]
+id = "perplexity-per-word"
+term = "perplexity per word"
+aliases = ["per-word perplexity"]
+definition = "A perplexity per word divides a model's total log-probability of a text by the number of words in it, instead of by its number of tokens."
+formula = "perplexity per word = exp(−(log p₁ + … + log pₙ) / W)"
+section = "score-the-store-text"
+context = "natural-language-processing"
+example = "open-model-on-the-store"
+
+[concepts.relations]
+broader = ["perplexity"]
+computed-from = ["large-language-models/total-log-probability"]
+
+[[concepts]]
+id = "instruction-tuning"
+term = "instruction tuning"
+aliases = ["supervised fine-tuning", "instruction-tuned"]
+definition = "Instruction tuning, or supervised fine-tuning, continues training a model on examples of requests paired with good responses, so that predicting the next token of such a pair means answering the request."
+section = "from-predicting-to-following"
+context = "large-language-models"
+
+[concepts.relations]
+prerequisite-of = ["preference-tuning", "reference-model"]
+
+[[concepts]]
+id = "preference-tuning"
+term = "preference tuning"
+definition = "Preference tuning then trains a model to prefer the better of two responses to the same request."
+section = "from-predicting-to-following"
+context = "large-language-models"
+
+[[concepts]]
+id = "direct-preference-optimization"
+term = "Direct Preference Optimization"
+aliases = ["DPO"]
+definition = "Direct Preference Optimization, DPO, does preference tuning without a reward model, with a simple loss on the preference pairs themselves"
+section = "from-predicting-to-following"
+context = "large-language-models"
+
+[concepts.relations]
+broader = ["preference-tuning"]
+
+[[concepts]]
+id = "smollm2-360m-instruct"
+term = "SmolLM2-360M-Instruct"
+definition = "SmolLM2-360M-Instruct is the base model of chapter 10 after both steps: supervised fine-tuning on public and curated datasets, then DPO on UltraFeedback"
+section = "from-predicting-to-following"
+context = "large-language-models"
+
+[[concepts]]
+id = "dpo-loss"
+term = "DPO loss"
+aliases = ["DPO's loss"]
+definition = "DPO's loss works on a pair of responses to one request, one preferred and one rejected."
+formula = "loss = −log σ(margin)"
+section = "build-the-losses"
+context = "large-language-models"
+example = "dpo-loss-by-hand"
+
+[concepts.relations]
+part-of = ["direct-preference-optimization"]
+computed-from = ["reference-model"]
+
+[[concepts]]
+id = "reference-model"
+term = "reference model"
+definition = "DPO compares how much more likely the model being tuned makes each response than the reference model it started from, the model after instruction tuning, and rewards it for raising the preferred one more."
+section = "build-the-losses"
+context = "large-language-models"
+example = "dpo-loss-by-hand"
+
+[[concepts]]
+id = "chat-template"
+term = "chat template"
+definition = "A tuned model's chat template is the layout it learned: special tokens that mark where a system message, instructions placed before the user's request, the request itself and the model's reply begin and end."
+section = "format-the-request"
+context = "large-language-models"
+example = "chat-template"
+
+[[concepts]]
+id = "system-message"
+term = "system message"
+definition = "a system message, instructions placed before the user's request"
+section = "format-the-request"
+context = "large-language-models"
+example = "chat-template"
+
+[concepts.relations]
+part-of = ["chat-template"]
+
+[[concepts]]
+id = "supported-answer"
+term = "supported answer"
+definition = "An answer is supported if every material it names is in the product's name or description"
+section = "measure-made-up-details"
+context = "large-language-models"
+example = "made-up-materials"
+
+[concepts.relations]
+contrasts-with = ["made-up-answer"]
+
+[[concepts]]
+id = "made-up-answer"
+term = "made-up answer"
+definition = "An answer is made up if it names a material that the product's name and description don't contain."
+section = "measure-made-up-details"
+context = "large-language-models"
+example = "made-up-materials"
+
+[concepts.relations]
+broader = ["hallucination"]
+
+[[concepts]]
+id = "declined-answer"
+term = "declined answer"
+definition = "An answer is declined if it says the product's data doesn't say"
+section = "measure-made-up-details"
+context = "large-language-models"
+example = "made-up-materials"
+
+[[concepts]]
+id = "hallucination"
+term = "hallucination"
+definition = "Making up a detail the input doesn't support is one kind of what's called hallucination"
+section = "measure-made-up-details"
+context = "large-language-models"
+example = "made-up-materials"
+
+[[concepts]]
+id = "calibrated"
+term = "calibrated"
+aliases = ["calibration"]
+definition = "A model whose confidence matches how often it's right is calibrated"
+section = "check-confidence"
+context = "artificial-intelligence"
+example = "answer-confidence"
+
+[[concepts]]
+id = "confidence-per-token"
+term = "confidence per token"
+definition = "a confidence per token can be computed for each answer, as a geometric mean"
+formula = "confidence per token = exp((log p₁ + … + log pₙ) / n)"
+section = "check-confidence"
+context = "large-language-models"
+example = "answer-confidence"
+
+[[concepts]]
+id = "fine-tuning"
+term = "fine-tuning"
+definition = "The way to teach a general model the store's text is fine-tuning: continue training it on that text, the same training loop as chapter 8, starting from the general model's weights instead of random ones."
+section = "adapt-a-model"
+context = "large-language-models"
+
+[concepts.relations]
+contrasts-with = ["instruction-tuning"]
+
+[[concepts]]
+id = "full-fine-tuning"
+term = "full fine-tuning"
+definition = "Full fine-tuning updates every weight, which for a model of hundreds of millions of parameters takes time and memory."
+section = "adapt-a-model"
+context = "large-language-models"
+example = "lora-parameters"
+
+[concepts.relations]
+broader = ["fine-tuning"]
+
+[[concepts]]
+id = "lora"
+term = "LoRA"
+aliases = ["low-rank adaptation"]
+definition = "LoRA, low-rank adaptation, freezes the model's weights and trains a small correction beside some of them."
+formula = "W + BA"
+section = "adapt-a-model"
+context = "large-language-models"
+example = "lora-parameters"
+
+[concepts.relations]
+broader = ["fine-tuning"]
+contrasts-with = ["full-fine-tuning"]
+
