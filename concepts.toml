@@ -25,6 +25,10 @@ section = "load-the-store-text"
 context = "artificial-intelligence"
 example = "store-text"
 
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/model-evaluation/dev-split"]
+close-to = ["https://rollingedition.com/concepts/llm-evaluation/dev"]
+
 [[concepts]]
 id = "test-split"
 term = "test split"
@@ -33,12 +37,19 @@ section = "load-the-store-text"
 context = "artificial-intelligence"
 example = "store-text"
 
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/llm-evaluation/held-out"]
+close-to = ["https://rollingedition.com/concepts/model-evaluation/test-split"]
+
 [[concepts]]
 id = "shared-module"
 term = "shared module"
 definition = "the book's shared modules: short files in `examples/lib/` that hold setup code many examples need, which you can open and read"
 section = "load-the-store-text"
 context = "artificial-intelligence"
+
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/data-engineering/shared-module"]
 
 [[concepts]]
 id = "bigram"
@@ -147,6 +158,7 @@ context = "natural-language-processing"
 
 [concepts.relations]
 prerequisite-of = ["vocabulary"]
+same-as = ["https://rollingedition.com/concepts/large-language-models/token", "https://rollingedition.com/concepts/semantic-search/token"]
 
 [[concepts]]
 id = "vocabulary"
@@ -197,6 +209,7 @@ example = "store-tokenizer"
 
 [concepts.relations]
 implemented-by = [{ to = "tokenizers", versions = ">=0.20" }]
+close-to = ["https://rollingedition.com/concepts/large-language-models/tokenizer"]
 
 [[concepts]]
 id = "token-type"
@@ -312,6 +325,9 @@ definition = "a baseline, a fixed yardstick: one model, one text, one tokenizer 
 section = "the-baseline"
 context = "artificial-intelligence"
 
+[concepts.relations]
+close-to = ["https://rollingedition.com/concepts/llm-evaluation/baseline", "https://rollingedition.com/concepts/search-and-recommendation/baseline", "https://rollingedition.com/concepts/model-evaluation/baseline"]
+
 [[concepts]]
 id = "vector"
 term = "vector"
@@ -338,6 +354,9 @@ definition = "To measure how alike two vectors are, this book uses cosine simila
 section = "one-hot-vectors-know-nothing"
 context = "artificial-intelligence"
 example = "one-hot-vectors"
+
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/search-and-recommendation/cosine-similarity"]
 
 [[concepts]]
 id = "co-occurrence-window"
@@ -540,6 +559,7 @@ example = "window-model-by-hand"
 
 [concepts.relations]
 prerequisite-of = ["attention"]
+same-as = ["https://rollingedition.com/concepts/large-language-models/softmax"]
 
 [[concepts]]
 id = "parameter"
@@ -549,6 +569,9 @@ definition = "The window model has {{out:window-model-by-hand:parameters}} param
 section = "predict-from-a-window"
 context = "deep-learning"
 example = "window-model-by-hand"
+
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/large-language-models/parameter"]
 
 [[concepts]]
 id = "loss"
@@ -636,6 +659,9 @@ definition = "the simplest defence is early stopping: measure validation loss af
 section = "stop-at-the-best-epoch"
 context = "deep-learning"
 example = "training-curve"
+
+[concepts.relations]
+close-to = ["https://rollingedition.com/concepts/search-and-recommendation/early-stopping"]
 
 [[concepts]]
 id = "epoch"
@@ -931,6 +957,9 @@ section = "leave-out-a-block"
 context = "artificial-intelligence"
 example = "skip-a-block"
 
+[concepts.relations]
+close-to = ["https://rollingedition.com/concepts/llm-evaluation/ablation"]
+
 [[concepts]]
 id = "padding"
 term = "padding"
@@ -957,6 +986,9 @@ definition = "the targets are the text's tokens without the first, so position i
 section = "turn-products-into-batches"
 context = "natural-language-processing"
 example = "training-batches"
+
+[concepts.relations]
+close-to = ["https://rollingedition.com/concepts/feature-engineering/target"]
 
 [[concepts]]
 id = "packing"
@@ -1048,9 +1080,11 @@ definition = "The simplest decoder is greedy: at every step, take the single lik
 section = "choose-the-likeliest-token"
 context = "large-language-models"
 example = "greedy-description"
+agrees = [{ book = "small-open-models", definition = "greedy decoding, which takes the most likely token at each step" }]
 
 [concepts.relations]
 contrasts-with = ["sampling"]
+same-as = ["https://rollingedition.com/concepts/data-engineering/greedy-decoding"]
 
 [[concepts]]
 id = "beam-search"
@@ -1070,6 +1104,7 @@ definition = "total log-probability, the sum of the logarithms of a text's token
 section = "search-for-the-likeliest-text"
 context = "large-language-models"
 example = "beam-search"
+agrees = [{ book = "small-open-models", definition = "the log-probability of the answer, which is the sum of the answer's token log-probabilities" }]
 
 [concepts.relations]
 prerequisite-of = ["beam-search"]
@@ -1151,6 +1186,7 @@ term = "base model"
 definition = "the base model, the one trained only to predict the next token"
 section = "inside-an-open-model"
 context = "large-language-models"
+agrees = [{ book = "small-open-models", definition = "A base model is a model already pretrained on a large amount of text, which you adapt to one job." }]
 
 [[concepts]]
 id = "pinned-revision"
@@ -1159,6 +1195,9 @@ aliases = ["revision"]
 definition = "a pinned revision, a fixed version of its repository"
 section = "inside-an-open-model"
 context = "large-language-models"
+
+[concepts.relations]
+same-as = ["https://rollingedition.com/concepts/artificial-intelligence/pinned-revision"]
 
 [[concepts]]
 id = "grouped-query-attention"
@@ -1272,6 +1311,7 @@ example = "chat-template"
 
 [concepts.relations]
 part-of = ["chat-template"]
+close-to = ["https://rollingedition.com/concepts/llm-evaluation/system-text"]
 
 [[concepts]]
 id = "supported-answer"
@@ -1349,6 +1389,7 @@ example = "lora-parameters"
 
 [concepts.relations]
 broader = ["fine-tuning"]
+same-as = ["https://rollingedition.com/concepts/fine-tuning/full-fine-tuning"]
 
 [[concepts]]
 id = "lora"
@@ -1363,4 +1404,4 @@ example = "lora-parameters"
 [concepts.relations]
 broader = ["fine-tuning"]
 contrasts-with = ["full-fine-tuning"]
-
+same-as = ["https://rollingedition.com/concepts/fine-tuning/lora"]
