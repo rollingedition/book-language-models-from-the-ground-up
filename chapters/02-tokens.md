@@ -81,7 +81,7 @@ A model still has to learn what a new product line is, but it can at least predi
 
 [The previous section](#train-the-store-tokenizer) used 4,000 merges; this one shows why. The number of merges sets the vocabulary size, and it's the one real choice in a BPE tokenizer. More merges make sequences shorter, which saves computation. But each new token covers rarer text, and a token the training text shows only a few times gives a model too little to learn from: the same problem as rare words, in a new place.
 
-Learning 16,000 merges once and reading the first 0, 1,000, 2,000, 4,000, 8,000 and 16,000 of them gives six tokenizers. The first k merges of a longer run are exactly the merges a k-merge run would learn. Each one gets three measures: the different tokens the training text uses, the tokens each validation word becomes, and the share of the different tokens the training text uses, its **token types**, that it shows fewer than 20 times. Before reading the table, decide what each end should show:
+Learning 16,000 merges once and reading the first 0, 1,000, 2,000, 4,000, 8,000 and 16,000 of them gives six tokenizers. The first k merges of a longer run are exactly the merges a k-merge run would learn. Each one gets three measures: the different tokens the training text uses, the tokens each validation word becomes, and the share of those different tokens that the training text shows fewer than 20 times. The different tokens a text uses are its **token types**. Before reading the table, decide what each end should show:
 
 [Example: vocabulary-size](../examples/vocabulary-size.py)
 

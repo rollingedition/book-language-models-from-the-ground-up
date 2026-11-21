@@ -14,9 +14,9 @@ By the end of this chapter you can compute attention by hand: score how well eac
 
 Attention replaces [chapter 5](#a-neural-language-model)'s fixed slots with a weighted average. At each position, the model computes a new vector as an average of vectors from the positions it can see, with weights it chooses from their content: high for the positions that matter here, low for the rest. The weights come from three vectors that each token's embedding is turned into, by three learned matrices:
 
-- a **query**, what this position is looking for,
-- a **key**, what this position offers to the positions that look at it,
-- a **value**, what this position passes on when it's looked at.
+- a **query**, a vector for what this position is looking for,
+- a **key**, a vector for what this position offers to the positions that look at it,
+- a **value**, a vector for what this position passes on when it's looked at.
 
 The score of position j for position i is the dot product of i's query with j's key, divided by the square root of d, the size of each query and key, meaning how many numbers it holds. Softmax turns each row of scores into weights that are positive and sum to one, and the output at position i is the weighted sum of the values. In matrix form, for all positions at once:
 
@@ -54,7 +54,7 @@ The last two lines show the leak the mask closes. Without the mask, changing the
 
 Attention's formula divides every score by √d, and the reason is in the dot product. A dot product of two vectors adds up one product per number. If the numbers in queries and keys are independent and random, with mean 0 and variance 1, a score has variance d, so queries and keys of a larger size give larger scores ([Vaswani et al., 2017](https://arxiv.org/abs/1706.03762), section 3.2.1, footnote 4). Softmax turns large differences between scores into extreme weights: one position gets nearly all the weight, and the rest nearly none. Vaswani and colleagues suspected that a model in that state learns slowly, because softmax's gradients are tiny when one weight is close to 1. Dividing by √d brings the scores back to variance 1, whatever the size.
 
-The store's model makes this concrete: its heads work with queries and keys of 32 numbers. Draw random queries and keys of three sizes, 4, 32 and 256, score each query against 16 keys with and without the division, and report the largest weight in each row, averaged over 1,000 queries. Guess first: with 256 numbers and no division, how large is a row's biggest weight on average?
+The store's model makes this concrete: its [heads](#several-heads) work with queries and keys of 32 numbers. Draw random queries and keys of three sizes, 4, 32 and 256, score each query against 16 keys with and without the division, and report the largest weight in each row, averaged over 1,000 queries. Guess first: with 256 numbers and no division, how large is a row's biggest weight on average?
 
 [Example: scaling-matters](../examples/scaling-matters.py)
 
@@ -144,7 +144,7 @@ Attention is the part of a language model whose cost grows fastest with text len
 - **A wrong mask fails silently.** A model that can see the future can reach a low training loss and still be useless for generating text. Test that the weight on later positions is zero, and that changing a later token leaves earlier outputs alone, in the training code and the generation code.
 - **Attention weights aren't explanations.** A high weight says where a head drew its average from, not why the model predicted what it did. In the same model, very different attention weights can give the same prediction ([Jain and Wallace, 2019](https://aclanthology.org/N19-1357/), on recurrent and convolutional classifiers). Use weights to form hypotheses, and test them by changing the input, as this chapter did with the product's name.
 - **Marker weight looks like importance.** Heavy weight on the first token or a separator may mean a head has nothing to do there. Don't remove those tokens, and don't read their weight as meaning.
-- **Softmax overflows without care.** Subtract each row's largest score before exponentiating, as `lib.transformer.softmax` does. Make sure every row keeps at least one unmasked position, or the row becomes NaN: a causal mask always leaves each position itself, but a mask that hides padding can hide a whole row.
+- **Softmax overflows without care.** Subtract each row's largest score before exponentiating, as `lib.transformer.softmax` does. Make sure every row keeps at least one unmasked position, or the row becomes NaN: a causal mask always leaves each position itself, but a mask that hides [padding](#count-the-parameters) can hide a whole row.
 
 ## What this chapter decided {#attention-decisions}
 

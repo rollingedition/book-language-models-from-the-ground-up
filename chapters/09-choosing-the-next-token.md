@@ -6,7 +6,7 @@ chapter_id: choosing-the-next-token
 
 By the end of this chapter you can turn a language model's probabilities into text, and choose how: always the likeliest token, the likeliest whole text by beam search, or a sample shaped by a temperature, a top-k or top-p cut, a repetition penalty and a minimum length. You'll measure what each choice does to the text, and learn which failures no choice of setting can fix.
 
-A language model gives a probability for every possible next token; it doesn't write. To write, something has to choose one token, append it, ask for the next probabilities, and repeat until the model predicts the end marker, `</s>`. That choosing is called **decoding**, and it decides much of what the text reads like, with the model unchanged.
+A language model gives a probability for every possible next token; it doesn't write. To write, something has to choose one token, append it, ask for the next probabilities, and repeat until the model predicts the end marker, `</s>`. Turning a model's probabilities into text, one chosen token at a time, is called **decoding**, and it decides much of what the text reads like, with the model unchanged.
 
 The store has a reason to write: of the furniture and home goods in its validation split, {{out:greedy-description:validation products with no description}} of {{out:greedy-description:validation products}} products have no description, and so do {{out:greedy-description:training products with no description}} of its training products. The store's model, the transformer that [chapter 8](#training-a-small-model) trained and measured, learned descriptions from the store's own text, so it can draft one from a product's name: start the text with the name and `<sep>`, as every training text was laid out, and let the model continue. This chapter does that with greedy decoding, beam search and sampling, using the book's shared module `lib.decoding`, built in NumPy on `lib.transformer`. Then it measures what each method writes against the store's real descriptions, and fixes two failures that the measurements expose: repetition, and descriptions that come out empty.
 
@@ -26,7 +26,7 @@ The greedy description also says the sign is `made of natural wood`, which nothi
 
 ## Search for the likeliest text {#search-for-the-likeliest-text}
 
-[Greedy decoding](#choose-the-likeliest-token) picks the likeliest token at each step, which isn't the same as the likeliest text: a slightly less likely first word can lead to much likelier words after it. **Beam search** looks further. It keeps the k likeliest partial texts, the beam, scored by their **total log-probability**, the sum of the logarithms of their tokens' probabilities, where higher means likelier. At each step it extends every text in the beam by its k likeliest next tokens, and keeps the best k of the results. A text that reaches the end marker is finished and stays in the running. The heart of `lib.decoding.beam` is the line that scores each extension:
+[Greedy decoding](#choose-the-likeliest-token) picks the likeliest token at each step, which isn't the same as the likeliest text: a slightly less likely first word can lead to much likelier words after it. **Beam search** looks further, keeping the k likeliest partial texts, the beam, scored by their **total log-probability**, the sum of the logarithms of a text's token probabilities, where higher means likelier. At each step it extends every text in the beam by its k likeliest next tokens, and keeps the best k of the results. A text that reaches the end marker is finished and stays in the running. The heart of `lib.decoding.beam` is the line that scores each extension:
 
 ```python
             candidates += [(score + log_p[token], written + [int(token)]) for token in np.argsort(-log_p, kind="stable")[:width]]
@@ -44,7 +44,7 @@ The likeliest description overall is empty. Ending at once has a probability of 
 
 ## Sample, with a temperature {#sample-with-a-temperature}
 
-Greedy decoding and beam search use only the top of the distribution. **Sampling**, which [chapter 1](#predicting-the-next-word) used to generate names, uses all of it: draw the next token at random, in proportion to its probability, so a token with probability 0.2 is chosen one time in five. Before sampling, the distribution can be made sharper or flatter with a **temperature**, T: divide every logit by T before the softmax. In symbols, with zᵢ the logit of token i, as in [chapter 5](#predict-from-a-window):
+Greedy decoding and beam search use only the top of the distribution. **Sampling**, which [chapter 1](#predicting-the-next-word) used to generate names, uses all of the distribution: draw the next token at random, in proportion to its probability, so a token with probability 0.2 is chosen one time in five. Before sampling, the distribution can be made sharper or flatter with a **temperature**, T: divide every logit by T before the softmax. In symbols, with zᵢ the logit of token i, as in [chapter 5](#predict-from-a-window):
 
 P(token i) = exp(zᵢ / T) / Σⱼ exp(zⱼ / T)
 
