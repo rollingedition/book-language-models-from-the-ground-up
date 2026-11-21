@@ -8,6 +8,7 @@ term = "language model"
 definition = "A language model is a program that assigns a probability to every word that could come next, given the words so far."
 section = "predicting-the-next-word"
 context = "natural-language-processing"
+wikidata = "Q3621696"
 
 [[concepts]]
 id = "training-split"
@@ -58,6 +59,7 @@ definition = "A bigram is a pair of adjacent words, such as `coffee table`."
 section = "count-word-pairs"
 context = "natural-language-processing"
 example = "count-next-words"
+wikidata = "Q2773912"
 
 [[concepts]]
 id = "maximum-likelihood-estimation"
@@ -69,6 +71,7 @@ section = "counts-to-probabilities"
 context = "artificial-intelligence"
 example = "next-word-probabilities"
 
+wikidata = "Q1045555"
 [concepts.relations]
 computed-from = ["bigram"]
 
@@ -101,6 +104,7 @@ section = "score-with-perplexity"
 context = "natural-language-processing"
 example = "perplexity-by-hand"
 
+wikidata = "Q1685498"
 [concepts.relations]
 computed-from = ["surprise"]
 
@@ -113,6 +117,7 @@ section = "score-with-perplexity"
 context = "natural-language-processing"
 example = "perplexity-by-hand"
 
+wikidata = "Q372193"
 [concepts.relations]
 computed-from = ["cross-entropy"]
 
@@ -186,6 +191,7 @@ term = "byte"
 definition = "in UTF-8, the usual text encoding, every character in every language is stored as one to four bytes, and there are only 256 possible byte values, so a vocabulary that starts from all 256 can represent any text at all"
 section = "characters-cover-everything"
 context = "natural-language-processing"
+wikidata = "Q8799"
 
 [[concepts]]
 id = "byte-pair-encoding"
@@ -196,6 +202,7 @@ section = "merge-frequent-pairs"
 context = "natural-language-processing"
 example = "merge-pairs-by-hand"
 
+wikidata = "Q860962"
 [concepts.relations]
 implemented-by = [{ to = "tokenizers", versions = ">=0.20" }]
 
@@ -344,6 +351,7 @@ section = "one-hot-vectors-know-nothing"
 context = "natural-language-processing"
 example = "one-hot-vectors"
 
+wikidata = "Q161690"
 [concepts.relations]
 contrasts-with = ["embedding"]
 
@@ -355,8 +363,10 @@ section = "one-hot-vectors-know-nothing"
 context = "artificial-intelligence"
 example = "one-hot-vectors"
 
+wikidata = "Q1784941"
 [concepts.relations]
 same-as = ["https://rollingedition.com/concepts/search-and-recommendation/cosine-similarity"]
+computed-from = ["vector"]
 
 [[concepts]]
 id = "co-occurrence-window"
@@ -400,6 +410,7 @@ section = "compress-into-dense-vectors"
 context = "natural-language-processing"
 example = "svd-neighbours"
 
+wikidata = "Q420904"
 [concepts.relations]
 computed-from = ["positive-pmi"]
 
@@ -468,6 +479,9 @@ definition = 'In vectors, the answer to "a is to b as c is to what?" is the toke
 section = "analogies-and-where-they-fail"
 context = "natural-language-processing"
 example = "analogies"
+
+[concepts.relations]
+computed-from = ["embedding"]
 
 [[concepts]]
 id = "neural-language-model"
@@ -557,6 +571,7 @@ section = "predict-from-a-window"
 context = "deep-learning"
 example = "window-model-by-hand"
 
+wikidata = "Q7554146"
 [concepts.relations]
 prerequisite-of = ["attention"]
 same-as = ["https://rollingedition.com/concepts/large-language-models/softmax"]
@@ -611,6 +626,7 @@ formula = "w ← w − η · ∂L/∂w"
 section = "take-gradient-descent-steps"
 context = "deep-learning"
 example = "gradient-descent-by-hand"
+wikidata = "Q1199743"
 
 [[concepts]]
 id = "step-size"
@@ -621,6 +637,7 @@ section = "take-gradient-descent-steps"
 context = "deep-learning"
 example = "gradient-descent-by-hand"
 
+wikidata = "Q65121812"
 [concepts.relations]
 part-of = ["gradient-descent"]
 
@@ -652,6 +669,10 @@ section = "stop-at-the-best-epoch"
 context = "artificial-intelligence"
 example = "training-curve"
 
+wikidata = "Q331309"
+[concepts.relations]
+measured-from = ["perplexity"]
+
 [[concepts]]
 id = "early-stopping"
 term = "early stopping"
@@ -660,6 +681,7 @@ section = "stop-at-the-best-epoch"
 context = "deep-learning"
 example = "training-curve"
 
+wikidata = "Q5326898"
 [concepts.relations]
 close-to = ["https://rollingedition.com/concepts/search-and-recommendation/early-stopping"]
 
@@ -680,6 +702,7 @@ term = "regularization"
 definition = "regularization, which is anything in training that discourages memorizing"
 section = "stop-at-the-best-epoch"
 context = "artificial-intelligence"
+wikidata = "Q2061913"
 
 [[concepts]]
 id = "attention"
@@ -848,6 +871,9 @@ section = "add-to-the-residual-stream"
 context = "artificial-intelligence"
 example = "residual-stream"
 
+[concepts.relations]
+computed-from = ["vector"]
+
 [[concepts]]
 id = "normalization"
 term = "normalization"
@@ -866,6 +892,7 @@ term = "layer normalization"
 definition = "layer normalization, which subtracts each vector's mean and divides by its standard deviation"
 section = "normalize-before-each-part"
 context = "deep-learning"
+wikidata = "Q121322460"
 
 [[concepts]]
 id = "rmsnorm"
@@ -887,6 +914,10 @@ definition = "root mean square, the square root of the average of its squared nu
 section = "normalize-before-each-part"
 context = "artificial-intelligence"
 example = "rms-norm-by-hand"
+
+wikidata = "Q223323"
+[concepts.relations]
+computed-from = ["vector"]
 
 [[concepts]]
 id = "feed-forward-layer"
@@ -1094,6 +1125,7 @@ section = "search-for-the-likeliest-text"
 context = "large-language-models"
 example = "beam-search"
 
+wikidata = "Q2835852"
 [concepts.relations]
 contrasts-with = ["greedy-decoding"]
 
@@ -1376,6 +1408,7 @@ definition = "The way to teach a general model the store's text is fine-tuning: 
 section = "adapt-a-model"
 context = "large-language-models"
 
+wikidata = "Q117286419"
 [concepts.relations]
 contrasts-with = ["instruction-tuning"]
 
