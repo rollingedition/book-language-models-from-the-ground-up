@@ -89,6 +89,14 @@ The store's tokenizer sits where sequences are short and few tokens are rare. At
 
 With no merges, every token is a character, so tokens are frequent but words are long: a word takes more than five tokens, and {{out:vocabulary-size:rare token types with characters only}} of the token types are rare, because the descriptions contain unusual characters. With many merges, words are short but rare types pile up: from 8,000 merges the rare share climbs, and at 16,000 it's {{out:vocabulary-size:rare token types at 16,000 merges}}, because most of the extra merges cover words the training text barely contains.
 
+{{fig:merges-trade-off}} draws both measures for 16 settings, from no merges to 16,000, with tokens per word above and the share of rare token types below, on one merge axis.
+
+![More merges shorten each word, but past a few thousand the rare token types pile up](../examples/figures/merges-trade-off.svg "Tokens per word, and the share of rare token types, for 0 to 16,000 merges")
+
+[Example: figure-merges-trade-off](../examples/figure-merges-trade-off.py)
+
+The top line drops steeply and then flattens, and the bottom line dips and then climbs. Of the settings drawn, {{out:figure-merges-trade-off:merges with the fewest rare token types}} merges leave the fewest rare types, {{out:figure-merges-trade-off:rare token types at 2,000 merges}}, and a word takes {{out:figure-merges-trade-off:tokens per word at 2,000 merges}} tokens there. That is the trade-off: fewer merges leave longer words, and more merges leave more rare types, {{out:figure-merges-trade-off:rare token types at 16,000 merges}} at 16,000.
+
 The vocabulary size also sets part of the model's size. A neural language model, from [chapter 5](#a-neural-language-model) on, stores a vector of numbers for every token in its vocabulary, and scores every token in the vocabulary at every step it predicts. A vocabulary four times as large means four times as many of those vectors to learn, and four times as many scores to compute at every step, whatever the text. For the small models this book trains on a laptop, that cost matters as much as sequence length.
 
 So the store's tokenizer uses 4,000 merges: past that, each merge buys little length and adds a token that the book's small models can't learn well. Large open models use vocabularies of tens of thousands of tokens or more, SmolLM2's has {{out:smollm2-tokens:SmolLM2 vocabulary}}, because they learn from far more text, so even their rarer tokens occur often enough.

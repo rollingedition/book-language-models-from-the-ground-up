@@ -23,3 +23,9 @@ say = "The code scores the bigram model on the validation names and prints their
 
 [examples.add-one-smoothing]
 say = "The code compares the bigram model's counted probabilities with add-one probabilities, where every count goes up by one and every total by the vocabulary's size. It prints the vocabulary's size, the probability of table after coffee both ways, the training perplexity both ways, and the add-one model's validation perplexity, which is finite: {{out:add-one-smoothing:validation perplexity, add-one}}."
+
+[examples.figure-next-word-distribution]
+say = "The code builds the bigram model from the training names, and draws the fifteen likeliest words after coffee and after the start marker as two ranked bar charts, each bar a word's probability. It prints the likeliest word and its probability after each context, the share of the probability the fifteen bars hold, and how many different words followed the start marker: {{out:figure-next-word-distribution:words that followed start marker}}."
+
+[examples.figure-add-one-mass]
+say = "The code splits the probability after coffee between the words seen after it and the words never seen after it, once for the counted model and once for add-one smoothing, and draws both splits as paired bars. It prints both shares for both methods. Under add-one, the words never seen after coffee take {{out:figure-add-one-mass:share on words never seen after coffee, add-one}} of the probability."

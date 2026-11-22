@@ -1,0 +1,9 @@
+merges with the fewest rare token types: 2,000
+tokens per word with characters only: 5.61
+tokens per word at 2,000 merges: 1.42
+tokens per word at 4,000 merges: 1.22
+tokens per word at 16,000 merges: 1.05
+rare token types at 2,000 merges: 5%
+rare token types at 4,000 merges: 6%
+rare token types at 16,000 merges: 53%
+figure: figures/merges-trade-off.svg
