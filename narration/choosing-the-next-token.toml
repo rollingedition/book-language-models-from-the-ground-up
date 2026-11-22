@@ -39,5 +39,3 @@ say = "The table has a row for each of three temperatures, 0.5, 1 and 1.5, and c
 [examples.figure-temperature-flattens]
 say = "The code takes the next token's distribution after the temperature example's text, divides its logits by three temperatures before softmax, and draws the 40 likeliest tokens at each on a log scale. It prints each temperature's likeliest probability and the share outside the 40 drawn, which is {{out:figure-temperature-flattens:temperature 0.5, probability outside the 40 drawn}} at 0.5 and {{out:figure-temperature-flattens:temperature 1.5, probability outside the 40 drawn}} at 1.5."
 
-[examples.figure-decoding-trade-off]
-say = "The code draws the same products as the measurement example and writes a description of each with six settings. It places the settings and the real descriptions by their share of repeated four-token phrases and their perplexity, on a log scale. It checks that, without the penalty, repetition never rises as perplexity rises, and prints the penalty's rise in perplexity over plain greedy: {{out:figure-decoding-trade-off:perplexity, greedy with the penalty over plain greedy}} times."

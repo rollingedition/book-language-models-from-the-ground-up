@@ -58,6 +58,12 @@ Grouping keys and values keeps the 360M model's cache small. It takes {{out:open
 
 A service writing many descriptions at once keeps one cache per text, so with long texts the caches can outgrow the weights. The 1.7B model, which doesn't group keys and values, needs {{out:open-model-memory:SmolLM2-1.7B, key and value cache per token, in KB}} kilobytes per token, and {{out:open-model-memory:SmolLM2-1.7B, cache for the longest text, in GB}} gigabytes for one long text, about half its {{out:open-model-memory:SmolLM2-1.7B, weights in 16-bit numbers, in GB}} gigabytes of weights.
 
+For the smallest size, grouping decides whether one long text's cache outgrows the weights. Without grouping, SmolLM2-135M's cache passes its weights at {{out:figure-kv-cache-grows:text length at which the cache without grouping passes the weights, in tokens}} tokens, inside the longest text; with grouping, it doesn't reach them within that text. {{fig:kv-cache-grows}} draws both caches against text length, each growing in a straight line, with the weights as the dashed line: the ungrouped line crosses it part way along, and the grouped line stays under it to the end.
+
+![Without grouping, the smallest model's cache passes its weights part way through the longest text; grouped, it stays under them](../examples/figures/kv-cache-grows.svg "SmolLM2-135M's key and value cache against text length, with and without grouping, beside its weights' memory")
+
+[Example: figure-kv-cache-grows](../examples/figure-kv-cache-grows.py)
+
 **Working rule:** Budget a model's memory as its weights plus one cache per text in progress, computed from its configuration. Prefer models that group keys and values when you serve long texts or many at once, and cap the text length you allow to what you've budgeted for.
 
 ## Score the store's text with a general model {#score-the-store-text}
@@ -93,6 +99,12 @@ Look at each head's recorded average weight on the previous token and on the fir
 A few heads specialize sharply. {{out:open-model-heads:heads with more than half their weight on the previous token}} heads put more than half their weight on the previous token, and the strongest puts {{out:open-model-heads:the most weight a head puts on the previous token}} there, against an even spread's {{out:open-model-heads:an even spread's weight on the previous token, and on the first}}. The store's model's most previous-token head, measured the same way, put {{out:previous-token-heads:its weight on the previous token}} on the previous token. With hundreds of heads, a model can afford to give a few of them one narrow job.
 
 The first token's weight is the larger surprise. In the first four layers, heads put {{out:open-model-heads:average weight on the first token, layers 1 to 4}} of their weight on it on average; from layer 5 on, {{out:open-model-heads:average weight on the first token, layers 5 to 32}}, against an even spread's {{out:open-model-heads:an even spread's weight on the previous token, and on the first}}, and {{out:open-model-heads:heads with more than half their weight on the first token}} heads put more than half there. That's the [attention sink](#reach-past-the-window) that Xiao and colleagues found in large models ([Xiao et al., 2024](https://arxiv.org/abs/2309.17453)). They explain it by softmax: a head with nothing useful to attend to still has to put its weight somewhere, and the first token is always there. [Chapter 6](#reach-past-the-window) found the pattern only weakly in the store's model, whose description tokens put {{out:attention-reaches-back:all layers, weight on <s> and <sep>}} of their attention on its two markers, against an even spread's {{out:attention-reaches-back:an even spread's weight on <s> and <sep>}}.
+
+Past the first four layers, most heads put more than half their weight on the first token, in {{out:figure-first-token-sinks:layers from 5 on in which most heads do}} layers, and the median head puts {{out:figure-first-token-sinks:median head's weight on the previous token}} on the previous token, the even spread's weight. {{fig:first-token-sinks}} draws each head as a dot at its layer, at its weight on the first token, with the even spread dashed beneath them.
+
+![Past the first four layers, most heads put more than half their weight on the first token, and the even spread sits near the bottom](../examples/figures/first-token-sinks.svg "Each head's average weight on the first token, by layer, against the even spread")
+
+[Example: figure-first-token-sinks](../examples/figure-first-token-sinks.py)
 
 **Working rule:** Describe a large model's heads by the same measured averages you'd use on a small one, compared with an even spread. Expect a few specialized heads and many that put their weight on the first token, and keep that token when you cut a model's context to save memory.
 

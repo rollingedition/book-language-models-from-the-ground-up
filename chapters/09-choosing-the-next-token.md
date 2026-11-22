@@ -62,15 +62,15 @@ The temperature sets how far the probability spreads. After `{{out:temperature-b
 | 1 | {{out:temperature-by-hand:temperature 1.0, top 3}} | {{out:temperature-by-hand:temperature 1.0, tokens needed to cover 90% of the probability}} | {{out:temperature-by-hand:temperature 1.0, probability outside temperature 1.0's 90% cover}} |
 | 1.5 | {{out:temperature-by-hand:temperature 1.5, top 3}} | {{out:temperature-by-hand:temperature 1.5, tokens needed to cover 90% of the probability}} | {{out:temperature-by-hand:temperature 1.5, probability outside temperature 1.0's 90% cover}} |
 
+That tail is the risk in sampling. Most tokens in it are wrong here, and at temperature 1 a sampler draws from it about once in every ten tokens, more often as the temperature rises.
+
 The higher the temperature, the more probability lies past the 40 likeliest tokens: {{out:figure-temperature-flattens:temperature 0.5, probability outside the 40 drawn}} at 0.5, {{out:figure-temperature-flattens:temperature 1.0, probability outside the 40 drawn}} at 1, and {{out:figure-temperature-flattens:temperature 1.5, probability outside the 40 drawn}} at 1.5. {{fig:temperature-flattens}} draws the likeliest tokens at each temperature, on a log scale.
 
 ![The higher the temperature, the flatter the curve, and the more probability lies past the likeliest tokens drawn](../examples/figures/temperature-flattens.svg "The likeliest next tokens after the temperature example's text, at three temperatures, on a log scale")
 
 [Example: figure-temperature-flattens](../examples/figure-temperature-flattens.py)
 
-In the figure, the line for 0.5 falls steeply, and its 40th token holds {{out:figure-temperature-flattens:temperature 0.5, probability of the 40th likeliest token}}. The dashed line for 1.5 starts lowest, with its likeliest token at {{out:figure-temperature-flattens:temperature 1.5, probability of the likeliest token}}, and its 40th token still holds {{out:figure-temperature-flattens:temperature 1.5, probability of the 40th likeliest token}}.
-
-That tail is the risk in sampling. Most tokens in it are wrong here, and at temperature 1 a sampler draws from it about once in every ten tokens, more often as the temperature rises.
+In the figure, the line for 0.5 falls steeply, from {{out:figure-temperature-flattens:temperature 0.5, probability of the likeliest token}} for its likeliest token to {{out:figure-temperature-flattens:temperature 0.5, probability of the 40th likeliest token}} for its 40th. The dashed line for 1.5 starts lowest, with its likeliest token at {{out:figure-temperature-flattens:temperature 1.5, probability of the likeliest token}}, and its 40th token still holds {{out:figure-temperature-flattens:temperature 1.5, probability of the 40th likeliest token}}.
 
 **Working rule:** Treat temperature as the dial between predictable and varied text. Keep it at or a little below 1 for text that should stay close to what the training text usually says, such as product descriptions. A lower temperature makes text more predictable, not more accurate.
 
@@ -113,14 +113,6 @@ How close does each setting come to real text? Draw {{out:measure-decoding:produ
 Greedy text is far more predictable than anything a person wrote, with a perplexity of {{out:measure-decoding:greedy, the model's perplexity of the text}}, and {{out:measure-decoding:greedy, repeated 4-token phrases}} of its four-token phrases repeat. The real descriptions repeat nothing ({{out:measure-decoding:real descriptions, repeated 4-token phrases}} of their four-token phrases), and the model finds them fairly surprising, at a perplexity of {{out:measure-decoding:real descriptions, the model's perplexity of the text}}. That figure is higher than [chapter 8](#training-a-small-model)'s for descriptions, because these are a different sample and only their first {{out:measure-decoding:longest description, in tokens}} tokens. [Holtzman and colleagues](https://arxiv.org/abs/1904.09751) made the same observation at scale: human text isn't the text a model finds most probable.
 
 No setting matches the real descriptions on every measure. Sampling at temperature 1 comes closest on perplexity, at {{out:measure-decoding:sampling, temperature 1.0, the model's perplexity of the text}}, but only {{out:measure-decoding:sampling, temperature 1.0, uses a whole word of the name}} of its descriptions use a word of the product's name, against {{out:measure-decoding:real descriptions, uses a whole word of the name}} of the real ones, so it drifts off the product. Top-p 0.9 ends nearly as often as the real text, {{out:measure-decoding:top-p 0.9, ended within 60 tokens}} against {{out:measure-decoding:real descriptions, ended within 60 tokens}}, but stays on the product in only {{out:measure-decoding:top-p 0.9, uses a whole word of the name}}. Top-k 20 stays on the product most among the samplers, at {{out:measure-decoding:top-k 20, uses a whole word of the name}}, with no repetition and descriptions of {{out:measure-decoding:top-k 20, average length in tokens}} tokens on average. Twenty products is a small sample, so read these as directions, not exact rates.
-
-Without the penalty, the less predictable the text, the less it repeats. {{fig:decoding-trade-off}} sets each setting out by its repeated phrases and its perplexity, on a log scale: plain greedy, the most predictable, repeats {{out:figure-decoding-trade-off:greedy, repeated 4-token phrases}} of its four-token phrases, and no sampled setting repeats more than {{out:figure-decoding-trade-off:sampling, temperature 0.7, repeated 4-token phrases}}.
-
-![Without the penalty, the less predictable the text, the less it repeats, and the penalty breaks that order](../examples/figures/decoding-trade-off.svg "Each decoding setting and the real descriptions, by repeated four-token phrases and the model's perplexity of their text")
-
-[Example: figure-decoding-trade-off](../examples/figure-decoding-trade-off.py)
-
-The penalty breaks that order. Greedy with it repeats nothing, at a perplexity of {{out:figure-decoding-trade-off:greedy, repetition penalty 1.3, the model's perplexity of the text}}, against {{out:figure-decoding-trade-off:greedy, the model's perplexity of the text}} for plain greedy, a rise of {{out:figure-decoding-trade-off:perplexity, greedy with the penalty over plain greedy}} times. The real descriptions sit above every setting, at {{out:figure-decoding-trade-off:real descriptions, the model's perplexity of the text}}.
 
 What the measures can't say is whether a description is true. A description can be fluent, varied, on topic and wrong, and [the previous section's](#sample-and-cut-the-tail) were, about the sign's material.
 
