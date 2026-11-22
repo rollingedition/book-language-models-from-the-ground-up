@@ -1,5 +1,6 @@
 # The book's direct dependencies. examples/requirements.txt pins these and everything they need, compiled with:
 #   uv pip compile examples/requirements.in -o examples/requirements.txt --python-version 3.12 --no-header --no-annotate
+matplotlib
 numpy
 pandas
 tokenizers
