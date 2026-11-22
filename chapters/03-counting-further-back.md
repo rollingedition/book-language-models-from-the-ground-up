@@ -42,7 +42,7 @@ The two examples together are the core problem of counting. Longer contexts pred
 
 ## Mix short and long contexts {#mix-short-and-long-contexts}
 
-The obvious fix for unseen long contexts is to fall back on shorter ones. **Interpolation** falls back smoothly: the probability of a token is a weighted mix of what the trigram, bigram and unigram counts say, so a long context the model has seen contributes its sharp prediction, and the shorter ones fill in what it hasn't. With weights λ₃, λ₂ and λ₁ that sum to one:
+The obvious fix for unseen long contexts is to fall back on shorter ones. **Interpolation** falls back smoothly: the probability of a token is a weighted mix of what the counts of each order say (here trigram, bigram and unigram), so a long context the model has seen contributes its sharp prediction, and the shorter ones fill in what it hasn't. With weights λ₃, λ₂ and λ₁ that sum to one:
 
 P(token | a b) = λ₃ · P₃(token | a b) + λ₂ · P₂(token | b) + λ₁ · P₁(token)
 
@@ -76,7 +76,7 @@ This is the insight behind Kneser-Ney smoothing ([Kneser and Ney, 1995](https://
 
 ## Smooth with Kneser-Ney {#smooth-with-kneser-ney}
 
-Kneser-Ney smoothing combines [interpolation of orders](#mix-short-and-long-contexts) with [continuation counts](#count-contexts-a-token-follows). At each order, Kneser-Ney subtracts a fixed **discount** d from every count it has seen, and gives the probability it took to the next order down, so a context seen often keeps nearly all its own prediction, and a context seen rarely leans on the shorter context, with the discount it frees going to tokens that turn up in many contexts.
+Kneser-Ney smoothing combines discounting, [interpolation of orders](#mix-short-and-long-contexts) and [continuation counts](#count-contexts-a-token-follows). At each order, Kneser-Ney subtracts a fixed **discount** d from every count it has seen, and gives the probability it took to the next order down, so a context seen often keeps nearly all its own prediction, and a context seen rarely leans on the shorter context, with the discount it frees going to tokens that turn up in many contexts.
 
 The same formula applies at every order. Below the highest, the counts are continuation counts, except for n-grams that start a text, which keep their raw counts, as the KenLM toolkit does. For a context h and a token w, with c(h w) the count of the pair, c(h) the count of the context, and N(h) the number of different tokens seen after h:
 

@@ -49,7 +49,7 @@ Words are too coarse and characters too fine, so the method most open generative
 3. Merge the most frequent pair into one new symbol everywhere, and add it to the vocabulary.
 4. Repeat from step 2, as many times as the vocabulary size you want.
 
-The list of merges, in the order they were learned, is the tokenizer. To encode a word, spell it as characters and apply the merges in the same order.
+A tokenizer cuts text into tokens; a BPE tokenizer is the list of merges, in the order they were learned, applied to the characters it starts from. To encode a word, spell it as characters and apply the merges in the same order.
 
 Eight merges, run by hand on the training names, are enough to show every step. Each merge prints as it happens, and the last line shows how `table` is spelled after all eight:
 

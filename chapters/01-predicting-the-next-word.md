@@ -48,7 +48,7 @@ Counts say what happened, but a language model needs probabilities: how likely e
 
 P(v | w) = count(w v) / count(w)
 
-Read it as "the probability of `v`, given `w`". Estimating probabilities from the fraction of times something happened is called **maximum likelihood estimation**: of all the probability tables you could choose, it's the one that makes the training text likeliest ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)).
+Read it as "the probability of `v`, given `w`". Estimating probabilities from the fraction of times something happened is an example of **maximum likelihood estimation**: of all the probability tables you could choose, it's the one that makes the training text likeliest ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)).
 
 Apply the formula to `coffee` and four words that might follow it, printing each probability beside the counts behind it, and then the sum over every word that followed `coffee`:
 
@@ -86,7 +86,7 @@ The last line shows the model's real limit. A shopper who types `patio bar` gets
 
 ## Generate names one word at a time {#generate-one-word-at-a-time}
 
-The same probability table can write text as well as complete it. To **generate**, start at `<s>`, draw the next word at random in proportion to its probability, append it, and repeat from the word you drew, until the model draws `</s>`. Drawing at random, rather than always taking the likeliest word, is what lets the model produce varied names instead of the same one every time. The large language models this book builds toward write text the same way: one token at a time, each chosen from probabilities computed from the text so far.
+The same probability table can write text as well as complete it. To **generate from this model**, start at `<s>`, draw the next word at random in proportion to its probability, append it, and repeat from the word you drew, until the model draws `</s>`. Drawing at random, rather than always taking the likeliest word, is what lets the model produce varied names instead of the same one every time. The large language models this book builds toward write text the same way: one token at a time, each chosen from probabilities computed from the text so far.
 
 Six names, drawn from those probabilities by a seeded random generator, come out the same on every run, so the names in this book match what the code produces:
 
@@ -104,7 +104,7 @@ A language model is good when it gives high probability to the text that actuall
 
 Start from one pair. If the model gave the actual next word probability p, its **surprise** at that word is −log p: zero when it was certain (p = 1) and larger the less it expected the word. The **cross-entropy** of a text is the average surprise over every word in it, written with N as the number of predicted words:
 
-cross-entropy = −(1/N) Σ log P(next word | previous word)
+cross-entropy = −(1/N) Σ log P(next word | the words before it)
 
 **Perplexity** is the cross-entropy turned back into a count: perplexity = exp(cross-entropy) ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)). It reads as the number of equally likely words the model was choosing between, on average, at each step. A perplexity of 10 means the model was, on average, as uncertain as if it had to pick among 10 equally likely words. Lower is better, and a model that knew every next word would score 1. This book uses natural logarithms throughout, which changes cross-entropy's units but not perplexity.
 
