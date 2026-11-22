@@ -58,15 +58,15 @@ The probabilities of every word that followed `coffee` add up to {{out:next-word
 
 The fourth line is the one to remember. `coffee lamp` never occurs in the training names, so its probability is {{out:next-word-probabilities:P(lamp | coffee)}}. The model doesn't say that a coffee lamp is unlikely; it says a coffee lamp is impossible. For a furniture store that's a reasonable bet, but the same zero applies to every pair the model hasn't seen, including perfectly ordinary ones. That's the flaw this chapter ends on.
 
-A bigram model's prediction is a whole distribution over the next word, and its shape depends on the word before it. {{fig:next-word-distribution}} draws the 15 likeliest words after `coffee` and after the start marker, each with its probability from the training names.
+A bigram model's prediction is a whole distribution over the next word, and its shape depends on the word before it. {{fig:next-word-distribution}} draws, for the 15 likeliest words after `coffee` and after the start marker, how much of the probability they hold as each one is added in turn, most likely first.
 
-![After coffee one word takes most of the probability, while the start of a name spreads it across many words](../examples/figures/next-word-distribution.svg "The 15 likeliest words after coffee and after the start of a name, with their probabilities")
+![After coffee one word takes most of the probability, while the start of a name spreads it across many words](../examples/figures/next-word-distribution.svg "The share of probability held by the likeliest words after coffee and after the start of a name, one more word at a time")
 
 [Example: figure-next-word-distribution](../examples/figure-next-word-distribution.py)
 
-A confident prediction and a spread-out one come from the same model. In the top panel one bar reaches far past the rest: `table` has {{out:figure-next-word-distribution:top probability after coffee}} after `coffee`, and the 15 bars hold {{out:figure-next-word-distribution:share of probability in the 15 drawn, after coffee}} of the probability.
+A confident prediction and a spread-out one come from the same model. After `coffee`, the likeliest word is {{out:figure-next-word-distribution:likeliest word after coffee}}, and it alone holds {{out:figure-next-word-distribution:top probability after coffee}}; the 15 likeliest words hold {{out:figure-next-word-distribution:share of probability in the 15 drawn, after coffee}} of the probability.
 
-In the bottom panel every bar is short. The likeliest word after the start marker has {{out:figure-next-word-distribution:top probability after start marker}}, and the 15 bars hold only {{out:figure-next-word-distribution:share of probability in the 15 drawn, after start marker}}, because the first word of a name is one of {{out:figure-next-word-distribution:words that followed start marker}} different words.
+After the start marker the line barely leaves the floor. The likeliest word holds {{out:figure-next-word-distribution:top probability after start marker}}, and the 15 likeliest hold only {{out:figure-next-word-distribution:share of probability in the 15 drawn, after start marker}}, because the first word of a name is one of {{out:figure-next-word-distribution:words that followed start marker}} different words.
 
 **Working rule:** Derive probabilities from counts by division, and check that each word's probabilities sum to one; a sum that doesn't is a bug in the counting. Treat a probability as only as good as the count under it: 0.9 from 1,000 pairs is evidence, while 1.0 from a single pair is an anecdote.
 
@@ -149,14 +149,6 @@ The vocabulary holds {{out:add-one-smoothing:vocabulary}} words, the end marker 
 The probability of `table` after `coffee` falls from {{out:add-one-smoothing:P(table | coffee) counted}} to {{out:add-one-smoothing:P(table | coffee) add-one}}. The model now believes far less in what it has seen, and the perplexities show it: on the training names, perplexity rises from {{out:add-one-smoothing:training perplexity, counted}} to {{out:add-one-smoothing:training perplexity, add-one}}.
 
 The validation perplexity is finite, {{out:add-one-smoothing:validation perplexity, add-one}}, which is progress, but the model gives so much probability to word pairs that never happen that its predictions are nearly useless.
-
-{{fig:add-one-mass}} shows where add-one's probability goes. It splits the probability after `coffee` into the share on the {{out:figure-add-one-mass:words seen after coffee}} words seen after it and the share on the {{out:figure-add-one-mass:words never seen after coffee}} words never seen after it, under the counted model and under add-one.
-
-![Under add-one smoothing, most of the probability after coffee moves to words never seen after it](../examples/figures/add-one-mass.svg "The share of probability after coffee on words seen and never seen after it, counted and add-one")
-
-[Example: figure-add-one-mass](../examples/figure-add-one-mass.py)
-
-In the counted row, the seen words take the whole bar, and the never-seen words take none. Under add-one the never-seen words take {{out:figure-add-one-mass:share on words never seen after coffee, add-one}} of it, and the seen words keep {{out:figure-add-one-mass:share on words seen after coffee, add-one}}.
 
 Add-one smoothing fixes the infinity and breaks almost everything else, because it adds one imagined pair for every word in the vocabulary, however much evidence the real counts hold, and spreads them evenly. Better smoothing methods take far less probability away from seen pairs, and give it to unseen pairs in proportion to how often their words occur elsewhere. [Chapter 3](#counting-further-back) covers those methods. There, the counted model of this chapter, looking further back and with a better smoothing method, becomes the baseline that every later model in the book is measured against.
 

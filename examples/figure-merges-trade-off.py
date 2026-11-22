@@ -1,11 +1,13 @@
 """Draw tokens per word and the share of rare token types for 16 merge counts, from none to 16,000, on one merge axis.
-The printed lines name the setting with the fewest rare types, and the values the prose quotes at 2,000, 4,000 and 16,000."""
+The printed lines are the values the prose quotes, and the asserts check the two shape claims it makes."""
+from collections import Counter
+
 from lib import bpe
 from lib.figures import ACCENT, INK, new_figure, save
 from lib.store import load_products, words
-from collections import Counter
 
-from matplotlib.ticker import PercentFormatter
+import numpy as np
+from matplotlib.ticker import FuncFormatter, PercentFormatter
 
 GRID = [0, 500, 1000, 1500, 2000, 2500, 3000, 4000, 5000, 6000, 7000, 8000, 10000, 12000, 14000, 16000]
 
@@ -14,35 +16,35 @@ counts = Counter(w for text in training["name"] + " " + training["description"] 
 merges = bpe.train(counts, merges=max(GRID))         # the first k merges of one longer run are a k-merge tokenizer
 validation_words = [w for text in validation["name"] + " " + validation["description"] for w in words(text)]
 
-results = {}
+per_word, rare = [], []
 for k in GRID:
-    tokenizer = bpe.Tokenizer(merges[:k], bpe.alphabet(counts)) if k else None   # with no merges, a word is its characters
-    encode = tokenizer.encode_word if k else bpe.symbols
+    encode = bpe.Tokenizer(merges[:k], bpe.alphabet(counts)).encode_word if k else bpe.symbols   # no merges: characters
     seen = Counter(t for w, n in counts.items() for t in encode(w) for _ in range(n))   # each token counted as often as its word
-    per_word = sum(len(encode(w)) for w in validation_words) / len(validation_words)
-    rare = sum(1 for n in seen.values() if n < 20) / len(seen)   # rare: seen fewer than 20 times in the training text
-    results[k] = per_word, rare
+    per_word.append(sum(len(encode(w)) for w in validation_words) / len(validation_words))
+    rare.append(sum(1 for n in seen.values() if n < 20) / len(seen))   # rare: seen fewer than 20 times in the training text
 
-fewest = min(GRID, key=lambda k: results[k][1])
-print("merges with the fewest rare token types:", f"{fewest:,}")
-print("tokens per word with characters only:", f"{results[0][0]:.2f}")
-print("tokens per word at 2,000 merges:", f"{results[2000][0]:.2f}")
-print("tokens per word at 4,000 merges:", f"{results[4000][0]:.2f}")
-print("tokens per word at 16,000 merges:", f"{results[16000][0]:.2f}")
-print("rare token types at 2,000 merges:", f"{results[2000][1]:.0%}")
-print("rare token types at 4,000 merges:", f"{results[4000][1]:.0%}")
-print("rare token types at 16,000 merges:", f"{results[16000][1]:.0%}")
+low = int(np.argmin(rare))                           # argmin keeps the first, so ties go to fewer merges
+slopes = np.diff(rare) / np.diff(GRID)               # slopes[i]: the rise per merge from setting i to setting i + 1
+steepest = int(np.argmax(slopes))
+assert (slopes[:low] <= 0).all() and (slopes[low:] >= 0).all()   # down to the low point, up after it
+assert (per_word[0] - per_word[4]) / 2000 > (per_word[4] - per_word[-1]) / 14000   # per merge: [4] is 2,000, [-1] 16,000
+
+print("settings drawn:", len(GRID))
+print("merges with the fewest rare token types:", f"{GRID[low]:,}")
+print("rare token types at 12,000 merges:", f"{rare[GRID.index(12000)]:.0%}")
+print("steepest rise in rare token types starts at merges:", f"{GRID[steepest]:,}")
+print("steepest rise in rare token types ends at merges:", f"{GRID[steepest + 1]:,}")   # the next setting on the grid
+print("tokens per word falls faster before 2,000 merges than after: yes")
+print("rare token types fall to a low, then climb, across the settings: yes")
 
 fig, (top, bottom) = new_figure(rows=2, height=4.4)
-top.plot(GRID, [results[k][0] for k in GRID], color=INK, marker="o", markersize=3, label="tokens per word")
-bottom.plot(GRID, [results[k][1] for k in GRID], color=ACCENT, marker="o", markersize=3, label="rare token types")
-top.set_ylabel("tokens per word")
-top.set_ylim(bottom=0)
-bottom.set_ylabel("share of token types\nseen under 20 times")
-bottom.set_ylim(0, 0.6)
+top.plot(GRID, per_word, color=INK, marker="o", markersize=3, label="tokens per word")
+bottom.plot(GRID, rare, color=ACCENT, marker="o", markersize=3, label="rare token types")
+top.set(ylabel="tokens per word", ylim=(0, None))
+bottom.set(ylabel="share of token types\nseen under 20 times", ylim=(0, None),   # the top limit fits the data
+           xlabel="merges learned by the tokenizer", xticks=[0, 4000, 8000, 12000, 16000])
 bottom.yaxis.set_major_formatter(PercentFormatter(1.0))
-bottom.set_xlabel("merges learned by the tokenizer")
-bottom.set_xticks([0, 4000, 8000, 12000, 16000])
+bottom.xaxis.set_major_formatter(FuncFormatter(lambda x, _: f"{x:,.0f}"))
 top.legend(loc="upper right")
 bottom.legend(loc="upper center")
 save(fig, "merges-trade-off")

@@ -89,13 +89,13 @@ The store's tokenizer sits where sequences are short and few tokens are rare. At
 
 With no merges, every token is a character, so tokens are frequent but words are long: a word takes more than five tokens, and {{out:vocabulary-size:rare token types with characters only}} of the token types are rare, because the descriptions contain unusual characters. With many merges, words are short but rare types pile up: from 8,000 merges the rare share climbs, and at 16,000 it's {{out:vocabulary-size:rare token types at 16,000 merges}}, because most of the extra merges cover words the training text barely contains.
 
-{{fig:merges-trade-off}} draws both measures for 16 settings, from no merges to 16,000, with tokens per word above and the share of rare token types below, on one merge axis.
+{{fig:merges-trade-off}} draws both measures for {{out:figure-merges-trade-off:settings drawn}} settings, from no merges to 16,000, with tokens per word above and the share of rare token types below, on one merge axis.
 
-![More merges shorten each word, but past a few thousand the rare token types pile up](../examples/figures/merges-trade-off.svg "Tokens per word, and the share of rare token types, for 0 to 16,000 merges")
+![Tokens per word falls steeply and then flattens, while the share of rare token types falls to a low point and then climbs](../examples/figures/merges-trade-off.svg "Tokens per word, and the share of rare token types, for 0 to 16,000 merges")
 
 [Example: figure-merges-trade-off](../examples/figure-merges-trade-off.py)
 
-The top line drops steeply and then flattens, and the bottom line dips and then climbs. Of the settings drawn, {{out:figure-merges-trade-off:merges with the fewest rare token types}} merges leave the fewest rare types, {{out:figure-merges-trade-off:rare token types at 2,000 merges}}, and a word takes {{out:figure-merges-trade-off:tokens per word at 2,000 merges}} tokens there. That is the trade-off: fewer merges leave longer words, and more merges leave more rare types, {{out:figure-merges-trade-off:rare token types at 16,000 merges}} at 16,000.
+Tokens per word falls steeply and then flattens, and the rare share falls to a low and then climbs, with no reversal across the grid. The low sits at {{out:figure-merges-trade-off:merges with the fewest rare token types}} merges. The finer grid also shows where the climb steepens, which the vocabulary-size example's settings don't: the steepest rise per merge runs from {{out:figure-merges-trade-off:steepest rise in rare token types starts at merges}} to {{out:figure-merges-trade-off:steepest rise in rare token types ends at merges}} merges, where the share reaches {{out:figure-merges-trade-off:rare token types at 12,000 merges}}. That is the trade-off: fewer merges leave longer words, and more merges leave more rare types.
 
 The vocabulary size also sets part of the model's size. A neural language model, from [chapter 5](#a-neural-language-model) on, stores a vector of numbers for every token in its vocabulary, and scores every token in the vocabulary at every step it predicts. A vocabulary four times as large means four times as many of those vectors to learn, and four times as many scores to compute at every step, whatever the text. For the small models this book trains on a laptop, that cost matters as much as sequence length.
 
