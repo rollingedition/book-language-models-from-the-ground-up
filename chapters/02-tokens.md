@@ -49,7 +49,7 @@ Words are too coarse and characters too fine, so the method most open generative
 3. Merge the most frequent pair into one new symbol everywhere, and add it to the vocabulary.
 4. Repeat from step 2, as many times as the vocabulary size you want.
 
-The list of merges, in the order they were learned, is the tokenizer. To encode a word, spell it as characters and apply the merges in the same order.
+A tokenizer cuts text into tokens; a BPE tokenizer is the list of merges, in the order they were learned, applied to the characters it starts from. To encode a word, spell it as characters and apply the merges in the same order.
 
 Eight merges, run by hand on the training names, are enough to show every step. Each merge prints as it happens, and the last line shows how `table` is spelled after all eight:
 
@@ -88,6 +88,14 @@ Learning 16,000 merges once and reading the first 0, 1,000, 2,000, 4,000, 8,000 
 The store's tokenizer sits where sequences are short and few tokens are rare. At 4,000 merges, a validation word takes {{out:vocabulary-size:tokens per word at 4,000 merges}} tokens on average, and {{out:vocabulary-size:rare token types at 4,000 merges}} of the token types are rare, about as few as at 2,000.
 
 With no merges, every token is a character, so tokens are frequent but words are long: a word takes more than five tokens, and {{out:vocabulary-size:rare token types with characters only}} of the token types are rare, because the descriptions contain unusual characters. With many merges, words are short but rare types pile up: from 8,000 merges the rare share climbs, and at 16,000 it's {{out:vocabulary-size:rare token types at 16,000 merges}}, because most of the extra merges cover words the training text barely contains.
+
+{{fig:merges-trade-off}} draws both measures for {{out:figure-merges-trade-off:settings drawn}} settings, from no merges to 16,000, with tokens per word above and the share of rare token types below, on one merge axis.
+
+![Tokens per word falls steeply and then flattens, while the share of rare token types falls to a low point and then climbs](../examples/figures/merges-trade-off.svg "Tokens per word, and the share of rare token types, for 0 to 16,000 merges")
+
+[Example: figure-merges-trade-off](../examples/figure-merges-trade-off.py)
+
+Tokens per word falls steeply and then flattens, and the rare share falls to a low and then climbs, with no reversal across the grid. The low sits at {{out:figure-merges-trade-off:merges with the fewest rare token types}} merges. The finer grid also shows where the climb steepens, which the vocabulary-size example's settings don't: the steepest rise per merge runs from {{out:figure-merges-trade-off:steepest rise in rare token types starts at merges}} to {{out:figure-merges-trade-off:steepest rise in rare token types ends at merges}} merges, where the share reaches {{out:figure-merges-trade-off:rare token types at 12,000 merges}}. That is the trade-off: fewer merges leave longer words, and more merges leave more rare types.
 
 The vocabulary size also sets part of the model's size. A neural language model, from [chapter 5](#a-neural-language-model) on, stores a vector of numbers for every token in its vocabulary, and scores every token in the vocabulary at every step it predicts. A vocabulary four times as large means four times as many of those vectors to learn, and four times as many scores to compute at every step, whatever the text. For the small models this book trains on a laptop, that cost matters as much as sequence length.
 

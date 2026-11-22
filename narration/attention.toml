@@ -9,6 +9,9 @@ say = "The code repeats the same attention with the causal mask, which sets ever
 [examples.scaling-matters]
 say = "The code draws 1,000 random queries and 16 random keys at each of three sizes, 4, 32 and 256 numbers, scores every query against every key with and without dividing by the square root of the size, and prints the largest softmax weight in each row, averaged over the queries."
 
+[examples.figure-scaling-keeps-spread]
+say = "The code draws the average largest softmax weight in a row at {{out:figure-scaling-keeps-spread:sizes drawn}} sizes of query and key, from {{out:figure-scaling-keeps-spread:smallest size drawn}} to {{out:figure-scaling-keeps-spread:largest size drawn}} numbers, with and without dividing by the square root of the size, on a logarithmic axis. It checks that its points at 4, 32 and 256 match the three sizes printed earlier, and asserts that the unscaled average rises at every size. It prints the unscaled average at 512, {{out:figure-scaling-keeps-spread:unscaled, average largest weight at size 512}}, and the lowest and highest scaled averages, {{out:figure-scaling-keeps-spread:scaled, lowest average largest weight across sizes}} and {{out:figure-scaling-keeps-spread:scaled, highest average largest weight across sizes}}."
+
 [examples.attention-heads]
 say = "The code runs two heads of masked attention over four positions of random eight-number vectors, each head working in four of the numbers, then joins the heads' outputs and mixes them with an output projection. It prints the weights' shape, what the last position attends to in each head, and the output's shape, which is the input's again."
 
@@ -17,6 +20,9 @@ say = "The code runs the store's model on the validation product double chaise p
 
 [examples.copy-from-the-name]
 say = "The code runs the store's model on the same description three times, after the name as sold, the name without cover and the name ending in set, and prints the probabilities of cover and of set at the description's second furniture. Then it counts the training descriptions that contain this outdoor patio furniture, and how many of them go on to cover."
+
+[examples.figure-previous-token-pattern]
+say = "The code runs the store's model on one short product name, copper wire basket, with its start marker, its separator and the start of its description, and draws the attention weights of two heads as two grids. The heads are the two the averages above name, the one with the most weight on the previous token and the one with the least, found by the same measure over the same products. It prints each head's average weight on the previous token, {{out:figure-previous-token-pattern:layer 4, head 3, average weight on the previous token}} and {{out:figure-previous-token-pattern:layer 1, head 1, average weight on the previous token}}, beside an even spread's {{out:figure-previous-token-pattern:an even spread's weight on the previous token}}, and layer 1, head 1's average weight on the current token, {{out:figure-previous-token-pattern:layer 1, head 1, average weight on the current token}}. It asserts that no weight lies above the diagonal."
 
 [examples.previous-token-heads]
 say = "The code averages each head's weight on the previous token over the first 300 validation products, prints the averages as a grid of layers by heads, and names the head with the most, beside what an even spread over the visible tokens would give."

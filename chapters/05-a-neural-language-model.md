@@ -12,7 +12,7 @@ The store supplies the text, and the test is the one every model since [chapter 
 
 ## Predict from a window of embeddings {#predict-from-a-window}
 
-This chapter's model looks at a fixed **window** of the previous tokens, four here, the same context a 5-gram counts. Each token is looked up in an **embedding table**, a matrix with one row of numbers per token in the vocabulary, as in [chapter 4](#compress-into-dense-vectors), except that this table is learned for predicting the next token rather than computed from counts. The four rows are joined side by side into one long vector, x. A **hidden layer** computes h = tanh(xW + b) from its input x: it multiplies x by a matrix of weights W, adds a vector of biases b, and passes each result through tanh, a function that squashes any number into the range from −1 to 1, so the layer can combine its inputs in ways sums alone can't. An **output layer** then computes z = hU + c from the hidden layer's output h, one score per token in the vocabulary, called the **logits**.
+This chapter's model looks at a fixed **window** of the previous tokens, four here, the same context a 5-gram counts. Each token is looked up in an **embedding table**, a matrix with one row of numbers per token in the vocabulary, as in [chapter 4](#compress-into-dense-vectors), except that this table is learned for predicting the next token rather than computed from counts. The four rows are joined side by side into one long vector, x. In this model, a **hidden layer** computes h = tanh(xW + b) from its input x: it multiplies x by a matrix of weights W, adds a vector of biases b, and passes each result through tanh, a function that squashes any number into the range from −1 to 1, so the layer can combine its inputs in ways sums alone can't. An **output layer** then computes z = hU + c from the hidden layer's output h, one score per token in the vocabulary, called the **logits**.
 
 The last step turns scores into probabilities. **Softmax** exponentiates every logit and divides by the sum, so the results are positive and sum to one, and a higher score means a higher probability:
 
@@ -28,7 +28,7 @@ The window is padded with start markers, because the name has only two tokens so
 
 ## Compute gradients by backpropagation {#compute-gradients}
 
-A model with random weights predicts badly; training adjusts the weights to predict well. To measure how badly a model predicts, use the **loss**: L = −log P(next token), the negative log probability the model gave to the token that actually came next, the same surprise [chapter 1](#score-with-perplexity) averaged into perplexity. Training lowers the average loss, and lower loss means lower perplexity. To lower the loss, each weight needs a **gradient**: how much the loss would change if that weight changed a little, written ∂L/∂w.
+A model with random weights predicts badly; training adjusts the weights to predict well. To measure how badly a model predicts, use a **loss**, here the surprise whose average is chapter 1's cross-entropy: L = −log P(next token), the negative log probability the model gave to the token that actually came next, the same surprise [chapter 1](#score-with-perplexity) averaged into perplexity. Training lowers the average loss, and lower loss means lower perplexity. To lower the loss, each weight needs a **gradient**: how much the loss would change if that weight changed a little, written ∂L/∂w.
 
 **Backpropagation** computes all the gradients at once, by applying the chain rule of calculus backwards through the forward pass: from the loss to the logits, from the logits through the output layer to the hidden layer, through tanh, and back to the embeddings that were used ([Rumelhart et al., 1986](https://doi.org/10.1038/323533a0)). Two of its steps are worth knowing by heart. The gradient of the loss with respect to the logits is the softmax probabilities minus 1 at the true token. And the gradient through tanh is multiplied by 1 − h², which is small where h is near ±1. The book's shared module `lib.tinynet` writes the whole of it out, line by line, for a tiny version of the store's model, with 5 tokens, embeddings of 2 numbers, a window of 2 and 3 hidden units.
 
@@ -50,7 +50,7 @@ Twenty steps of gradient descent at a step size of 0.5, using `lib.tinynet`'s gr
 
 The average loss falls at each step the example prints, from {{out:gradient-descent-by-hand:average loss before}} before training to {{out:gradient-descent-by-hand:average loss after 20 steps}} after twenty. With only three examples to learn, the tiny model can drive its loss close to zero, which is memorizing; the store's model learns from hundreds of thousands of examples, where the same loop has to find patterns that hold across them.
 
-Real training changes two things about this loop. Each step of real training is computed on a **batch** of examples, a few hundred at a time, instead of all of them, so each step is cheap and the steps vary a little. And it uses a refined update instead of a fixed step size, as the next section describes.
+Real training changes two things about this loop. Each step of real training is computed on a **batch** of examples, a few hundred at a time here, instead of all of them, so each step is cheap and the steps vary a little. And it uses a refined update instead of a fixed step size, as the next section describes.
 
 **Working rule:** Start any new model by running a few steps on a handful of examples and checking that the loss falls: a loss that won't fall on three examples means a bug, not a hard problem. Choose the step size by trying a few: too small and the loss crawls, too large and it jumps around or grows.
 
@@ -77,7 +77,7 @@ The NumPy forward pass reproduces all {{out:same-as-pytorch:logits compared}} of
 
 ## Stop when validation loss turns up {#stop-at-the-best-epoch}
 
-A model with 1.4 million parameters, trained on a few hundred thousand tokens, can memorize its training text, as [chapter 3's 5-gram](#longer-contexts-fit-training) did. Training perplexity keeps falling as it does. Validation perplexity falls at first, while the model learns patterns that hold for new names, then rises, once it starts fitting quirks of the training names. A validation perplexity that turns up while training perplexity keeps falling is **overfitting**, and the simplest defence is **early stopping**: measure validation loss after every **epoch**, one full pass over the training text, and keep the weights from the best epoch.
+A model with 1.4 million parameters, trained on a few hundred thousand tokens, can memorize its training text, as [chapter 3's 5-gram](#longer-contexts-fit-training) did. Training perplexity keeps falling as it does. Validation perplexity falls at first, while the model learns patterns that hold for new names, then rises, once it starts fitting quirks of the training names. A validation perplexity that turns up while training perplexity keeps falling is the sign of **overfitting**: the model fits its training text, noise included, so closely that it does worse on new text. The simplest defence is **early stopping**: measure validation loss after every **epoch**, one full pass over the training text, and keep the weights from the best epoch.
 
 The training script recorded both perplexities after each of its twelve epochs. Read them for where validation stops improving:
 
@@ -116,6 +116,14 @@ Does a mix beat both ends? Score the validation names with the network's share o
 [Example: mix-neural-and-counts](../examples/mix-neural-and-counts.py)
 
 The mix beats both models. With a network share of 0.2, the validation perplexity is {{out:mix-neural-and-counts:validation perplexity, network share 0.2}}, better than the baseline's {{out:mix-neural-and-counts:validation perplexity, network share 0.0}} and far better than the network's {{out:mix-neural-and-counts:validation perplexity, network share 1.0}} alone. The network is worse on average, but where the counts give a token very little probability, the network's share keeps it from being tiny, and that lowers the average surprise.
+
+![The mix scores best at a small network share, stays flat around it, and ends above the dashed counts-alone line](../examples/figures/mixing-curve.svg "Validation perplexity of the mix at each network share from 0 to 1, with the counts alone dashed")
+
+[Example: figure-mixing-curve](../examples/figure-mixing-curve.py)
+
+{{fig:mixing-curve}} draws the same mix at every share from 0 to 1, in steps of {{out:figure-mixing-curve:share step}}. The curve falls, then rises, and its lowest point is at a share of {{out:figure-mixing-curve:lowest validation perplexity share}}.
+
+The dashed line is the counts alone, the baseline above, and the lowest point sits {{out:figure-mixing-curve:gain of the lowest over the counts alone}} below it. The bottom is flat: every share from {{out:figure-mixing-curve:flat bottom, first share within the tolerance}} to {{out:figure-mixing-curve:flat bottom, last share within the tolerance}} scores within {{out:figure-mixing-curve:flat bottom tolerance, a tenth of the gain}} of that lowest perplexity, a tenth of the mix's gain over the counts alone, so the share can move across that range and keep most of the gain.
 
 The kept epoch and the share were both chosen by looking at the validation names, so the gain is slightly optimistic; the book's final comparison, on the test names, will check it. And the mix only helps because the two models' errors differ: if they made the same mistakes, averaging them would gain nothing.
 

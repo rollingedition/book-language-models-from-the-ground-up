@@ -42,7 +42,7 @@ The two examples together are the core problem of counting. Longer contexts pred
 
 ## Mix short and long contexts {#mix-short-and-long-contexts}
 
-The obvious fix for unseen long contexts is to fall back on shorter ones. **Interpolation** falls back smoothly: the probability of a token is a weighted mix of what the trigram, bigram and unigram counts say, so a long context the model has seen contributes its sharp prediction, and the shorter ones fill in what it hasn't. With weights λ₃, λ₂ and λ₁ that sum to one:
+The obvious fix for unseen long contexts is to fall back on shorter ones. **Interpolation** falls back smoothly: the probability of a token is a weighted mix of what the counts of each order say (here trigram, bigram and unigram), so a long context the model has seen contributes its sharp prediction, and the shorter ones fill in what it hasn't. With weights λ₃, λ₂ and λ₁ that sum to one:
 
 P(token | a b) = λ₃ · P₃(token | a b) + λ₂ · P₂(token | b) + λ₁ · P₁(token)
 
@@ -76,7 +76,7 @@ This is the insight behind Kneser-Ney smoothing ([Kneser and Ney, 1995](https://
 
 ## Smooth with Kneser-Ney {#smooth-with-kneser-ney}
 
-Kneser-Ney smoothing combines [interpolation of orders](#mix-short-and-long-contexts) with [continuation counts](#count-contexts-a-token-follows). At each order, Kneser-Ney subtracts a fixed **discount** d from every count it has seen, and gives the probability it took to the next order down, so a context seen often keeps nearly all its own prediction, and a context seen rarely leans on the shorter context, with the discount it frees going to tokens that turn up in many contexts.
+Kneser-Ney smoothing combines discounting, [interpolation of orders](#mix-short-and-long-contexts) and [continuation counts](#count-contexts-a-token-follows). At each order, Kneser-Ney subtracts a fixed **discount** d from every count it has seen, and gives the probability it took to the next order down, so a context seen often keeps nearly all its own prediction, and a context seen rarely leans on the shorter context, with the discount it frees going to tokens that turn up in many contexts.
 
 The same formula applies at every order. Below the highest, the counts are continuation counts, except for n-grams that start a text, which keep their raw counts, as the KenLM toolkit does. For a context h and a token w, with c(h w) the count of the pair, c(h) the count of the context, and N(h) the number of different tokens seen after h:
 
@@ -97,6 +97,12 @@ Kneser-Ney models of every order from 1 to 5, scored on the validation names, sh
 Kneser-Ney beats the hand-weighted interpolated trigram from the [interpolation section](#mix-short-and-long-contexts) at the same order, with no weights to choose. Its trigram scores {{out:kneser-ney-by-order:3-gram validation perplexity}}, against {{out:interpolate-orders:interpolated 3-gram validation perplexity}} for the hand-weighted one.
 
 Longer contexts now help on new text, instead of only on the text the model counted, up to a point: validation perplexity falls from {{out:kneser-ney-by-order:2-gram validation perplexity}} for the bigram to {{out:kneser-ney-by-order:4-gram validation perplexity}} for the 4-gram, then rises to {{out:kneser-ney-by-order:5-gram validation perplexity}} for the 5-gram. The step from trigram to 4-gram is small, and the 5-gram is worse, because by then most contexts are unseen and the extra order adds noise. The discount, too, can be estimated from the counts: Chen and Goodman give D = n₁ / (n₁ + 2 n₂), where n₁ and n₂ are the numbers of n-grams seen once and twice, and on the store's 4-grams it's {{out:kneser-ney-by-order:discount estimated from them}}, close to the default.
+
+{{fig:perplexity-by-order}} scores one Kneser-Ney model per order on both sets of names. On the names it was counted from, the model keeps improving as the order grows, from {{out:figure-perplexity-by-order:Kneser-Ney 4-gram training perplexity}} at the 4-gram to {{out:figure-perplexity-by-order:Kneser-Ney 5-gram training perplexity}} at the 5-gram, while on the validation names it stops improving. The gap between the two scores is what the figure measures, and it widens with the order: from {{out:figure-perplexity-by-order:gap at the 4-gram}} at the 4-gram to {{out:figure-perplexity-by-order:gap at the 5-gram}} at the 5-gram.
+
+![One Kneser-Ney model's training perplexity keeps falling with order, while its validation perplexity bottoms out at the 4-gram, so the gap widens](../examples/figures/perplexity-by-order.svg "Perplexity of one Kneser-Ney model per order, orders 1 to 5, on the training names and on the validation names; log scale")
+
+[Example: figure-perplexity-by-order](../examples/figure-perplexity-by-order.py)
 
 **Working rule:** Smooth n-gram models with interpolated Kneser-Ney and a discount of 0.75 unless held-out text says otherwise. Raise the order only while validation perplexity keeps falling noticeably, and stop when a step barely helps or hurts, as the step from 4-gram to 5-gram does. A variant, modified Kneser-Ney, uses three discounts instead of one and is the one toolkits such as KenLM build; it would likely lower the [baseline](#the-baseline) a little, and this book keeps the single discount because it's easier to follow by hand.
 

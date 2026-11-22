@@ -34,6 +34,12 @@ with σ the logistic function from [chapter 4](#learn-by-predicting-neighbours) 
 
 Lowering the loss pushes the preferred response's probability up and the rejected one's down, measured against where the model started. When the tuned model favours the preferred response more than the reference does, the margin is {{out:dpo-loss-by-hand:tuned model favours the preferred answer more than the reference does, margin}} and the loss {{out:dpo-loss-by-hand:tuned model favours the preferred answer more than the reference does, loss}}; when it favours it less, the margin is {{out:dpo-loss-by-hand:tuned model favours it less, margin}} and the loss rises to {{out:dpo-loss-by-hand:tuned model favours it less, loss}}.
 
+{{fig:dpo-loss-curve}} draws the loss against the margin from −4 to 4, with the two cases of the example marked at their margins: {{out:figure-dpo-loss-curve:favours preferred more, margin}} where the tuned model favours the preferred response more than the reference does, and {{out:figure-dpo-loss-curve:favours it less, margin}} where it favours the preferred response less. The loss falls everywhere across the range. At a margin of zero, where the tuned model favours the preferred response exactly as much as the reference does, the loss is {{out:figure-dpo-loss-curve:loss at a margin of 0}}. Where the tuned model favours the rejected response more than the reference does, the loss keeps climbing, to {{out:figure-dpo-loss-curve:loss at a margin of -4}} at a margin of −4; where it favours the preferred response more, the loss flattens toward zero.
+
+![The loss falls steadily as the margin grows, and the two marked cases sit either side of zero](../examples/figures/dpo-loss-curve.svg "The DPO loss against the margin, with the two cases of the example marked at their margins")
+
+[Example: figure-dpo-loss-curve](../examples/figure-dpo-loss-curve.py)
+
 **Working rule:** Mask the request out of the loss when you tune a model on requests and responses, and keep the reference model's log-probabilities beside the tuned model's when you train on preferences. Both are small changes to a loop you already have.
 
 ## Ask the base model and the tuned model {#ask-base-and-tuned}
@@ -68,7 +74,7 @@ The system message matters too: it's part of every request the model reads, so a
 
 A model that writes about a product with no facts has to make them up. The fairer test gives it the facts. Both SmolLM2 models are shown a product's name and real description, and asked: `What material is this product made of? Answer in a few words, using only the description.` The tuned model gets it as a request in its template; the base model gets it as a listing to continue, ending `Question:`, the question, and `Answer:`. If the product's data names a material, a good answer names it; if not, a good answer says the description doesn't say.
 
-Checking the answers takes a list of material words, from `wood` and `metal` to `polyester` and `leather`, in the book's shared module `lib.claims`. An answer is **supported** if every material it names is in the product's name or description. An answer is **made up** if it names a material that the product's name and description don't contain. An answer is **declined** if it says the product's data doesn't say, and **none** if it names no material and doesn't decline. The check has limits, and makes judgement calls: it counts engineered wood such as `mdf` and `rubberwood` as wood, it counts `brushed nickel finish` as naming nickel, and it misses a material the list doesn't include. Every answer it classes is recorded for anyone to read. Making up a detail the input doesn't support is one kind of what's called **hallucination** ([Ji et al., 2023](https://arxiv.org/abs/2202.03629)), and this test measures exactly that kind.
+Checking the answers takes a list of material words, from `wood` and `metal` to `polyester` and `leather`, in the book's shared module `lib.claims`. An answer is **supported** if it names a material and every material it names is in the product's name or description. An answer is **made up** if it names a material that the product's name and description don't contain. An answer is **declined** if it says the product's data doesn't say, and **none** if it names no material and doesn't decline. The check has limits, and makes judgement calls: it counts engineered wood such as `mdf` and `rubberwood` as wood, it counts `brushed nickel finish` as naming nickel, and it misses a material the list doesn't include. Every answer it classes is recorded for anyone to read. Making up a detail the input doesn't support is one kind of what's called **hallucination** ([Ji et al., 2023](https://arxiv.org/abs/2202.03629)), and this test measures exactly that kind.
 
 Class each model's answers for {{out:made-up-materials:products asked, each with its description given}} products drawn at random, split by whether the product's data names a material. Where the data names none, will the tuned model make up fewer materials than the base model? Decide before you look.
 
@@ -100,6 +106,12 @@ Does confidence tell the two kinds apart? Compare the tuned model's confidence i
 [Example: answer-confidence](../examples/answer-confidence.py)
 
 Confidence is a signal, not a filter: it shifts the odds, and it lets confident errors through. The made-up answers are less confident on average, {{out:answer-confidence:tuned model, made up answers, average probability per token}} per token against {{out:answer-confidence:tuned model, supported answers, average probability per token}} for supported ones. But a threshold of 0.5 per token would keep {{out:answer-confidence:tuned model, supported answers above 0.5 per token}} supported answers and still let through {{out:answer-confidence:tuned model, made up answers above 0.5 per token}} made-up ones. With so few answers, these are directions, not rates to rely on.
+
+{{fig:confidence-overlap}} draws each answer as a dot in its group's row, with the threshold dashed. The rows overlap: the least confident supported answer is at {{out:figure-confidence-overlap:lowest supported answer, average probability per token}} and the most confident made-up one at {{out:figure-confidence-overlap:highest made-up answer, average probability per token}}. No threshold keeps every supported answer and drops every made-up one.
+
+![The made-up answers sit lower on average, but the two groups overlap in confidence](../examples/figures/confidence-overlap.svg "Each answer's average probability per token, supported and made up, with the 0.5 threshold dashed")
+
+[Example: figure-confidence-overlap](../examples/figure-confidence-overlap.py)
 
 **Working rule:** Don't use a model's confidence alone to decide whether to trust an answer. Measure how its confidence relates to being right on your own questions, and if you use a threshold, choose it from those measurements and count what it lets through.
 

@@ -48,7 +48,7 @@ Counts say what happened, but a language model needs probabilities: how likely e
 
 P(v | w) = count(w v) / count(w)
 
-Read it as "the probability of `v`, given `w`". Estimating probabilities from the fraction of times something happened is called **maximum likelihood estimation**: of all the probability tables you could choose, it's the one that makes the training text likeliest ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)).
+Read it as "the probability of `v`, given `w`". Estimating probabilities from the fraction of times something happened is an example of **maximum likelihood estimation**: of all the probability tables you could choose, it's the one that makes the training text likeliest ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)).
 
 Apply the formula to `coffee` and four words that might follow it, printing each probability beside the counts behind it, and then the sum over every word that followed `coffee`:
 
@@ -57,6 +57,16 @@ Apply the formula to `coffee` and four words that might follow it, printing each
 The probabilities of every word that followed `coffee` add up to {{out:next-word-probabilities:sum over every word after coffee}}, as a distribution must, because whatever comes next is one of those words. `table` takes most of that probability, {{out:next-word-probabilities:P(table | coffee)}}, and `mug` far less, {{out:next-word-probabilities:P(mug | coffee)}}.
 
 The fourth line is the one to remember. `coffee lamp` never occurs in the training names, so its probability is {{out:next-word-probabilities:P(lamp | coffee)}}. The model doesn't say that a coffee lamp is unlikely; it says a coffee lamp is impossible. For a furniture store that's a reasonable bet, but the same zero applies to every pair the model hasn't seen, including perfectly ordinary ones. That's the flaw this chapter ends on.
+
+A bigram model's prediction is a whole distribution over the next word, and its shape depends on the word before it. {{fig:next-word-distribution}} draws, for the 15 likeliest words after `coffee` and after the start marker, how much of the probability they hold as each one is added in turn, most likely first.
+
+![After coffee one word takes most of the probability, while the start of a name spreads it across many words](../examples/figures/next-word-distribution.svg "The share of probability held by the likeliest words after coffee and after the start of a name, one more word at a time")
+
+[Example: figure-next-word-distribution](../examples/figure-next-word-distribution.py)
+
+A confident prediction and a spread-out one come from the same model. After `coffee`, the likeliest word is {{out:figure-next-word-distribution:likeliest word after coffee}}, and it alone holds {{out:figure-next-word-distribution:top probability after coffee}}; the 15 likeliest words hold {{out:figure-next-word-distribution:share of probability in the 15 drawn, after coffee}} of the probability.
+
+After the start marker the line barely leaves the floor. The likeliest word holds {{out:figure-next-word-distribution:top probability after start marker}}, and the 15 likeliest hold only {{out:figure-next-word-distribution:share of probability in the 15 drawn, after start marker}}, because the first word of a name is one of {{out:figure-next-word-distribution:words that followed start marker}} different words.
 
 **Working rule:** Derive probabilities from counts by division, and check that each word's probabilities sum to one; a sum that doesn't is a bug in the counting. Treat a probability as only as good as the count under it: 0.9 from 1,000 pairs is evidence, while 1.0 from a single pair is an anecdote.
 
@@ -76,7 +86,7 @@ The last line shows the model's real limit. A shopper who types `patio bar` gets
 
 ## Generate names one word at a time {#generate-one-word-at-a-time}
 
-The same probability table can write text as well as complete it. To **generate**, start at `<s>`, draw the next word at random in proportion to its probability, append it, and repeat from the word you drew, until the model draws `</s>`. Drawing at random, rather than always taking the likeliest word, is what lets the model produce varied names instead of the same one every time. The large language models this book builds toward write text the same way: one token at a time, each chosen from probabilities computed from the text so far.
+The same probability table can write text as well as complete it. To **generate from this model**, start at `<s>`, draw the next word at random in proportion to its probability, append it, and repeat from the word you drew, until the model draws `</s>`. Drawing at random, rather than always taking the likeliest word, is what lets the model produce varied names instead of the same one every time. The large language models this book builds toward write text the same way: one token at a time, each chosen from probabilities computed from the text so far.
 
 Six names, drawn from those probabilities by a seeded random generator, come out the same on every run, so the names in this book match what the code produces:
 
@@ -94,7 +104,7 @@ A language model is good when it gives high probability to the text that actuall
 
 Start from one pair. If the model gave the actual next word probability p, its **surprise** at that word is −log p: zero when it was certain (p = 1) and larger the less it expected the word. The **cross-entropy** of a text is the average surprise over every word in it, written with N as the number of predicted words:
 
-cross-entropy = −(1/N) Σ log P(next word | previous word)
+cross-entropy = −(1/N) Σ log P(next word | the words before it)
 
 **Perplexity** is the cross-entropy turned back into a count: perplexity = exp(cross-entropy) ([Jurafsky and Martin, chapter 3](https://web.stanford.edu/~jurafsky/slp3/3.pdf)). It reads as the number of equally likely words the model was choosing between, on average, at each step. A perplexity of 10 means the model was, on average, as uncertain as if it had to pick among 10 equally likely words. Lower is better, and a model that knew every next word would score 1. This book uses natural logarithms throughout, which changes cross-entropy's units but not perplexity.
 

@@ -6,6 +6,9 @@ say = "The code runs the store's model on one product laid out as a request and 
 [examples.dpo-loss-by-hand]
 say = "The code computes the DPO margin and loss by hand for two made-up cases, with beta at {{out:dpo-loss-by-hand:beta}}: one where the tuned model favours the preferred answer more than the reference model does, and one where it favours it less. The loss is lower in the first case."
 
+[examples.figure-dpo-loss-curve]
+say = "The code draws the DPO loss against the margin, from -4 to 4 on both sides of zero, with the two cases marked at their margins. It prints the margin of each case, {{out:figure-dpo-loss-curve:favours preferred more, margin}} and {{out:figure-dpo-loss-curve:favours it less, margin}}, then the loss at a margin of zero, {{out:figure-dpo-loss-curve:loss at a margin of 0}}, and at the two ends, {{out:figure-dpo-loss-curve:loss at a margin of -4}} at -4 and {{out:figure-dpo-loss-curve:loss at a margin of 4}} at 4. It checks that the loss falls everywhere across the range."
+
 [examples.base-and-tuned]
 say = "The code reads the descriptions both models wrote in the recording, prints the base model's and the tuned model's text for the welcome sign, and, over all {{out:base-and-tuned:products described, none of which has a description to draw on}} products, counts the descriptions that name a material the name doesn't, and the share of repeated four-word phrases."
 
@@ -17,6 +20,9 @@ say = "The code reads both models' recorded answers to the material question for
 
 [examples.answer-confidence]
 say = "The code classes the tuned model's answers to the material question, and for the supported and the made-up ones computes the average probability per token. It prints how many answers of each kind there are, their average confidence, and how many of each a threshold of 0.5 per token would keep. It would still keep {{out:answer-confidence:tuned model, made up answers above 0.5 per token}} made-up answers."
+
+[examples.figure-confidence-overlap]
+say = "The code draws each supported and each made-up answer as a dot, at its average probability per token, with the threshold of 0.5 marked. It prints the lowest supported answer, {{out:figure-confidence-overlap:lowest supported answer, average probability per token}}, and the highest made-up answer, {{out:figure-confidence-overlap:highest made-up answer, average probability per token}}, and checks that the two overlap."
 
 [examples.answer-position]
 say = "The code reads the tuned model's recorded answers when the asked product sat first, in the middle or last among {{out:answer-position:product listings in each context}} listings, and counts, for the products whose data names a material, the answers that name only that product's own materials. The middle does worst."

@@ -23,3 +23,6 @@ say = "The code scores the bigram model on the validation names and prints their
 
 [examples.add-one-smoothing]
 say = "The code compares the bigram model's counted probabilities with add-one probabilities, where every count goes up by one and every total by the vocabulary's size. It prints the vocabulary's size, the probability of table after coffee both ways, the training perplexity both ways, and the add-one model's validation perplexity, which is finite: {{out:add-one-smoothing:validation perplexity, add-one}}."
+
+[examples.figure-next-word-distribution]
+say = "The code builds the bigram model from the training names, and draws one chart with two lines, after coffee and after the start marker. Each line adds up the probabilities of the fifteen likeliest words, one more word at a time, so it climbs from the likeliest word's probability toward the share the fifteen hold. It prints the likeliest word and its probability after each context, the share the fifteen hold, and how many different words followed the start marker: {{out:figure-next-word-distribution:words that followed start marker}}."
