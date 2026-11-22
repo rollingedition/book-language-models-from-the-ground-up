@@ -117,6 +117,14 @@ Does a mix beat both ends? Score the validation names with the network's share o
 
 The mix beats both models. With a network share of 0.2, the validation perplexity is {{out:mix-neural-and-counts:validation perplexity, network share 0.2}}, better than the baseline's {{out:mix-neural-and-counts:validation perplexity, network share 0.0}} and far better than the network's {{out:mix-neural-and-counts:validation perplexity, network share 1.0}} alone. The network is worse on average, but where the counts give a token very little probability, the network's share keeps it from being tiny, and that lowers the average surprise.
 
+![The mix scores best at a small network share, stays flat around it, and ends above the dashed counts-alone line](../examples/figures/mixing-curve.svg "Validation perplexity of the mix at each network share from 0 to 1, with the counts alone dashed")
+
+[Example: figure-mixing-curve](../examples/figure-mixing-curve.py)
+
+{{fig:mixing-curve}} draws the same mix at every share from 0 to 1, in steps of {{out:figure-mixing-curve:share step}}. The curve falls, then rises, and its lowest point is at a share of {{out:figure-mixing-curve:lowest validation perplexity share}}.
+
+The dashed line is the counts alone, the baseline above, and the lowest point sits {{out:figure-mixing-curve:gain of the lowest over the counts alone}} below it. The bottom is flat: every share from {{out:figure-mixing-curve:flat bottom, first share within the tolerance}} to {{out:figure-mixing-curve:flat bottom, last share within the tolerance}} scores within {{out:figure-mixing-curve:flat bottom tolerance, a tenth of the gain}} of that lowest perplexity, a tenth of the mix's gain over the counts alone, so the share can move across that range and keep most of the gain.
+
 The kept epoch and the share were both chosen by looking at the validation names, so the gain is slightly optimistic; the book's final comparison, on the test names, will check it. And the mix only helps because the two models' errors differ: if they made the same mistakes, averaging them would gain nothing.
 
 **Working rule:** When a learned model and a counted one are close, try mixing their probabilities before choosing one, and choose the share on held-out text. Keep the share small when one model is much stronger, and confirm the gain on a separate test set before relying on it.

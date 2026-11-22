@@ -60,6 +60,14 @@ The store's model makes this concrete: its [heads](#several-heads) work with que
 
 Without the division, the largest weight grows with the size: {{out:scaling-matters:size 4, unscaled, average largest weight in a row}} with 4 numbers, {{out:scaling-matters:size 32, unscaled, average largest weight in a row}} with 32, the size of the store's model's heads, and {{out:scaling-matters:size 256, unscaled, average largest weight in a row}} with 256. At the larger sizes, each query attends mostly to one key before any training has happened. With the division, the largest weight stays at {{out:scaling-matters:size 256, scaled, average largest weight in a row}} at every size: spread over several keys, though not evenly, since 16 equal weights would be about 0.06 each.
 
+{{fig:scaling-keeps-spread}} draws the same averages at {{out:figure-scaling-keeps-spread:sizes drawn}} sizes, from {{out:figure-scaling-keeps-spread:smallest size drawn}} to {{out:figure-scaling-keeps-spread:largest size drawn}}, with the division and without it. Its points at 4, 32 and 256 are the values printed above, which the example checks. The unscaled line rises at every size, to {{out:figure-scaling-keeps-spread:unscaled, average largest weight at size 512}} at 512.
+
+![The unscaled weight climbs as the vectors grow, while the scaled weight stays in a narrow band](../examples/figures/scaling-keeps-spread.svg "Average largest weight in a row, unscaled and scaled, for queries and keys at each size drawn")
+
+[Example: figure-scaling-keeps-spread](../examples/figure-scaling-keeps-spread.py)
+
+Across all the sizes drawn, the scaled line's averages stay within {{out:figure-scaling-keeps-spread:scaled, lowest average largest weight across sizes}} and {{out:figure-scaling-keeps-spread:scaled, highest average largest weight across sizes}}, a narrow range around the value printed above for 256.
+
 That's the state training should start from. Every position looks at several others, so the gradients reach all of them, and training sharpens the weights where sharp weights help. A trained head can still put most of its weight on one position, as some of the [store's model's heads](#read-trained-heads) do; the scaling only keeps heads from starting there.
 
 **Working rule:** Divide attention scores by the square root of the query's size, as the transformer paper does. A few models, such as T5, leave the division out and fold the factor into how the query weights start instead ([source](https://github.com/huggingface/transformers/blob/v4.46.0/src/transformers/models/t5/modeling_t5.py)), so check which a model does before you load its weights. If you change how queries and keys are computed or initialized, print the average largest weight of an untrained model and expect it to be well below 1.
@@ -117,6 +125,12 @@ Average each head's weight on the previous token over the first 300 validation p
 [Example: previous-token-heads](../examples/previous-token-heads.py)
 
 The head that puts the most weight on the previous token is {{out:previous-token-heads:head with the most weight on the previous token}}, with {{out:previous-token-heads:its weight on the previous token}} on average. An even spread, averaged the same way, would put {{out:previous-token-heads:an even spread's weight on the previous token}} there, so that head favours the previous token about five times over. Several heads in the later layers put a quarter or more of their weight there, and the first layer's heads put much less: in the [trained-attention example](#read-trained-heads), one of them attended mostly to the current token.
+
+{{fig:previous-token-pattern}} shows one short text through two of these heads: the start marker, the name `copper wire basket`, `<sep>` and the first tokens of its description. Layer 4, head 3 puts more weight on the previous token than an even spread would: {{out:figure-previous-token-pattern:layer 4, head 3, average weight on the previous token}} on average, against {{out:figure-previous-token-pattern:an even spread's weight on the previous token}} for an even spread over the same positions. Layer 1, head 1 puts almost none there, averaging {{out:figure-previous-token-pattern:layer 1, head 1, average weight on the previous token}}, and most of its weight on the current token, averaging {{out:figure-previous-token-pattern:layer 1, head 1, average weight on the current token}}. Every weight above the diagonal is zero in both heads. One short text shows the pattern, not its size: the averages over 300 products above are the measure.
+
+![Layer 4, head 3 puts more weight on the previous token than layer 1, head 1, which puts almost none there](../examples/figures/previous-token-pattern.svg "Attention weights of two heads over the start marker, copper wire basket, its separator and the start of its description")
+
+[Example: figure-previous-token-pattern](../examples/figure-previous-token-pattern.py)
 
 No head is purely a previous-token head; each mixes it with other habits. A head's average says what it does most, not all it does, so describing a head as having one job oversimplifies.
 

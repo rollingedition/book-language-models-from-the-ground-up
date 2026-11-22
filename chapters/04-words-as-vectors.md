@@ -72,6 +72,14 @@ Six tokens' four nearest neighbours show what the 64 numbers keep:
 
 Every token now has {{out:svd-neighbours:dimensions per token}} numbers, and its neighbours read like a thesaurus built for a furniture store. `patio` and `outdoor` are each other's nearest neighbour, at a cosine similarity of {{out:svd-neighbours:cosine(patio, outdoor)}}, where their one-hot vectors scored zero. `sofa` sits beside `sectional`, `chaise` and `loveseat`; `oak` beside `walnut` and `espresso`, a wood finish; `blue` beside other colours; and `48` beside other sizes in inches.
 
+{{fig:token-map}} draws a handful of these tokens from each of several kinds of word, chosen by hand: each kind starts from one of the tokens above and adds others of its kind. The first direction splits the groups: the centres of seating and outdoor lie on one side and those of materials and colours on the other. A direction's sign is a convention, so only the split counts: the centre of seating is at {{out:figure-token-map:centre of seating, first direction}}, and that of materials at {{out:figure-token-map:centre of materials, first direction}}.
+
+![The centres of the seating and outdoor groups fall on one side of the first direction, those of materials and colours on the other](../examples/figures/token-map.svg "Each token's vector as a point, on the two directions along which the vectors spread most. Markers show each group.")
+
+[Example: figure-token-map](../examples/figure-token-map.py)
+
+The picture is a partial view. Judged in all {{out:svd-neighbours:dimensions per token}} dimensions, the average cosine similarity between two tokens from the same group is {{out:figure-token-map:mean cosine within a group}}, and between tokens from different groups {{out:figure-token-map:mean cosine between groups}}. The two drawn directions hold {{out:figure-token-map:variance held by the two drawn directions}} of these vectors' variance, the total spread of the vectors around their average, so the picture leaves out the rest; the similarities are the better test.
+
 None of that was taught. The method never saw a definition of `sofa`, a list of colours or a hint that `48` is a number. It found that these tokens appear among the same kinds of neighbours in the store's text, and the SVD put them close together because of it. That's the property [chapter 3](#counting-further-back)'s counts lacked: whatever a model learns about `patio bar stool` can now carry over, through the embeddings, to `outdoor bar stool`.
 
 **Working rule:** Compress PPMI with SVD to between 50 and 300 dimensions, and check the result the way this section does: list a handful of tokens' nearest neighbours and read them. If the neighbours are mostly frequent function words, the reweighting went wrong; if they're unrelated, the window or the vocabulary is too small.

@@ -24,6 +24,9 @@ say = "The code splits the validation tokens by whether their three-token contex
 [examples.mix-neural-and-counts]
 say = "The code mixes the network's and the 4-gram's probabilities for every validation token, at five shares for the network, from none to all of the mix, and prints the validation perplexity of each mix. The lowest comes at a share of 0.2."
 
+[examples.figure-mixing-curve]
+say = "Twenty-one mixes of the two models, from the counts alone to the network alone in steps of a twentieth, are scored on the validation names and drawn as a curve of perplexity against the network's share. It prints the share with the lowest perplexity, {{out:figure-mixing-curve:lowest validation perplexity share}}, the perplexity of the counts alone and of the network alone, and the gain of the lowest over the counts alone. It then prints the first and last shares whose perplexity is within a tenth of that gain of the lowest, and checks that the curve falls and then rises."
+
 [examples.more-text-of-another-kind]
 say = "The code scores two recorded window models on the validation names, one trained on names alone and one on names and descriptions together, counts the training tokens in each kind of text, and prints the second model's validation perplexity after each of its epochs. The model that learned from names alone scores better."
 
