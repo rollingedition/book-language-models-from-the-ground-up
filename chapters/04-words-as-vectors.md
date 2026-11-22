@@ -72,9 +72,9 @@ Six tokens' four nearest neighbours show what the 64 numbers keep:
 
 Every token now has {{out:svd-neighbours:dimensions per token}} numbers, and its neighbours read like a thesaurus built for a furniture store. `patio` and `outdoor` are each other's nearest neighbour, at a cosine similarity of {{out:svd-neighbours:cosine(patio, outdoor)}}, where their one-hot vectors scored zero. `sofa` sits beside `sectional`, `chaise` and `loveseat`; `oak` beside `walnut` and `espresso`, a wood finish; `blue` beside other colours; and `48` beside other sizes in inches.
 
-{{fig:token-map}} draws a handful of these tokens from each of several kinds of word, chosen by hand: each kind starts from one of the tokens above and adds others of its kind. The first direction splits the groups: the centres of seating and outdoor lie on one side and those of materials and colours on the other. A direction's sign is a convention, so only the split counts: the centre of seating is at {{out:figure-token-map:centre of seating, first direction}}, and that of materials at {{out:figure-token-map:centre of materials, first direction}}.
+{{fig:token-map}} draws a handful of these tokens from each of several kinds of word, chosen by hand: each kind starts from one of the tokens above and adds others of its kind. The first of the figure's own directions, not the SVD's, splits the groups: the centres of seating and outdoor lie on one side and those of materials and colours on the other. A direction's sign is a convention, so only the split counts: the centre of seating is at {{out:figure-token-map:centre of seating, first direction}}, and that of materials at {{out:figure-token-map:centre of materials, first direction}}.
 
-![The centres of the seating and outdoor groups fall on one side of the first direction, those of materials and colours on the other](../examples/figures/token-map.svg "Each token's vector as a point, on the two directions along which the vectors spread most. Markers show each group.")
+![The centres of the seating and outdoor groups fall on one side of the figure's first direction, those of materials and colours on the other](../examples/figures/token-map.svg "Each token's vector as a point, on the two directions along which the vectors spread most. Markers show each group.")
 
 [Example: figure-token-map](../examples/figure-token-map.py)
 

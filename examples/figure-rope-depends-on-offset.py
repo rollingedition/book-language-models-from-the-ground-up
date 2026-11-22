@@ -24,7 +24,7 @@ print("smallest offset drawn:", offsets[0])
 print("largest offset drawn:", offsets[-1])
 
 fig, ax = new_figure(height=3.0)
-ax.plot(offsets, lines[2], color=ACCENT, linewidth=4, alpha=0.4, label="key at position 2 (orange band)")  # wide, so the dashed line shows inside it
+ax.plot(offsets, lines[2], color=ACCENT, linewidth=4, alpha=0.4, label="key at position 2 (wide band)")  # wide, so the dashed line shows inside it
 ax.plot(offsets, lines[12], color=INK, linestyle="--", marker="s", markersize=2.5, label="key at position 12 (dashed)")
 ax.set(xlabel="offset from the key to the query, in positions", ylabel="scaled score of the query and key")
 ax.set_ylim(-2.0, 1.5)                                        # room under the lowest score, clear of the legend

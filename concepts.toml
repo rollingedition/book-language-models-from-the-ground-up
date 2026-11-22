@@ -590,7 +590,7 @@ same-as = ["https://rollingedition.com/concepts/large-language-models/parameter"
 [[concepts]]
 id = "loss"
 term = "loss"
-definition = "To measure how badly a model predicts, use a loss, here the cross-entropy: L = −log P(next token), the negative log probability the model gave to the token that actually came next, the same surprise chapter 1 averaged into perplexity."
+definition = "To measure how badly a model predicts, use a loss, here the surprise whose average is chapter 1's cross-entropy: L = −log P(next token), the negative log probability the model gave to the token that actually came next, the same surprise chapter 1 averaged into perplexity."
 formula = "L = −log P(next token)"
 section = "compute-gradients"
 context = "deep-learning"
@@ -663,7 +663,7 @@ broader = ["gradient-descent"]
 [[concepts]]
 id = "overfitting"
 term = "overfitting"
-definition = "A validation perplexity that turns up while training perplexity keeps falling is the sign of overfitting"
+definition = "A validation perplexity that turns up while training perplexity keeps falling is the sign of overfitting: the model fits its training text, noise included, so closely that it does worse on new text."
 section = "stop-at-the-best-epoch"
 context = "artificial-intelligence"
 example = "training-curve"
@@ -675,7 +675,7 @@ measured-from = ["perplexity"]
 [[concepts]]
 id = "early-stopping"
 term = "early stopping"
-definition = "the simplest defence is early stopping: measure validation loss after every epoch, one full pass over the training text, and keep the weights from the best epoch."
+definition = "The simplest defence is early stopping: measure validation loss after every epoch, one full pass over the training text, and keep the weights from the best epoch."
 section = "stop-at-the-best-epoch"
 context = "deep-learning"
 example = "training-curve"

@@ -447,25 +447,25 @@ L 457.79976 181.998979
    </g>
    <g id="legend_1">
     <g id="line2d_31">
-     <path d="M 263.220072 152.095854 
-L 273.220072 152.095854 
-L 283.220072 152.095854 
+     <path d="M 274.959135 152.095854 
+L 284.959135 152.095854 
+L 294.959135 152.095854 
 " style="fill: none; stroke: #9a4a06; stroke-opacity: 0.4; stroke-width: 4; stroke-linecap: square"/>
     </g>
     <g id="text_17">
-     <text style="font-size: 10px; font-family: 'IBM Plex Sans', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #1b1712" x="291.220072" y="155.595854" transform="rotate(-0 291.220072 155.595854)">key at position 2 (orange band)</text>
+     <text style="font-size: 10px; font-family: 'IBM Plex Sans', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #1b1712" x="302.959135" y="155.595854" transform="rotate(-0 302.959135 155.595854)">key at position 2 (wide band)</text>
     </g>
     <g id="line2d_32">
-     <path d="M 263.220072 167.096635 
-L 273.220072 167.096635 
-L 283.220072 167.096635 
+     <path d="M 274.959135 167.096635 
+L 284.959135 167.096635 
+L 294.959135 167.096635 
 " style="fill: none; stroke-dasharray: 5.18,2.24; stroke-dashoffset: 0; stroke: #1b1712; stroke-width: 1.4"/>
      <g>
-      <use xlink:href="#mefb6f7da61" x="273.220072" y="167.096635" style="fill: #1b1712; stroke: #1b1712; stroke-linejoin: miter"/>
+      <use xlink:href="#mefb6f7da61" x="284.959135" y="167.096635" style="fill: #1b1712; stroke: #1b1712; stroke-linejoin: miter"/>
      </g>
     </g>
     <g id="text_18">
-     <text style="font-size: 10px; font-family: 'IBM Plex Sans', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #1b1712" x="291.220072" y="170.596635" transform="rotate(-0 291.220072 170.596635)">key at position 12 (dashed)</text>
+     <text style="font-size: 10px; font-family: 'IBM Plex Sans', 'DejaVu Sans', sans-serif; text-anchor: start; fill: #1b1712" x="302.959135" y="170.596635" transform="rotate(-0 302.959135 170.596635)">key at position 12 (dashed)</text>
     </g>
    </g>
   </g>
