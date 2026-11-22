@@ -85,6 +85,12 @@ Rotate a random query and key of {{out:trained-attention:dimensions per head}} n
 
 Pairs the same distance apart score the same, wherever they sit. The key at position 2 and the query at 5 score {{out:rope-by-hand:score with the key at 2 and the query at 5}}, and the key at 12 and the query at 15 score {{out:rope-by-hand:score with the key at 12 and the query at 15}}, the same, because both pairs are 3 apart. The key at 2 and the query at 8, 6 apart, score {{out:rope-by-hand:score with the key at 2 and the query at 8}}: the same query and key, scored differently because they're further apart. The rotation keeps both vectors' lengths, which the example asserts.
 
+{{fig:rope-depends-on-offset}} plots the scaled score of that query and key against the offset between them, at every offset from {{out:figure-rope-depends-on-offset:smallest offset drawn}} to {{out:figure-rope-depends-on-offset:largest offset drawn}}, for a key at position 2 (the wide band) and a key at position 12 (the dashed line). The two lines lie on top of each other, which the example asserts: at every offset drawn, the score depends only on the offset, not on where the key sits. The pairs above are points at offsets 3 and 6 on this line.
+
+![The score of one query and key follows the offset between them, so the two keys' lines lie on top of each other](../examples/figures/rope-depends-on-offset.svg "Scaled score of one random query and key against the offset between them, for keys at two positions")
+
+[Example: figure-rope-depends-on-offset](../examples/figure-rope-depends-on-offset.py)
+
 RoPE has no learned parameters: the angles are fixed, and the model learns queries and keys that use them. The store's model applies it to the queries and keys of every head in every layer, which gives [chapter 6's](#attend-to-the-previous-token) previous-token heads a direct way to find the previous token, alongside the weak signal the mask provides.
 
 **Working rule:** Use rotary position embeddings, applied to queries and keys, never values. When you load another model's weights, check how its RoPE pairs the numbers and what base it uses. Some implementations pair neighbouring numbers; others pair the first half with the second, as `lib.transformer.rope` does and as SmolLM2's configuration states with `"rope_interleaved": false`. SmolLM2 uses a base of 100,000 where the store's model uses 10,000.

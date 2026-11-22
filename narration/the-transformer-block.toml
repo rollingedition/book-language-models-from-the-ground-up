@@ -12,6 +12,9 @@ say = "The code computes SiLU at −3, 0 and 3. Then it runs the first block's f
 [examples.rope-by-hand]
 say = "The code rotates one random 32-number query and key for every position from 0 to 19, checks that the rotation keeps both lengths, and prints the scaled score for the key at 2 and the query at 5, at 12 and 15, and at 2 and 8. The first two pairs, both 3 apart, get the same score."
 
+[examples.figure-rope-depends-on-offset]
+say = "The code takes the same random query and key and scores them at every offset from {{out:figure-rope-depends-on-offset:smallest offset drawn}} to {{out:figure-rope-depends-on-offset:largest offset drawn}}, once with the key at position 2 and once with the key at 12, and draws both lines. It asserts that the two lines are one line, and that its scores at offsets 3 and 6 for the key at 2 match rope-by-hand's."
+
 [examples.transformer-same-as-pytorch]
 say = "The code recomputes the store's model's logits in NumPy for every position of the validation product the training script saved, compares them with PyTorch's own, checks that all of them match to four decimal places, and prints the PyTorch version and how many positions and logits it compared."
 

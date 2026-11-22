@@ -67,6 +67,12 @@ Whether the schedule matches the run's is checkable: compute it by hand from the
 
 The hand calculation matches every saved step size. The step size starts at {{out:learning-rate-schedule:step size at step 0}}, peaks at {{out:learning-rate-schedule:step size at step 200}} at the warm-up's end, and is {{out:learning-rate-schedule:step size at step 17,135}} at the last step, a tenth of that peak.
 
+{{fig:learning-rate-schedule}} draws that schedule at every step of the run, with the saved step sizes over it. The top panel shows the whole run, where the warm-up is a sliver at the left edge; the bottom panel zooms in on it. The warm-up is {{out:figure-learning-rate-schedule:share of the run spent warming up}} of the run. The decay fills the rest of the run: the step size first falls to half its peak at step {{out:figure-learning-rate-schedule:first step at or below half the peak}}, and from there to the last step it never rises, staying at or below half the peak for the last {{out:figure-learning-rate-schedule:share of the run from that step to the last}} of the run.
+
+![The step size rises in a straight line to its peak, then falls along a curve that stays below half the peak for the last part of the run](../examples/figures/learning-rate-schedule.svg "The step size at every step of the run, with the saved step sizes over it and the warm-up zoomed in below")
+
+[Example: figure-learning-rate-schedule](../examples/figure-learning-rate-schedule.py)
+
 The decay matters. The comparison run trained for four epochs at the same width, with the same seed and the same batches, so its schedule finished its decay at step {{out:width-data-and-steps:width 128, 4 epochs, steps}}, and at that step it scored {{out:width-data-and-steps:width 128, 4 epochs, perplexity on names}} on the validation names. The recorded run was still near its peak step size at that step, and scored {{out:transformer-training-curve:validation perplexity on names, epoch 4}}. Same data, same steps: the difference is the decay.
 
 **Working rule:** Warm the step size up over the first few hundred steps, then decay it, and match the schedule's length to the run's. Save the step size as training runs, as the training script does, and check it against the schedule you meant: a schedule bug looks like a training problem, and is far easier to find this way.
